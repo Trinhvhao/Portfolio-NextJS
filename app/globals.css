@@ -1,0 +1,176 @@
+@import "tailwindcss" source(none);
+@import "devicon/devicon.min.css";
+@source "../app/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+
+:root {
+  color-scheme: dark;
+  --font-outfit: "Outfit", "Outfit Fallback", "Segoe UI", sans-serif;
+  --font-instrument-serif: "Instrument Serif", "Instrument Serif Fallback", "Times New Roman", serif;
+  --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-outfit);
+  background: #000;
+  color: #f4f4f5;
+}
+
+::selection {
+  background: #ffffff;
+  color: #111111;
+}
+
+::-moz-selection {
+  background: #ffffff;
+  color: #111111;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 80s) linear infinite;
+}
+
+@keyframes work-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-work-panel-in {
+  animation: work-panel-in 220ms ease-out;
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0;
+  }
+  50% {
+    background-position: 100%;
+  }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: 6s infinite gradient-x;
+}
+
+.text-colorfull {
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(288deg, #ff8000, #ff00cc 53.2394%, #0044ff);
+  -webkit-background-clip: text;
+  text-shadow: none;
+}
+
+@keyframes text-reveal-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.text-reveal-left {
+  display: inline-block;
+  animation: text-reveal-left 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity, clip-path;
+}
+
+@keyframes route-typewriter-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.route-typewriter {
+  display: inline-block;
+  white-space: pre;
+  clip-path: inset(0 100% 0 0);
+  animation-name: route-typewriter-reveal;
+  animation-duration: var(--type-duration, 560ms);
+  animation-delay: var(--type-delay, 0s);
+  animation-timing-function: steps(var(--type-steps, 12), end);
+  animation-fill-mode: both;
+}
+
+.route-typewriter--paused {
+  animation: none;
+  clip-path: inset(0 100% 0 0);
+}
+
+@keyframes contact-call-ring {
+  0%,
+  48%,
+  100% {
+    transform: rotate(0deg);
+  }
+  8% {
+    transform: rotate(16deg);
+  }
+  16% {
+    transform: rotate(-14deg);
+  }
+  24% {
+    transform: rotate(10deg);
+  }
+  32% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+}
+
+.contact-call-ring {
+  transform-origin: 72% 72%;
+  animation: contact-call-ring 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-typewriter,
+  .text-reveal-left {
+    animation: none;
+    clip-path: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .contact-call-ring {
+    animation: none;
+  }
+}
+
+.halftone {
+  position: relative;
+  transition: mask-size 0.3s;
+  mask-image: radial-gradient(circle, transparent 50%, black 0);
+  mask-position: center;
+  mask-size: 4px 4px;
+}

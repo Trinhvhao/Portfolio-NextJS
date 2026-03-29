@@ -1,0 +1,77 @@
+---
+title: Next Venture
+description: A full-stack startup pitch platform built using cutting-edge Next.js 15 features, Sanity CMS, and a sleek UI/UX experience.
+type: Web App
+role: Full-stack Developer
+built: Q1 2025
+updated: Q1 2025
+heroImage: /projects-images/next-venture/screen1.jpeg
+visitLabel: ab-next-venture.vercel.app
+visitHref: https://ab-next-venture.vercel.app
+sourceLabel: GitHub
+sourceHref: https://github.com/aayushbharti/next-venture
+stack:
+  - Next.js
+  - React
+  - Sanity CMS
+  - TypeScript
+  - Better Auth
+  - GROQ
+  - Sentry
+  - Markdown
+  - Tailwind CSS
+  - Motion.dev
+---
+
+## Why I Built This
+
+I wanted a project that would push me into the bleeding edge of Next.js 15: Partial Prerendering, Server Actions, and the `after()` API. Reading docs and RFCs is useful, but I needed a real app with real data flows to understand how these features behave in production.
+
+A startup pitch platform was the right shape for the problem: authenticated users creating content, a public feed with filtering and search, and a CMS backend for structured data. Complex enough to exercise every new feature, simple enough to ship as a solo developer.
+
+## How It Works
+
+Founders sign in with GitHub OAuth and submit their startup pitch: title, description, category, and optional media. Pitches are stored in **Sanity CMS**, which provides a headless content layer with real-time previews and GROQ-powered queries.
+
+The public feed renders with **Partial Prerendering**: the shell is static HTML served from the edge, while dynamic content (user-specific data, view counts) streams in via Server Components. This gives visitors a near-instant first paint without sacrificing personalization.
+
+Authentication is handled by **Auth.js** with GitHub OAuth. Session tokens are managed server-side, and protected routes use middleware-level checks so unauthorized requests never reach the page component.
+
+![Next Venture feed page](/projects-images/next-venture/screen1.jpeg)
+
+<div className="not-prose grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+  <img
+    src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=1000&fit=crop"
+    alt="Startup pitch submission"
+    className="h-full w-full rounded-2xl object-cover ring-1"
+    loading="lazy"
+  />
+  <img
+    src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=1000&fit=crop"
+    alt="Public feed browsing"
+    className="h-full w-full rounded-2xl object-cover ring-1"
+    loading="lazy"
+  />
+</div>
+
+## Key Decisions
+
+### Sanity CMS over a custom database
+
+For a content-heavy app with structured data, Sanity was a better fit than rolling a custom Prisma + PostgreSQL layer. GROQ queries are expressive, the Studio provides a visual editor for content, and real-time listeners let the feed update the moment a pitch is published.
+
+### Partial Prerendering for the feed
+
+The pitch feed is the highest-traffic page. With PPR, layout and navigation render as static HTML at the edge, while the actual pitch list streams in as a Server Component. Users see content faster than traditional SSR, and I avoid the staleness problem of full static generation.
+
+### Server Actions for mutations
+
+Creating and editing pitches uses Server Actions instead of API routes. This keeps data flow colocated with the UI component, reduces client-side fetch boilerplate, and gives progressive enhancement by default.
+
+## What I Learned
+
+**Bleeding-edge features require patience.** Next.js 15 experimental APIs had sparse documentation and occasional breaking changes. I spent time reading source code and GitHub discussions to understand edge cases that no tutorial covered.
+
+**GROQ is powerful but has a learning curve.** Coming from SQL, GROQ's pipeline-style syntax felt unfamiliar at first. Once I understood projections and joins, I could write queries that would have been multi-step operations in a relational database.
+
+**Design systems compound.** Using Shadcn UI + Tailwind + Motion.dev together forced me to think about component composition and animation hierarchy. The upfront investment in a consistent design language paid off every time I added a new page.
