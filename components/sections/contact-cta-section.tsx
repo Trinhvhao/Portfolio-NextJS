@@ -65,7 +65,16 @@ export function ContactCtaSection() {
         <OpenToWorkSpinner />
 
         <div className="relative">
-          <Image alt="wings" aria-hidden className="select-none opacity-70" draggable={false} height={116} src="/images/wings.svg" width={320} />
+          <Image
+            alt="wings"
+            aria-hidden
+            className="select-none opacity-70"
+            draggable={false}
+            height={116}
+            src="/images/wings.svg"
+            style={{ height: "auto" }}
+            width={320}
+          />
           <svg className="absolute top-1/2 left-1/2 z-10 w-8 -translate-x-1/2 -translate-y-1/2 md:w-10" viewBox="0 0 5350 5350" xmlns="http://www.w3.org/2000/svg" aria-hidden>
             <path
               className="fill-white"

@@ -156,7 +156,6 @@ export function AboutIntroSection() {
                       loading="lazy"
                       sizes="(max-width: 768px) 220px, 300px"
                       src={card.src}
-                      srcSet={card.srcSet || undefined}
                       style={{
                         position: "absolute",
                         height: "100%",
