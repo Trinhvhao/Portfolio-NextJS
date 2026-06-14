@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { blogPosts, blogTags } from "@/lib/blog-data";
 
@@ -28,7 +29,8 @@ function RssIcon() {
 }
 
 export function BlogContent() {
-  const [activeTag, setActiveTag] = useState<string>(ALL_POSTS);
+  const t = useTranslations("blog");
+  const [activeTag, setActiveTag] = useState<string>(t("allPosts"));
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -51,7 +53,7 @@ export function BlogContent() {
     const normalizedQuery = query.trim().toLowerCase();
 
     return blogPosts.filter((post) => {
-      const matchesTag = activeTag === ALL_POSTS || post.tags.includes(activeTag);
+      const matchesTag = activeTag === t("allPosts") || post.tags.includes(activeTag);
       if (!matchesTag) {
         return false;
       }
@@ -63,7 +65,7 @@ export function BlogContent() {
       const searchable = `${post.title} ${post.excerpt} ${post.tags.join(" ")}`.toLowerCase();
       return searchable.includes(normalizedQuery);
     });
-  }, [activeTag, query]);
+  }, [activeTag, query, t]);
 
   return (
     <section className="flex flex-col">
@@ -72,14 +74,14 @@ export function BlogContent() {
           <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition-colors duration-200 ${
-                activeTag === ALL_POSTS
+                activeTag === t("allPosts")
                   ? "border border-neutral-300 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                   : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300"
               }`}
               type="button"
-              onClick={() => setActiveTag(ALL_POSTS)}
+              onClick={() => setActiveTag(t("allPosts"))}
             >
-              {ALL_POSTS}
+              {t("allPosts")}
             </button>
 
             {blogTags.map((tag) => (
@@ -107,8 +109,8 @@ export function BlogContent() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
-              placeholder="Search posts"
-              aria-label="Search posts"
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchAriaLabel")}
             />
             <span className="ms-auto hidden gap-0.5 text-[11px] lg:inline-flex">
               <kbd className="rounded border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">⌘</kbd>
@@ -117,7 +119,7 @@ export function BlogContent() {
           </label>
 
           <a
-            aria-label="RSS Feed"
+            aria-label={t("rssFeed")}
             className="inline-flex size-9 items-center justify-center rounded-lg border bg-transparent text-neutral-400 transition-colors hover:border-neutral-400 hover:text-neutral-600 dark:border-neutral-800 dark:hover:border-neutral-600 dark:hover:text-neutral-300"
             href="/legacy-clone/assets/documents/blog/rss.xml"
             rel="noopener noreferrer"
@@ -159,7 +161,7 @@ export function BlogContent() {
                 <div className="mt-auto pt-5 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                   <time dateTime={post.dateISO}>{post.dateLabel}</time>
                   <span className="mx-1.5">·</span>
-                  <span>{post.readMinutes} min read</span>
+                  <span>{post.readMinutes} {t("minRead")}</span>
                 </div>
               </div>
             </Link>
@@ -167,7 +169,7 @@ export function BlogContent() {
         </div>
 
         {filteredPosts.length === 0 && (
-          <div className="py-16 text-center text-sm text-neutral-500 dark:text-neutral-400">No posts found for your current filter.</div>
+          <div className="py-16 text-center text-sm text-neutral-500 dark:text-neutral-400">{t("noPostsFound")}</div>
         )}
       </div>
     </section>

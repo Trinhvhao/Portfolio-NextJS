@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -45,11 +46,18 @@ function TechBadge({ tag, keyId }: { tag: string; keyId: string }) {
   );
 }
 
-function ViewDetailsSpinner({ curveId }: { curveId: string }) {
+interface ViewDetailsSpinnerProps {
+  curveId: string;
+}
+
+function ViewDetailsSpinner({ curveId }: ViewDetailsSpinnerProps) {
   return (
-    <div className="relative rounded-full">
+    <div
+      className="vd-spinner relative rounded-full"
+      style={{ width: 90, height: 90 }}
+    >
       <div
-        className="relative size-[90px] rounded-full border border-white/22 backdrop-blur-[2px]"
+        className="relative size-full rounded-full border border-white/22 backdrop-blur-[2px]"
         style={{
           background:
             "radial-gradient(circle at 30% 26%, rgba(255,255,255,0.2) 0%, rgba(168,168,168,0.2) 34%, rgba(46,46,46,0.74) 74%, rgba(20,20,20,0.86) 100%)",
@@ -109,149 +117,313 @@ function ViewDetailsSpinner({ curveId }: { curveId: string }) {
   );
 }
 
-export function WorkSection() {
+interface ProjectCardProps {
+  item: (typeof workItems)[0];
+  index: number;
+  prefix: string;
+  isMobile?: boolean;
+}
+
+function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps) {
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorFrameRef = useRef<number | null>(null);
+  const spinnerMountedRef = useRef(false);
+  const [spinnerMounted, setSpinnerMounted] = useState(false);
+
+  const updateCursor = useCallback((x: number, y: number) => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+    cursor.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+  }, []);
+
+  const setCursorVisible = useCallback((visible: boolean) => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+    if (visible) {
+      if (!spinnerMountedRef.current) {
+        spinnerMountedRef.current = true;
+        setSpinnerMounted(true);
+      }
+      cursor.dataset.visible = "true";
+    } else {
+      cursor.dataset.visible = "false";
+    }
+  }, []);
+
+  const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
+    updateCursor(e.clientX - rect.left, e.clientY - rect.top);
+    setCursorVisible(true);
+  }, [updateCursor, setCursorVisible]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const element = e.currentTarget;
+    if (cursorFrameRef.current !== null) return;
+    cursorFrameRef.current = requestAnimationFrame(() => {
+      cursorFrameRef.current = null;
+      const rect = element.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+      updateCursor(x, y);
+    });
+  }, [updateCursor]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (cursorFrameRef.current !== null) {
+      cancelAnimationFrame(cursorFrameRef.current);
+      cursorFrameRef.current = null;
+    }
+    setCursorVisible(false);
+  }, [setCursorVisible]);
+
+  useEffect(() => {
+    return () => {
+      if (cursorFrameRef.current !== null) {
+        cancelAnimationFrame(cursorFrameRef.current);
+      }
+    };
+  }, []);
+
+  if (isMobile) {
+    return (
+      <article key={item.id} className="group flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.index}</span>
+              <div className="h-px w-8 bg-neutral-200 dark:bg-neutral-800" />
+              <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.type}</span>
+            </div>
+            <Link href={item.href} className="flex items-center gap-2">
+              <h3 className="font-instrument-serif text-3xl leading-tight font-bold text-neutral-900 dark:text-white">{item.title}</h3>
+            </Link>
+          </div>
+          <span className="inline-flex shrink-0 items-center rounded-full border border-white/[0.14] bg-neutral-900 px-3 py-1 font-mono text-[10px] text-neutral-400">
+            {item.period}
+          </span>
+        </div>
+
+        <Link
+          ref={cardRef}
+          href={item.href}
+          aria-label={`View details of ${item.title}`}
+          className="group relative block aspect-[16/11] w-full overflow-hidden rounded-2xl bg-[#f2f2f20c] p-1 shadow-border transition-transform duration-300 ease-in-out hover:-translate-y-2 lg:rounded-3xl lg:p-2"
+          onMouseEnter={handleMouseEnter}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-xl bg-black/70 ring-1 ring-white/12 lg:rounded-2xl">
+            <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
+            <div className="relative z-10 flex items-start justify-between gap-8 px-4 py-4 text-white/80 lg:px-5 lg:py-5">
+              <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base">{item.description}</p>
+              <span className="hidden shrink-0 text-lg transition-transform duration-500 ease-out group-hover:translate-x-1 sm:block">→</span>
+            </div>
+            <div className="relative z-10 px-4 pb-4 lg:px-5 lg:pb-5">
+              {item.image ? (
+                <div className="relative h-48 w-full overflow-hidden rounded-xl shadow-2xl">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    priority={index === 0}
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  />
+                  {item.secondaryImage && item.secondaryImage !== item.image ? (
+                    <Image
+                      src={item.secondaryImage}
+                      alt={`${item.title} preview`}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      className="pointer-events-none object-cover opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-6 translate-y-10 scale-75 rotate-6 group-hover:translate-x-3 group-hover:translate-y-0 group-hover:scale-[0.92] group-hover:rotate-2 group-hover:opacity-100"
+                    />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="flex h-48 w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
+                  Finote App
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div
+            ref={cursorRef}
+            data-visible="false"
+            className="vd-spinner pointer-events-none absolute top-0 left-0 z-20"
+            style={{
+              transform: "translate3d(-9999px, -9999px, 0) translate(-50%, -50%)",
+            }}
+          >
+            {spinnerMounted ? <ViewDetailsSpinner curveId={`work-${prefix}-curve-${item.id}`} /> : null}
+          </div>
+        </Link>
+
+        <ul className="mt-1 flex flex-col gap-y-2 text-sm text-primary/90">
+          {(item.highlights ?? []).map((point) => (
+            <li key={`${item.id}-${point}`} className="flex items-start">
+              <svg className="me-1.5 mt-[2px] size-5 shrink-0" style={{ fill: item.accentColor, color: item.accentColor }} height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1C12 1 12 8 10 10C8 12 1 12 1 12C1 12 8 12 10 14C12 16 12 23 12 23C12 23 12 16 14 14C16 12 23 12 23 12C23 12 16 12 14 10C12 8 12 1 12 1Z" />
+              </svg>
+              {point}
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-wrap gap-2">
+          {(item.tags ?? []).map((tag) => (
+            <TechBadge key={`${item.id}-${tag}`} keyId={`${item.id}-${tag}`} tag={tag} />
+          ))}
+        </div>
+      </article>
+    );
+  }
+
+  // Desktop card
+  return (
+    <article
+      key={`desktop-${item.id}`}
+      aria-label={`Project ${item.title}`}
+      data-work-id={item.id}
+      className="group relative flex w-full flex-col gap-6 will-change-transform"
+    >
+      <div className="relative w-full transition-transform duration-500 group-hover:-translate-y-2">
+        <Link
+          ref={cardRef}
+          href={item.href}
+          aria-label={`View details of ${item.title}`}
+          className="group relative block aspect-[16/11] w-full overflow-hidden rounded-3xl bg-[#f2f2f20c] p-2 shadow-border transition-[transform,box-shadow] duration-500 hover:shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
+          onMouseEnter={handleMouseEnter}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="relative flex size-full flex-col overflow-hidden rounded-2xl bg-black/70 ring-1 ring-white/12">
+            <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
+            <div className="relative z-10 flex items-start justify-between gap-8 px-8 pt-8 pb-6 lg:px-10 lg:pt-10 lg:pb-8 text-white/90">
+              <p className="text-2xl font-medium leading-snug transition-transform duration-500 ease-out group-hover:-translate-y-1">{item.description}</p>
+              <span className="shrink-0 pt-1 text-2xl transition-transform duration-500 ease-out group-hover:translate-x-1.5">→</span>
+            </div>
+            <div className="relative z-10 mt-auto flex-1 w-full px-8 min-h-0 lg:px-10">
+              {item.image ? (
+                <div className="relative size-full overflow-hidden rounded-t-xl rounded-b-none shadow-2xl">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    priority={index === 0}
+                    sizes="60vw"
+                    className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  />
+                  {item.secondaryImage && item.secondaryImage !== item.image ? (
+                    <Image
+                      src={item.secondaryImage}
+                      alt={`${item.title} secondary preview`}
+                      fill
+                      sizes="60vw"
+                      className="pointer-events-none object-cover object-top opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-8 translate-y-10 scale-75 rotate-6 group-hover:translate-x-4 group-hover:translate-y-0 group-hover:scale-[0.94] group-hover:rotate-3 group-hover:opacity-100"
+                    />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="flex size-full w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
+                  Finote App
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div
+            ref={cursorRef}
+            data-visible="false"
+            className="vd-spinner pointer-events-none absolute top-0 left-0 z-20"
+            style={{
+              transform: "translate3d(-9999px, -9999px, 0) translate(-50%, -50%)",
+            }}
+          >
+            {spinnerMounted ? <ViewDetailsSpinner curveId={`work-${prefix}-curve-${item.id}`} /> : null}
+          </div>
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+interface WorkSectionProps {
+  limit?: number;
+}
+
+export function WorkSection({ limit }: WorkSectionProps) {
+  const t = useTranslations("work");
   const [activeId, setActiveId] = useState(workItems[0]?.id ?? "");
-  const [hoveredOverlayId, setHoveredOverlayId] = useState<string | null>(null);
-  const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const activeIdRef = useRef(activeId);
   const frameRef = useRef<number | null>(null);
-  const pointerFrameRef = useRef<number | null>(null);
-  const pendingPointerRef = useRef<{ element: HTMLElement; clientX: number; clientY: number } | null>(null);
-  const hoveredCardRef = useRef<HTMLElement | null>(null);
-  const lastPointerRef = useRef<{ clientX: number; clientY: number } | null>(null);
+
+  // Limit items for home page
+  const displayItems = limit ? workItems.slice(0, limit) : workItems;
 
   useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
 
   useEffect(() => {
-    const scheduleActiveIdUpdate = (nextId: string) => {
-      if (!nextId || activeIdRef.current === nextId) {
-        return;
+    const container = document.getElementById("work");
+    if (!container) return;
+
+    const desktopColumn = container.querySelector<HTMLElement>("[data-work-column='desktop']");
+    if (!desktopColumn) return;
+
+    const cards = Array.from(
+      desktopColumn.querySelectorAll<HTMLElement>("[data-work-id]")
+    );
+    if (cards.length === 0) return;
+
+    const update = () => {
+      const viewportHeight = window.innerHeight;
+      const focalY = viewportHeight * 0.4; // 40% from top of viewport
+      let bestId: string | null = null;
+      let bestDistance = Infinity;
+
+      for (const card of cards) {
+        const rect = card.getBoundingClientRect();
+        // Distance from card center to focalY
+        const cardCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(cardCenter - focalY);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestId = card.dataset.workId ?? null;
+        }
       }
+
+      if (!bestId || activeIdRef.current === bestId) return;
 
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
 
       frameRef.current = requestAnimationFrame(() => {
-        activeIdRef.current = nextId;
-        setActiveId(nextId);
+        if (activeIdRef.current === bestId) return;
+        activeIdRef.current = bestId;
+        setActiveId(bestId);
       });
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const maxVisibleEntry = entries.reduce<IntersectionObserverEntry | null>((bestEntry, entry) => {
-          if (!entry.isIntersecting) {
-            return bestEntry;
-          }
-
-          if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
-            return entry;
-          }
-
-          return bestEntry;
-        }, null);
-
-        if (maxVisibleEntry) {
-          const nextId = (maxVisibleEntry.target as HTMLElement).dataset.workId;
-          if (nextId) {
-            scheduleActiveIdUpdate(nextId);
-          }
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-30% 0px -42% 0px",
-        threshold: [0.32, 0.5, 0.7],
-      }
-    );
-
-    Object.values(itemRefs.current).forEach((node) => {
-      if (node) observer.observe(node);
-    });
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
       }
     };
   }, []);
 
-  const activeItem = workItems.find((item) => item.id === activeId) ?? workItems[0];
-
-  const setCardCursorPosition = (element: HTMLElement, clientX: number, clientY: number) => {
-    const rect = element.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    const y = Math.max(0, Math.min(clientY - rect.top, rect.height));
-
-    element.style.setProperty("--cursor-x", `${x}px`);
-    element.style.setProperty("--cursor-y", `${y}px`);
-  };
-
-  const scheduleCardCursorPosition = (element: HTMLElement, clientX: number, clientY: number) => {
-    pendingPointerRef.current = { element, clientX, clientY };
-
-    if (pointerFrameRef.current) {
-      return;
-    }
-
-    pointerFrameRef.current = requestAnimationFrame(() => {
-      const pending = pendingPointerRef.current;
-      pointerFrameRef.current = null;
-
-      if (!pending) {
-        return;
-      }
-
-      setCardCursorPosition(pending.element, pending.clientX, pending.clientY);
-    });
-  };
-
-  const resetCardCursorPosition = (element: HTMLElement) => {
-    const rect = element.getBoundingClientRect();
-    element.style.setProperty("--cursor-x", `${Math.round(rect.width / 2)}px`);
-    element.style.setProperty("--cursor-y", `${Math.round(rect.height / 2)}px`);
-  };
-
-  const primeCardCursorPosition = (element: HTMLElement, clientX: number, clientY: number) => {
-    hoveredCardRef.current = element;
-    lastPointerRef.current = { clientX, clientY };
-    setCardCursorPosition(element, clientX, clientY);
-  };
-
-  const clearCardCursorPosition = (element: HTMLElement) => {
-    hoveredCardRef.current = null;
-    lastPointerRef.current = null;
-    // Preserve last tracked position so the overlay does not jump before unmount.
-  };
-
-  useEffect(() => {
-    const resyncOnViewportChange = () => {
-      const hoveredCard = hoveredCardRef.current;
-      const lastPointer = lastPointerRef.current;
-
-      if (!hoveredCard || !lastPointer) {
-        return;
-      }
-
-      scheduleCardCursorPosition(hoveredCard, lastPointer.clientX, lastPointer.clientY);
-    };
-
-    window.addEventListener("scroll", resyncOnViewportChange, { passive: true, capture: true });
-    window.addEventListener("resize", resyncOnViewportChange, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", resyncOnViewportChange, { capture: true });
-      window.removeEventListener("resize", resyncOnViewportChange);
-
-      if (pointerFrameRef.current) {
-        cancelAnimationFrame(pointerFrameRef.current);
-      }
-    };
-  }, []);
+  const activeItem = displayItems.find((item) => item.id === activeId) ?? displayItems[0];
 
   return (
     <section id="work" className="container relative mx-auto w-full py-pagebuilder">
@@ -259,204 +431,37 @@ export function WorkSection() {
         className="relative z-2 mb-20 text-center text-5xl font-medium tracking-tight sm:text-5xl md:mb-24 md:text-6xl"
         style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
       >
-        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">CASE STUDIES</p>
+        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("caseStudies")}</p>
         <span className="font-instrument-serif">
-          <span>Curated </span>
+          <span>{t("title")} </span>
           <TypedRouteText text="work" triggerOnView className="animate-gradient-x text-reveal-left pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
         </span>
       </h2>
 
       <div className="flex flex-col gap-20 pb-20 lg:hidden">
-        {workItems.map((item, index) => (
-            <article key={item.id} className="group flex flex-col gap-6">
-            {(() => {
-              const overlayId = `mobile-${item.id}`;
-              return (
-                <>
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.index}</span>
-                  <div className="h-px w-8 bg-neutral-200 dark:bg-neutral-800" />
-                  <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.type}</span>
-                </div>
-                <Link href={item.href} className="flex items-center gap-2">
-                  <h3 className="font-instrument-serif text-3xl leading-tight font-bold text-neutral-900 dark:text-white">{item.title}</h3>
-                </Link>
-              </div>
-              <span className="inline-flex shrink-0 items-center rounded-full border border-white/[0.14] bg-neutral-900 px-3 py-1 font-mono text-[10px] text-neutral-400">
-                {item.period}
-              </span>
-            </div>
-
-            <Link
-              href={item.href}
-              aria-label={`View details of ${item.title}`}
-              className="group relative block aspect-[16/11] w-full overflow-hidden rounded-2xl bg-[#f2f2f20c] p-1 shadow-border transition-transform duration-300 ease-in-out hover:-translate-y-2 lg:rounded-3xl lg:p-2"
-              style={{ "--cursor-x": "0px", "--cursor-y": "0px" } as CSSProperties}
-              onMouseEnter={(event) => {
-                primeCardCursorPosition(event.currentTarget, event.clientX, event.clientY);
-                setHoveredOverlayId(overlayId);
-              }}
-              onMouseMove={(event) => {
-                lastPointerRef.current = { clientX: event.clientX, clientY: event.clientY };
-                scheduleCardCursorPosition(event.currentTarget, event.clientX, event.clientY);
-              }}
-              onMouseLeave={(event) => {
-                setHoveredOverlayId((current) => (current === overlayId ? null : current));
-                clearCardCursorPosition(event.currentTarget);
-              }}
-            >
-              <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-xl bg-black/70 ring-1 ring-white/12 lg:rounded-2xl">
-                <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
-                <div className="relative z-10 flex items-start justify-between gap-8 px-4 py-4 text-white/80 lg:px-5 lg:py-5">
-                  <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base">{item.description}</p>
-                  <span className="hidden shrink-0 text-lg transition-transform duration-500 ease-out group-hover:translate-x-1 sm:block">→</span>
-                </div>
-                <div className="relative z-10 px-4 pb-4 lg:px-5 lg:pb-5">
-                  {item.image ? (
-                    <div className="relative h-48 w-full overflow-hidden rounded-xl shadow-2xl">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        priority={index === 0}
-                        sizes="(max-width: 1024px) 100vw, 33vw"
-                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                      />
-                      {item.secondaryImage && item.secondaryImage !== item.image ? (
-                        <Image
-                          src={item.secondaryImage}
-                          alt={`${item.title} preview`}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 33vw"
-                          className="pointer-events-none object-cover opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-6 translate-y-10 scale-75 rotate-6 group-hover:translate-x-3 group-hover:translate-y-0 group-hover:scale-[0.92] group-hover:rotate-2 group-hover:opacity-100"
-                        />
-                      ) : null}
-                    </div>
-                  ) : (
-                    <div className="flex h-48 w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
-                      Finote App
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {hoveredOverlayId === overlayId ? (
-                <div className="pointer-events-none absolute left-0 top-0 z-20 [transform:translate3d(var(--cursor-x),var(--cursor-y),0)_translate3d(-50%,-50%,0)] will-change-transform">
-                  <ViewDetailsSpinner curveId={`work-mobile-curve-${item.id}`} />
-                </div>
-              ) : null}
-            </Link>
-
-            <ul className="mt-1 flex flex-col gap-y-2 text-sm text-primary/90">
-              {(item.highlights ?? []).map((point) => (
-                <li key={`${item.id}-${point}`} className="flex items-start">
-                  <svg className="me-1.5 mt-[2px] size-5 shrink-0" style={{ fill: item.accentColor, color: item.accentColor }} height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 1C12 1 12 8 10 10C8 12 1 12 1 12C1 12 8 12 10 14C12 16 12 23 12 23C12 23 12 16 14 14C16 12 23 12 23 12C23 12 16 12 14 10C12 8 12 1 12 1Z" />
-                  </svg>
-                  {point}
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-wrap gap-2">
-              {(item.tags ?? []).map((tag) => (
-                <TechBadge key={`${item.id}-${tag}`} keyId={`${item.id}-${tag}`} tag={tag} />
-              ))}
-            </div>
-                </>
-              );
-            })()}
-          </article>
+        {displayItems.map((item, index) => (
+          <ProjectCard key={item.id} item={item} index={index} prefix="mobile" isMobile />
         ))}
       </div>
 
       <div aria-label="Projects List" className="relative hidden w-full lg:flex" role="main">
-        <div className="mx-auto flex w-full flex-col gap-y-20 lg:max-w-[60%] lg:gap-y-32">
-          {workItems.map((item, index) => (
-            <article
+        <div
+          data-work-column="desktop"
+          suppressHydrationWarning
+          className="mx-auto flex w-full flex-col gap-y-20 lg:max-w-[60%] lg:gap-y-32"
+        >
+          {displayItems.map((item, index) => (
+            <div
               key={`desktop-${item.id}`}
-              aria-label={`Project ${item.title}`}
               data-work-id={item.id}
-              ref={(node) => {
-                itemRefs.current[item.id] = node;
-              }}
+              suppressHydrationWarning
               onMouseEnter={() => setActiveId(item.id)}
-              className={`group relative flex w-full flex-col gap-6 will-change-transform transition-[transform,opacity] duration-500 ease-out ${
+              className={`relative flex w-full flex-col gap-6 will-change-transform transition-[transform,opacity] duration-500 ease-out ${
                 activeId === item.id ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-[0.97] opacity-60"
               }`}
-              role="article"
             >
-              {(() => {
-                const overlayId = `desktop-${item.id}`;
-                return (
-                  <>
-              <div className="relative w-full transition-transform duration-500 group-hover:-translate-y-2">
-                <Link
-                  href={item.href}
-                  aria-label={`View details of ${item.title}`}
-                  className="group relative block aspect-[16/11] w-full overflow-hidden rounded-3xl bg-[#f2f2f20c] p-2 shadow-border transition-[transform,box-shadow] duration-500 hover:shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
-                  style={{ "--cursor-x": "0px", "--cursor-y": "0px" } as CSSProperties}
-                  onMouseEnter={(event) => {
-                    primeCardCursorPosition(event.currentTarget, event.clientX, event.clientY);
-                    setHoveredOverlayId(overlayId);
-                  }}
-                  onMouseMove={(event) => {
-                    lastPointerRef.current = { clientX: event.clientX, clientY: event.clientY };
-                    scheduleCardCursorPosition(event.currentTarget, event.clientX, event.clientY);
-                  }}
-                  onMouseLeave={(event) => {
-                    setHoveredOverlayId((current) => (current === overlayId ? null : current));
-                    clearCardCursorPosition(event.currentTarget);
-                  }}
-                >
-                  <div className="relative flex size-full flex-col overflow-hidden rounded-2xl bg-black/70 ring-1 ring-white/12">
-                    <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
-                    <div className="relative z-10 flex items-start justify-between gap-8 px-8 pt-8 pb-6 lg:px-10 lg:pt-10 lg:pb-8 text-white/90">
-                      <p className="text-2xl font-medium leading-snug transition-transform duration-500 ease-out group-hover:-translate-y-1">{item.description}</p>
-                      <span className="shrink-0 pt-1 text-2xl transition-transform duration-500 ease-out group-hover:translate-x-1.5">→</span>
-                    </div>
-                    <div className="relative z-10 mt-auto flex-1 w-full px-8 min-h-0 lg:px-10">
-                      {item.image ? (
-                        <div className="relative size-full overflow-hidden rounded-t-xl rounded-b-none shadow-2xl">
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            fill
-                            priority={index === 0}
-                            sizes="60vw"
-                            className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                          />
-                          {item.secondaryImage && item.secondaryImage !== item.image ? (
-                            <Image
-                              src={item.secondaryImage}
-                              alt={`${item.title} secondary preview`}
-                              fill
-                              sizes="60vw"
-                              className="pointer-events-none object-cover object-top opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-8 translate-y-10 scale-75 rotate-6 group-hover:translate-x-4 group-hover:translate-y-0 group-hover:scale-[0.94] group-hover:rotate-3 group-hover:opacity-100"
-                            />
-                          ) : null}
-                        </div>
-                      ) : (
-                        <div className="flex size-full w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
-                          Finote App
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {hoveredOverlayId === overlayId ? (
-                    <div className="pointer-events-none absolute left-0 top-0 z-20 [transform:translate3d(var(--cursor-x),var(--cursor-y),0)_translate3d(-50%,-50%,0)] will-change-transform">
-                      <ViewDetailsSpinner curveId={`work-desktop-curve-${item.id}`} />
-                    </div>
-                  ) : null}
-                </Link>
-              </div>
-                  </>
-                );
-              })()}
-            </article>
+              <ProjectCard item={item} index={index} prefix="desktop" />
+            </div>
           ))}
         </div>
 
@@ -493,7 +498,7 @@ export function WorkSection() {
         href="/projects"
         className="group mx-auto flex w-fit items-center justify-center gap-2 font-mono text-neutral-800 transition-colors hover:text-black dark:text-white-1"
       >
-        See more projects
+        {t("seeMore")}
         <span className="inline-flex h-[25px] w-[25px] items-center justify-center overflow-hidden rounded-full border border-neutral-300 bg-white-1/50 transition-colors duration-300 group-hover:bg-neutral-200 dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
           <span className="text-sm">→</span>
         </span>

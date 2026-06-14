@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { MySiteSection } from "@/components/sections/my-site-section";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
@@ -10,22 +11,22 @@ import { TypedRouteText } from "@/components/ui/typed-route-text";
 type LinksTab = "links" | "send-message";
 
 type LinkItem = {
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   href: string;
   icon: "github" | "guestbook" | "linkedin" | "telegram" | "facebook" | "tiktok" | "zalo";
 };
 
 const codeAndCraftLinks: LinkItem[] = [
   {
-    title: "GitHub",
-    subtitle: "@trinhvanhao",
+    titleKey: "githubTitle",
+    subtitleKey: "githubSubtitle",
     href: "https://github.com/trinhvanhao",
     icon: "github",
   },
   {
-    title: "Guestbook",
-    subtitle: "Leave a mark",
+    titleKey: "guestbookTitle",
+    subtitleKey: "guestbookSubtitle",
     href: "/guestbook",
     icon: "guestbook",
   },
@@ -33,32 +34,26 @@ const codeAndCraftLinks: LinkItem[] = [
 
 const connectLinks: LinkItem[] = [
   {
-    title: "LinkedIn",
-    subtitle: "in/trinhvanhao",
-    href: "https://linkedin.com/in/trinhvanhao",
+    titleKey: "linkedinTitle",
+    subtitleKey: "linkedinSubtitle",
+    href: "https://www.linkedin.com/in/hayyie111/",
     icon: "linkedin",
   },
   {
-    title: "Facebook",
-    subtitle: "Trinh Van Hao",
-    href: "https://facebook.com/trinhvanhao",
-    icon: "facebook",
-  },
-  {
-    title: "TikTok",
-    subtitle: "@trinhvanhao",
-    href: "https://tiktok.com/@trinhvanhao",
+    titleKey: "tiktokTitle",
+    subtitleKey: "tiktokSubtitle",
+    href: "https://www.tiktok.com/@itlamcontent.th",
     icon: "tiktok",
   },
   {
-    title: "Telegram",
-    subtitle: "@trinhvanhao",
-    href: "https://t.me/trinhvanhao",
+    titleKey: "telegramTitle",
+    subtitleKey: "telegramSubtitle",
+    href: "https://t.me/HayyieTrinh",
     icon: "telegram",
   },
   {
-    title: "Zalo",
-    subtitle: "Message on Zalo",
+    titleKey: "zaloTitle",
+    subtitleKey: "zaloSubtitle",
     href: "https://zalo.me/trinhvanhao",
     icon: "zalo",
   },
@@ -132,7 +127,7 @@ function LinkIcon({ icon }: { icon: LinkItem["icon"] }) {
   );
 }
 
-function LinkCard({ item }: { item: LinkItem }) {
+function LinkCard({ item, title, subtitle }: { item: LinkItem; title: string; subtitle: string }) {
   return (
     <a
       href={item.href}
@@ -145,7 +140,7 @@ function LinkCard({ item }: { item: LinkItem }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1">
-          <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">{item.title}</h4>
+          <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</h4>
           <svg
             aria-hidden
             className="size-3 -translate-x-1 text-neutral-400 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
@@ -158,13 +153,13 @@ function LinkCard({ item }: { item: LinkItem }) {
             <path d="M7 17 17 7" />
           </svg>
         </div>
-        <p className="line-clamp-1 font-mono text-[10px] text-neutral-500 dark:text-neutral-400">{item.subtitle}</p>
+        <p className="line-clamp-1 font-mono text-[10px] text-neutral-500 dark:text-neutral-400">{subtitle}</p>
       </div>
     </a>
   );
 }
 
-function MobileLinkRow({ item }: { item: LinkItem }) {
+function MobileLinkRow({ item, title }: { item: LinkItem; title: string }) {
   return (
     <a
       href={item.href}
@@ -175,7 +170,7 @@ function MobileLinkRow({ item }: { item: LinkItem }) {
       <div className="flex size-10 items-center justify-center rounded-lg bg-neutral-50 dark:bg-neutral-800">
         <LinkIcon icon={item.icon} />
       </div>
-      <span className="text-sm font-medium text-neutral-900 dark:text-white">{item.title}</span>
+      <span className="text-sm font-medium text-neutral-900 dark:text-white">{title}</span>
       <svg aria-hidden className="ml-auto size-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
         <path d="M7 7h10v10" />
         <path d="M7 17 17 7" />
@@ -185,18 +180,21 @@ function MobileLinkRow({ item }: { item: LinkItem }) {
 }
 
 export function LinksMainSection() {
+  const t = useTranslations("links");
+  const tagItems = ["tagDeveloper", "tagFreelancer", "tagProblemSolver"];
+  const tags = tagItems.map((key) => t(key));
   const [activeTab, setActiveTab] = useState<LinksTab>("links");
 
   return (
     <section className="min-h-screen pb-24 pt-28 md:pt-38">
-      <h1 className="sr-only">Links - Connect With Trinh Van Hao</h1>
+      <h1 className="sr-only">{t("pageTitle")}</h1>
 
       <div className="mx-auto block max-w-md px-4 md:hidden">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="relative size-28 overflow-hidden rounded-full border-4 border-white shadow-lg dark:border-neutral-900">
               <Image
-                alt="Trinh Van Hao"
+                alt={t("name")}
                 className="object-cover"
                 fill
                 sizes="(max-width: 112px) 100vw, 112px"
@@ -212,27 +210,27 @@ export function LinksMainSection() {
           </div>
 
           <div className="flex flex-col items-center gap-2 text-center">
-            <h2 className="font-bluu text-3xl font-bold text-neutral-900 dark:text-white">Trinh Van Hao</h2>
+            <h2 className="font-bluu text-3xl font-bold text-neutral-900 dark:text-white">{t("name")}</h2>
             <p className="max-w-[280px] text-balance text-sm text-neutral-500 dark:text-neutral-400">
-              Full-Stack Developer crafting high-performance digital experiences.
+              {t("bio")}
             </p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
-              <span className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">Developer</span>
-              <span className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">Freelancer</span>
-              <span className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">Problem Solver</span>
+              {tags.map((tag, i) => (
+                <span key={i} className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">{tag}</span>
+              ))}
             </div>
           </div>
 
           <div className="grid w-full grid-cols-2 gap-3">
             <a
               className="flex items-center justify-center gap-2 rounded-lg border bg-neutral-50 py-2.5 text-xs font-medium text-neutral-900 transition-colors hover:bg-white hover:shadow-sm dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
-              href="mailto:hello@trinhvanhao.dev"
+              href={`mailto:${t("email")}`}
             >
               <svg aria-hidden className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <rect x="8" y="8" width="14" height="14" rx="2" ry="2" />
                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
               </svg>
-              Email
+              {t("emailButton")}
             </a>
             <Link
               className="flex items-center justify-center gap-2 rounded-lg border bg-neutral-50 py-2.5 text-xs font-medium text-neutral-900 transition-colors hover:bg-white hover:shadow-sm dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
@@ -243,7 +241,7 @@ export function LinksMainSection() {
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
                 <path d="M2 12h20" />
               </svg>
-              Full Website
+              {t("websiteButton")}
             </Link>
           </div>
         </div>
@@ -259,7 +257,7 @@ export function LinksMainSection() {
                   : "text-muted-foreground"
               }`}
             >
-              Links
+              {t("tabLinks")}
             </button>
             <button
               type="button"
@@ -270,26 +268,26 @@ export function LinksMainSection() {
                   : "text-muted-foreground"
               }`}
             >
-              Send Message
+              {t("tabMessage")}
             </button>
           </div>
 
           {activeTab === "links" ? (
             <div className="space-y-6">
               <div>
-                <p className="mb-3 text-center font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase">Code &amp; Craft</p>
+                <p className="mb-3 text-center font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase">{t("sectionCode")}</p>
                 <div className="flex flex-col gap-3">
                   {codeAndCraftLinks.map((item) => (
-                    <MobileLinkRow key={`mobile-code-${item.title}`} item={item} />
+                    <MobileLinkRow key={`mobile-code-${item.titleKey}`} item={item} title={t(item.titleKey)} />
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="mb-3 text-center font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase">Connect</p>
+                <p className="mb-3 text-center font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase">{t("sectionConnect")}</p>
                 <div className="flex flex-col gap-3">
                   {connectLinks.map((item) => (
-                    <MobileLinkRow key={`mobile-connect-${item.title}`} item={item} />
+                    <MobileLinkRow key={`mobile-connect-${item.titleKey}`} item={item} title={t(item.titleKey)} />
                   ))}
                 </div>
               </div>
@@ -298,20 +296,20 @@ export function LinksMainSection() {
             <form className="grid gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/45 p-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm text-neutral-300">
-                  Name
-                  <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="Your name" />
+                  {t("formName")}
+                  <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formNamePlaceholder")} />
                 </label>
                 <label className="grid gap-2 text-sm text-neutral-300">
-                  Email
-                  <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="you@example.com" type="email" />
+                  {t("formEmail")}
+                  <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formEmailPlaceholder")} type="email" />
                 </label>
               </div>
               <label className="grid gap-2 text-sm text-neutral-300">
-                Project details
-                <textarea className="min-h-32 rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="Tell me what you're building, timeline and goals" />
+                {t("formProject")}
+                <textarea className="min-h-32 rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formProjectPlaceholder")} />
               </label>
               <button type="button" className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-zinc-200">
-                Send message
+                {t("submitButton")}
               </button>
             </form>
           )}
@@ -323,11 +321,11 @@ export function LinksMainSection() {
           className="relative z-2 mx-auto mb-20 max-w-xl text-balance text-center text-5xl font-medium tracking-tight sm:text-5xl md:text-6xl"
           style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.20)" }}
         >
-          <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">Contact</p>
+          <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
           <span className="inline-block font-instrument-serif">
-            Let&apos;s Get{" "}
+            {t("title")}{" "}
             <TypedRouteText
-              text="In Touch"
+              text={t("titleAccent")}
               className="animate-gradient-x px-1 pb-1 italic text-colorfull [text-shadow:none]"
               delay={0.08}
             />
@@ -342,7 +340,7 @@ export function LinksMainSection() {
                   <div className="mb-6 flex justify-center">
                     <div className="relative size-24">
                       <Image
-                        alt="Trinh Van Hao"
+                        alt={t("name")}
                         className="rounded-full object-cover ring-4 ring-neutral-100 dark:ring-neutral-800"
                         fill
                         sizes="(max-width: 96px) 100vw, 96px"
@@ -358,10 +356,11 @@ export function LinksMainSection() {
                   </div>
 
                   <div className="text-center">
-                    <h2 className="font-bluu text-2xl text-neutral-900 dark:text-white">Trinh Van Hao</h2>
+                    <h2 className="font-bluu text-2xl text-neutral-900 dark:text-white">{t("name")}</h2>
                     <div className="mt-2 flex flex-wrap justify-center gap-2">
-                      <span className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">Developer</span>
-                      <span className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">Freelancer</span>
+                      {tags.slice(0, 2).map((tag, i) => (
+                        <span key={i} className="inline-flex h-5 items-center rounded-md bg-neutral-50 px-2 font-mono text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">{tag}</span>
+                      ))}
                     </div>
                   </div>
 
@@ -371,14 +370,14 @@ export function LinksMainSection() {
                         <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>
-                      <span>India</span>
+                      <span>{t("location")}</span>
                     </div>
                     <div className="flex items-center gap-3 text-neutral-600 dark:text-neutral-400">
                       <svg aria-hidden className="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
                         <rect x="2" y="4" width="20" height="16" rx="2" />
                       </svg>
-                      <span>hello@trinhvanhao.dev</span>
+                      <span>{t("email")}</span>
                     </div>
                   </address>
 
@@ -392,17 +391,17 @@ export function LinksMainSection() {
                         <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
                         <path d="M2 12h20" />
                       </svg>
-                      Website
+                      {t("websiteButtonShort")}
                     </Link>
                     <a
                       className="flex items-center justify-center gap-2 rounded-lg border bg-neutral-50 py-2.5 text-xs font-medium text-neutral-900 transition-colors hover:bg-white hover:shadow-sm dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
-                      href="mailto:hello@trinhvanhao.dev"
+                      href={`mailto:${t("email")}`}
                     >
                       <svg aria-hidden className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <rect x="8" y="8" width="14" height="14" rx="2" ry="2" />
                         <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                       </svg>
-                      Email
+                      {t("emailButton")}
                     </a>
                   </div>
                 </div>
@@ -422,7 +421,7 @@ export function LinksMainSection() {
                       : "text-muted-foreground"
                   }`}
                 >
-                  Links
+                  {t("tabLinks")}
                 </button>
                 <button
                   type="button"
@@ -433,7 +432,7 @@ export function LinksMainSection() {
                       : "text-muted-foreground"
                   }`}
                 >
-                  Send Message
+                  {t("tabMessage")}
                 </button>
               </div>
 
@@ -442,13 +441,13 @@ export function LinksMainSection() {
                   <div>
                     <div className="mb-6 flex items-center gap-4">
                       <h3 className="font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase dark:text-neutral-600">
-                        Code &amp; Craft
+                        {t("sectionCode")}
                       </h3>
                       <div className="h-px flex-1 border-t border-dashed border-neutral-300 dark:border-neutral-800" />
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       {codeAndCraftLinks.map((item) => (
-                        <LinkCard key={`desktop-code-${item.title}`} item={item} />
+                        <LinkCard key={`desktop-code-${item.titleKey}`} item={item} title={t(item.titleKey)} subtitle={t(item.subtitleKey)} />
                       ))}
                     </div>
                   </div>
@@ -456,13 +455,13 @@ export function LinksMainSection() {
                   <div>
                     <div className="mb-6 flex items-center gap-4">
                       <h3 className="font-mono text-xs font-bold tracking-wider text-neutral-400 uppercase dark:text-neutral-600">
-                        Connect
+                        {t("sectionConnect")}
                       </h3>
                       <div className="h-px flex-1 border-t border-dashed border-neutral-300 dark:border-neutral-800" />
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       {connectLinks.map((item) => (
-                        <LinkCard key={`desktop-connect-${item.title}`} item={item} />
+                        <LinkCard key={`desktop-connect-${item.titleKey}`} item={item} title={t(item.titleKey)} subtitle={t(item.subtitleKey)} />
                       ))}
                     </div>
                   </div>
@@ -471,20 +470,20 @@ export function LinksMainSection() {
                 <form className="grid gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/45 p-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2 text-sm text-neutral-300">
-                      Name
-                      <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="Your name" />
+                      {t("formName")}
+                      <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formNamePlaceholder")} />
                     </label>
                     <label className="grid gap-2 text-sm text-neutral-300">
-                      Email
-                      <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="you@example.com" type="email" />
+                      {t("formEmail")}
+                      <input className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formEmailPlaceholder")} type="email" />
                     </label>
                   </div>
                   <label className="grid gap-2 text-sm text-neutral-300">
-                    Project details
-                    <textarea className="min-h-32 rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder="Tell me what you're building, timeline and goals" />
+                    {t("formProject")}
+                    <textarea className="min-h-32 rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none focus:border-neutral-500" placeholder={t("formProjectPlaceholder")} />
                   </label>
                   <button type="button" className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-zinc-200">
-                    Send message
+                    {t("submitButton")}
                   </button>
                 </form>
               )}

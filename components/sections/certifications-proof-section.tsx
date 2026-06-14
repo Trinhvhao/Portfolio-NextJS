@@ -1,9 +1,17 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 import { certificationItems, certificationsHeader } from "@/lib/about-data";
 
-function CategoryPill({ category }: { category: "Certification" | "Publication" | "Talk" | "Hackathon" }) {
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  Certification: "certification",
+  Publication: "publication",
+  Talk: "talk",
+  Hackathon: "hackathon",
+};
+
+function CategoryPill({ category, label }: { category: "Certification" | "Publication" | "Talk" | "Hackathon"; label: string }) {
   const colorClass =
     category === "Certification"
       ? "text-[#8b5cf6] bg-[#8b5cf6]/10 border-[#8b5cf6]/30"
@@ -13,10 +21,12 @@ function CategoryPill({ category }: { category: "Certification" | "Publication" 
           ? "text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/30"
           : "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30";
 
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-wider uppercase ${colorClass}`}>{category}</span>;
+  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-wider uppercase ${colorClass}`}>{label}</span>;
 }
 
-export function CertificationsProofSection() {
+export async function CertificationsProofSection() {
+  const t = await getTranslations("certifications");
+
   return (
     <section className="mx-auto w-full px-5" aria-labelledby="certifications-heading">
       <div className="text-center">
@@ -38,8 +48,8 @@ export function CertificationsProofSection() {
             className="group relative overflow-hidden rounded-[22px] border border-white/8 bg-[#0b0b0c] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111113]"
           >
             <div className="mb-4 flex items-start justify-between gap-3">
-              <CategoryPill category={item.category} />
-              <span className="font-mono text-[11px] tracking-wide text-white/55">Issued {item.issuedAt}</span>
+              <CategoryPill category={item.category} label={t(`categories.${CATEGORY_KEY_MAP[item.category]}`)} />
+              <span className="font-mono text-[11px] tracking-wide text-white/55">{t("issued")} {item.issuedAt}</span>
             </div>
 
             <h3 className="text-xl leading-tight tracking-wide text-white/90">{item.title}</h3>
@@ -54,10 +64,10 @@ export function CertificationsProofSection() {
                   rel="noopener noreferrer"
                   className="rounded-md border border-white/15 px-2 py-1 transition-colors hover:bg-white/10"
                 >
-                  View proof
+                  {t("viewProof")}
                 </Link>
               ) : (
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">Internal proof available</span>
+                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">{t("internalProof")}</span>
               )}
             </div>
           </article>

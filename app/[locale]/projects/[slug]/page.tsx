@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 
 import { getProjectBySlug, getProjectSlugs } from "@/lib/project-content";
 
@@ -77,6 +78,8 @@ export async function generateMetadata({ params }: DetailParams): Promise<Metada
 export default async function ProjectDetailPage({ params }: DetailParams) {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
+  const t = await getTranslations("project");
+  const tNav = await getTranslations("nav");
 
   if (!project) {
     notFound();
@@ -111,7 +114,7 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
               <ol className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
                 <li className="contents">
                   <Link className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300" href="/">
-                    Home
+                    {tNav("home")}
                   </Link>
                 </li>
                 <li className="contents">
@@ -119,7 +122,7 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
                     <path d="m9 18 6-6-6-6" />
                   </svg>
                   <Link className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300" href="/projects">
-                    Projects
+                    {tNav("projects")}
                   </Link>
                 </li>
                 <li className="contents">
@@ -139,25 +142,25 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="grid grid-cols-2 gap-x-8 gap-y-6 px-4 py-8 md:px-6">
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Type</p>
+                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("type")}</p>
                   <p className="font-medium text-sm text-neutral-800 dark:text-neutral-200">{frontmatter.type}</p>
                 </div>
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Role</p>
+                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("role")}</p>
                   <p className="font-medium text-sm text-neutral-800 dark:text-neutral-200">{frontmatter.role}</p>
                 </div>
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Built</p>
+                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("built")}</p>
                   <p className="font-medium text-sm text-neutral-800 dark:text-neutral-200">{frontmatter.built}</p>
                 </div>
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Updated</p>
+                  <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("updated")}</p>
                   <p className="font-medium text-sm text-neutral-800 dark:text-neutral-200">{frontmatter.updated}</p>
                 </div>
 
                 {frontmatter.visitHref && frontmatter.visitLabel && (
                   <div>
-                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Visit</p>
+                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("visit")}</p>
                     <a
                       className="inline-flex items-center gap-1 font-medium text-sm text-neutral-800 decoration-neutral-300 underline-offset-4 transition-colors hover:underline dark:text-neutral-200 dark:decoration-neutral-600"
                       href={frontmatter.visitHref}
@@ -172,7 +175,7 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
 
                 {frontmatter.downloadHref && frontmatter.downloadLabel && (
                   <div>
-                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Download</p>
+                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("download")}</p>
                     <a
                       className="inline-flex items-center gap-1 font-medium text-sm text-neutral-800 decoration-neutral-300 underline-offset-4 transition-colors hover:underline dark:text-neutral-200 dark:decoration-neutral-600"
                       href={frontmatter.downloadHref}
@@ -187,7 +190,7 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
 
                 {frontmatter.sourceHref && frontmatter.sourceLabel && (
                   <div>
-                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Source</p>
+                    <p className="mb-1.5 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("source")}</p>
                     <a
                       className="inline-flex items-center gap-1 font-medium text-sm text-neutral-800 decoration-neutral-300 underline-offset-4 transition-colors hover:underline dark:text-neutral-200 dark:decoration-neutral-600"
                       href={frontmatter.sourceHref}
@@ -202,7 +205,7 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
               </div>
 
               <div className="border-t px-4 py-8 md:px-6 lg:border-t-0 lg:border-l">
-                <p className="mb-3 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">Tech Stack</p>
+                <p className="mb-3 font-mono text-[10px] text-neutral-500 uppercase tracking-wider dark:text-neutral-500">{t("techStack")}</p>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {frontmatter.stack.map((tech) => (
                     <span

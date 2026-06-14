@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 import { getGitHubProfileStats } from "@/lib/github-data";
@@ -71,6 +72,7 @@ function StatCard({ title, value, accentClass, type }: { title: string; value: s
 }
 
 export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
+  const t = await getTranslations("openSource");
   let stats;
 
   try {
@@ -90,14 +92,14 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
   return (
     <section className="mx-auto w-full" aria-labelledby="open-source-heading">
       <div className="text-center">
-        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">Open Source</p>
+        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
         <h2
           id="open-source-heading"
           className="relative z-2 mx-auto max-w-lg text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:text-6xl"
           style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
         >
-          <span className="font-instrument-serif text-neutral-100">Code &amp; </span>
-          <TypedRouteText text="Contributions" triggerOnView className="animate-gradient-x font-instrument-serif italic tracking-tight text-colorfull" />
+          <span className="font-instrument-serif text-neutral-100">{t("titleStart")} </span>
+          <TypedRouteText text={t("titleAccent")} triggerOnView className="animate-gradient-x font-instrument-serif italic tracking-tight text-colorfull" />
         </h2>
       </div>
 
@@ -115,12 +117,12 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
               </div>
               <div>
                 <p className="font-semibold text-[22px] text-white/90 tracking-tight transition-colors duration-500 group-hover/article:text-white cursor-pointer">@{username}</p>
-                <p className="text-white/40 text-[13px] font-medium mt-0.5 transition-colors duration-500 group-hover/article:text-white/60">Contribution Graph</p>
+                <p className="text-white/40 text-[13px] font-medium mt-0.5 transition-colors duration-500 group-hover/article:text-white/60">{t("contributionGraph")}</p>
               </div>
             </div>
             <div className="text-right transition-transform duration-500 origin-right group-hover/article:scale-105">
               <p className="font-bold text-[32px] text-white leading-none tracking-tight drop-shadow-sm">{stats.totalContributions || 0}</p>
-              <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-2 transition-colors duration-500 group-hover/article:text-white/60">{new Date().getFullYear()} TOTAL</p>
+              <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-2 transition-colors duration-500 group-hover/article:text-white/60">{new Date().getFullYear()} {t("total")}</p>
             </div>
           </div>
 
@@ -132,9 +134,9 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
           </div>
           
           <div className="mt-5 flex flex-wrap items-center justify-between gap-4 px-1">
-            <p className="text-white/60 text-[14px] font-medium tracking-tight transition-colors duration-500 group-hover/article:text-white/90">{stats.totalContributions || 0} contributions in the last year</p>
+            <p className="text-white/60 text-[14px] font-medium tracking-tight transition-colors duration-500 group-hover/article:text-white/90">{stats.totalContributions || 0} {t("contributionsInYear")}</p>
             <div className="flex items-center gap-2 text-white/50 text-xs font-medium transition-colors duration-500 group-hover/article:text-white/80">
-              <span className="mb-[1px]">Less</span>
+              <span className="mb-[1px]">{t("less")}</span>
               <div className="flex gap-1.5">
                 <div className="w-[12px] h-[12px] rounded-[3px] bg-[#EEEEEE] hover:scale-125 hover:rotate-3 transition-transform duration-300"></div>
                 <div className="w-[12px] h-[12px] rounded-[3px] bg-[#c9d0ff] hover:scale-125 hover:-rotate-3 transition-transform duration-300"></div>
@@ -142,15 +144,15 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
                 <div className="w-[12px] h-[12px] rounded-[3px] bg-[#7c83fd] hover:scale-125 hover:-rotate-3 transition-transform duration-300"></div>
                 <div className="w-[12px] h-[12px] rounded-[3px] bg-[#6369ca] hover:scale-125 hover:rotate-3 transition-transform duration-300 shadow-[0_0_10px_rgba(99,105,202,0)] hover:shadow-[0_0_10px_rgba(99,105,202,0.8)]"></div>
               </div>
-              <span className="mb-[1px]">More</span>
+              <span className="mb-[1px]">{t("more")}</span>
             </div>
           </div>
         </article>
 
         <aside className="lg:col-span-3 xl:col-span-3 flex flex-col gap-3 min-w-0">
-          <StatCard type="followers" title="Followers" value={String(stats.followers)} accentClass="text-[#ff5c8d] group-hover:text-[#ff7eb6] group-hover:drop-shadow-[0_0_15px_rgba(255,92,141,0.5)]" />
-          <StatCard type="forks" title="Forks" value={String(stats.totalForks)} accentClass="text-[#2dd4bf] group-hover:text-[#4ee6d3] group-hover:drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
-          <StatCard type="stars" title="GitHub Stars" value={String(stats.totalStars)} accentClass="text-[#fbbf24] group-hover:text-[#fcd34d] group-hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
+          <StatCard type="followers" title={t("followers")} value={String(stats.followers)} accentClass="text-[#ff5c8d] group-hover:text-[#ff7eb6] group-hover:drop-shadow-[0_0_15px_rgba(255,92,141,0.5)]" />
+          <StatCard type="forks" title={t("forks")} value={String(stats.totalForks)} accentClass="text-[#2dd4bf] group-hover:text-[#4ee6d3] group-hover:drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
+          <StatCard type="stars" title={t("stars")} value={String(stats.totalStars)} accentClass="text-[#fbbf24] group-hover:text-[#fcd34d] group-hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
         </aside>
       </div>
     </section>

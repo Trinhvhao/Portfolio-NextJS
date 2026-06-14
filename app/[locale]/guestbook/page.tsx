@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { GuestbookAuthCta } from "@/components/sections/guestbook-auth-cta";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
@@ -179,7 +180,9 @@ function CardDoodles({ variant = 0 }: { variant?: number }) {
   );
 }
 
-export default function GuestbookPage() {
+export default async function GuestbookPage() {
+  const t = await getTranslations("guestbook");
+
   return (
     <>
       <div
@@ -219,11 +222,11 @@ export default function GuestbookPage() {
                 className="relative z-2 mx-auto mb-16 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:text-6xl"
                 style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.20)" }}
               >
-                <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">The wall remembers</p>
+                <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
                 <span className="inline-block font-instrument-serif">
-                  Words That Echo{" "}
+                  {t("title")}{" "}
                   <TypedRouteText
-                    text="Always"
+                    text={t("titleAccent")}
                     className="animate-gradient-x px-1 pb-1 font-instrument-serif italic text-colorfull"
                     delay={0.1}
                     triggerOnView
@@ -240,8 +243,8 @@ export default function GuestbookPage() {
                     <CardDoodles variant={0} />
                     <div className="absolute -top-3 left-1/2 h-8 w-4 -translate-x-1/2 rounded-sm bg-white/25" />
                     <div className="relative z-10 space-y-1.5">
-                      <h3 className="font-instrument-serif text-2xl italic text-white">&quot;Join the wall...&quot;</h3>
-                      <p className="mx-auto max-w-48 text-xs text-white/50">Sign in to pin your message to this board forever.</p>
+                      <h3 className="font-instrument-serif text-2xl italic text-white">{t("joinWall")}</h3>
+                      <p className="mx-auto max-w-48 text-xs text-white/50">{t("signInPrompt")}</p>
                     </div>
                     <GuestbookAuthCta />
                   </div>
@@ -277,7 +280,7 @@ export default function GuestbookPage() {
                           <button
                             type="button"
                             className="inline-flex size-8 items-center justify-center rounded-md text-white/50 opacity-0 transition hover:bg-white/10 hover:text-white group-hover:opacity-100"
-                            aria-label="Share entry"
+                            aria-label={t("shareEntry")}
                           >
                             <ShareIcon />
                           </button>

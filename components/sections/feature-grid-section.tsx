@@ -2,6 +2,7 @@
 
 import createGlobe from "cobe";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, type CSSProperties } from "react";
 
 import { BookCallTrigger } from "@/components/ui/book-call-modal";
@@ -131,24 +132,24 @@ function fallbackLabel(name: string): string {
 
 const scoopFigures: { title: string; quote: string }[] = [
   {
-    title: "Payment System Architecture",
-    quote: "Handles recurring payments, upgrades, downgrades, and cancellations seamlessly to enhance user experience.",
+    title: "Responsive UI Development",
+    quote: "Building accessible, mobile-first interfaces using React, Next.js, and Tailwind CSS.",
   },
   {
-    title: "Monitoring & Analytics Infrastructure",
-    quote: "Provides real-time insights into user behavior, system performance, and key business metrics.",
+    title: "REST API Development",
+    quote: "Creating backend services with Node.js and Express.js, connected to PostgreSQL and MongoDB.",
   },
   {
-    title: "Design System & UI Consistency",
-    quote: "Unified design assets, including logos and themes, ensuring consistent branding across the platform.",
+    title: "AI Integration",
+    quote: "Exploring NLP and Computer Vision for practical applications like sentiment analysis.",
   },
   {
-    title: "API Gateway & Documentation",
-    quote: "Guides developers to integrate with the SaaS platform efficiently, offering examples and best practices.",
+    title: "Clean Code Practices",
+    quote: "Writing maintainable, typed code with TypeScript and following best practices.",
   },
   {
-    title: "User Onboarding Flow Design",
-    quote: "Step-by-step guides and interactive tutorials to help users get started and maximize platform benefits.",
+    title: "Version Control & Git",
+    quote: "Managing code changes and collaborative workflows through Git and GitHub.",
   },
 ];
 
@@ -567,6 +568,8 @@ function VietnamGlobe() {
 }
 
 export function FeatureGridSection() {
+  const t = useTranslations("feature");
+  const tCommon = useTranslations("common");
   const copyEmail = useCallback(() => {
     void navigator.clipboard?.writeText("hello@trinhvhao");
   }, []);
@@ -699,15 +702,15 @@ export function FeatureGridSection() {
           >
             <path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762" />
           </svg>
-          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">Collaboration</h3>
-          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">I prioritize client collaboration, fostering open communication</p>
+          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">{t("collaboration")}</h3>
+          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("collaborationDesc")}</p>
         </div>
 
         <div className="pointer-events-none absolute bottom-0 flex w-full translate-y-10 items-center p-4 text-base tracking-wider opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <BookCallTrigger
             className="pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
           >
-            Book a call
+            {t("collaborationCta")}
             <svg aria-hidden className="ml-2 size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -722,7 +725,7 @@ export function FeatureGridSection() {
         <div className="absolute inset-0">
           <div className="relative size-full">
             <h3 className="absolute top-10 w-full select-none bg-linear-to-b from-[#fd81e298] to-[#da7bda] bg-clip-text px-4 pb-2 text-center font-instrument-serif text-3xl leading-[100%] font-bold tracking-wide text-transparent dark:from-[#edeffd]">
-              Passionate about cutting-edge technologies
+              {t("technologies")}
             </h3>
 
             <div className="relative flex h-full flex-col items-center justify-start">
@@ -824,9 +827,9 @@ export function FeatureGridSection() {
       {/* 3 — Remote / time zones: bottom-left tall */}
       <div className={`${cardShell} col-span-6 max-md:h-[32rem] md:col-span-3 md:row-span-2 lg:col-span-2`}>
         <div className="size-full">
-          <h3 className="mt-6 w-full select-none bg-linear-to-b from-[#81a2fd98] to-[#7b9cda] bg-clip-text px-4 text-center font-instrument-serif text-3xl leading-[100%] font-bold tracking-wide text-balance text-transparent md:mt-12 dark:from-[#edeffd]">
-            I&apos;m very flexible with time zone communications
-          </h3>
+            <h3 className="mt-6 w-full select-none bg-linear-to-b from-[#81a2fd98] to-[#7b9cda] bg-clip-text px-4 text-center font-instrument-serif text-3xl leading-[100%] font-bold tracking-wide text-balance text-transparent md:mt-12 dark:from-[#edeffd]">
+              {t("remoteDetail")}
+            </h3>
 
           <div className="absolute bottom-14 left-1/2 z-[6] w-[24rem] max-w-[90%] -translate-x-1/2 md:bottom-10 md:w-[26rem]">
             <div className="mx-auto flex flex-wrap justify-center gap-2 text-xs">
@@ -863,8 +866,8 @@ export function FeatureGridSection() {
             <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">Remote</h3>
-          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">Vietnam</p>
+          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">{t("remote")}</h3>
+          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("remoteDesc")}</p>
         </div>
 
         <div className="pointer-events-none absolute bottom-0 flex w-full translate-y-10 items-center p-4 text-base tracking-wider opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
@@ -872,7 +875,7 @@ export function FeatureGridSection() {
             href="/links"
             className="pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
           >
-            Connect now
+            {t("remoteCta")}
             <svg aria-hidden className="ml-2 size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -898,7 +901,7 @@ export function FeatureGridSection() {
                 } as CSSProperties
               }
             >
-              Let&apos;s work together on your next project
+              {t("contactCta")}
             </span>
 
             <span className="inline-flex w-fit shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md border border-white-3 bg-white-1 px-8 py-1 font-sans text-sm text-neutral-600 shadow-border transition-[color,box-shadow] dark:border-white/[0.14] dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800/60">
@@ -940,8 +943,8 @@ export function FeatureGridSection() {
             <rect height="18" rx="2" width="18" x="3" y="3" />
             <path d="M3 9h18M9 21V9" />
           </svg>
-          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">The Inside Scoop</h3>
-          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">Currently building a Saas Application</p>
+          <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">{t("scoop")}</h3>
+          <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("scoopDesc")}</p>
         </div>
 
         <div className="pointer-events-none absolute bottom-0 flex w-full translate-y-10 items-center p-4 text-base tracking-wider opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
@@ -949,7 +952,7 @@ export function FeatureGridSection() {
             href="/#work"
             className="pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
           >
-            View Recent work
+            {t("scoopCta")}
             <svg aria-hidden className="ml-2 size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>

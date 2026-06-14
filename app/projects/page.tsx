@@ -6,7 +6,7 @@ import { StaggerContainer, StaggerItem } from "@/components/ui/stagger";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
 export const metadata: Metadata = {
-  title: "Projects | Aayush Bharti",
+  title: "Projects | Trinh Van Hao",
   description: "A curated collection of case studies and experiments.",
 };
 

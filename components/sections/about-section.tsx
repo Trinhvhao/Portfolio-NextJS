@@ -2,168 +2,229 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
+const WAND_HOTSPOT_X = 23;
+const WAND_HOTSPOT_Y = 2;
+const LERP_FACTOR = 0.12;
+const RETURN_LERP = 0.06;
+const LEAVE_DEBOUNCE_MS = 150;
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
 export function AboutSection() {
+  const t = useTranslations("about");
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [wandX, setWandX] = useState(0);
-  const [wandY, setWandY] = useState(0);
-  const [revealProgress, setRevealProgress] = useState(0);
-  const [isPointerInside, setIsPointerInside] = useState(false);
-  const [isWandSettling, setIsWandSettling] = useState(false);
-  const settleTimeoutRef = useRef<number | null>(null);
-  const wandHotspotX = 23;
-  const wandHotspotY = 2;
+  const wandRef = useRef<HTMLDivElement | null>(null);
 
-  const syncWandPosition = useCallback((nextX: number, nextY: number) => {
-    setWandX(nextX);
-    setWandY(nextY);
+  // target = where the mouse is (updated every pointermove)
+  const targetRef = useRef<{ x: number; y: number } | null>(null);
+  // current = where the wand actually is (lerps toward target)
+  const currentRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  // returnTarget = where the wand should lerp back to when pointer leaves
+  const returnRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const rafRef = useRef<number | null>(null);
+  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pointerActive, setPointerActive] = useState(false);
+
+  const applyWand = useCallback((x: number, y: number, progress: number) => {
+    const section = sectionRef.current;
+    const wand = wandRef.current;
+    if (!section || !wand) return;
+    wand.style.setProperty("--about-wand-x", `${x}px`);
+    wand.style.setProperty("--about-wand-y", `${y}px`);
+    section.style.setProperty("--about-progress", progress.toFixed(4));
   }, []);
 
-  const clamp = useCallback((value: number, min: number, max: number) => {
-    return Math.max(min, Math.min(max, value));
-  }, []);
-
-  const getBounds = useCallback(() => {
-    if (!sectionRef.current) {
-      return null;
-    }
-
-    const sectionRect = sectionRef.current.getBoundingClientRect();
-    const minX = sectionRect.width * 0.06;
-    const maxX = sectionRect.width * 0.94;
-
-    return {
-      minX,
-      maxX,
-      sectionLeft: sectionRect.left,
-      sectionTop: sectionRect.top,
-      sectionHeight: sectionRect.height,
-    };
-  }, []);
-
-  useEffect(() => {
-    const updateDefaultPosition = () => {
-      const bounds = getBounds();
-      if (!bounds) {
-        return;
-      }
-
-      if (!isPointerInside) {
-        setWandX(bounds.minX);
-        setWandY(bounds.sectionHeight * 0.14);
-      }
-    };
-
-    updateDefaultPosition();
-    window.addEventListener("resize", updateDefaultPosition);
-
-    return () => {
-      window.removeEventListener("resize", updateDefaultPosition);
-    };
-  }, [getBounds, isPointerInside]);
-
-  const updateReveal = useCallback(
-    (clientX: number) => {
-      const bounds = getBounds();
-      if (!bounds) {
-        return;
-      }
-
-      const nextX = clamp(clientX - bounds.sectionLeft, bounds.minX, bounds.maxX);
-      const ratio = (nextX - bounds.minX) / Math.max(bounds.maxX - bounds.minX, 1);
-      const easedRatio = clamp(ratio / 0.82, 0, 1);
-      setRevealProgress(easedRatio);
+  const clamp = useCallback(
+    (x: number, y: number, rect: DOMRect) => {
+      const minX = rect.width * 0.06;
+      const maxX = rect.width * 0.94;
+      const minY = rect.height * 0.05;
+      const maxY = rect.height * 0.82;
+      return {
+        x: Math.max(minX, Math.min(x, maxX)),
+        y: Math.max(minY, Math.min(y, maxY)),
+        minX,
+        maxX,
+        minY,
+        maxY,
+      };
     },
-    [clamp, getBounds]
+    []
   );
 
-  const wandStyle = useMemo(() => {
-    return {
-      transform: `translate(${wandX}px, ${wandY}px) rotate(${-7 + revealProgress * 10}deg)`,
-      transformOrigin: "50% 8px",
-      transition:
-        isPointerInside && !isWandSettling
-          ? "none"
-          : "transform 240ms cubic-bezier(0.22, 1, 0.36, 1)",
-    };
-  }, [isPointerInside, isWandSettling, revealProgress, wandX, wandY]);
+  const animate = useCallback(() => {
+    const wand = wandRef.current;
+    if (!wand) return;
 
+    const target = targetRef.current;
+    const current = currentRef.current;
+    const returnTo = returnRef.current;
+    const section = sectionRef.current;
+    if (!section) return;
+
+    // Determine whether we're returning or tracking
+    const isReturning = target === null;
+
+    // Lerp current toward target or return position
+    const factor = isReturning ? RETURN_LERP : LERP_FACTOR;
+    const goalX = isReturning ? returnTo.x : target!.x;
+    const goalY = isReturning ? returnTo.y : target!.y;
+
+    const newX = lerp(current.x, goalX, factor);
+    const newY = lerp(current.y, goalY, factor);
+    current.x = newX;
+    current.y = newY;
+
+    // Progress from where the wand is, NOT from where the mouse is
+    const rect = section.getBoundingClientRect();
+    const clamped = clamp(newX, newY, rect);
+    const ratio = (clamped.x - clamped.minX) / Math.max(clamped.maxX - clamped.minX, 1);
+    const progress = Math.max(0, Math.min(ratio / 0.82, 1));
+
+    applyWand(newX, newY, progress);
+
+    // Stop when close enough during return
+    if (
+      isReturning &&
+      Math.abs(current.x - returnTo.x) < 0.5 &&
+      Math.abs(current.y - returnTo.y) < 0.5
+    ) {
+      current.x = returnTo.x;
+      current.y = returnTo.y;
+      applyWand(current.x, current.y, 0);
+      cancelAnimationFrame(rafRef.current!);
+      rafRef.current = null;
+      return;
+    }
+
+    rafRef.current = requestAnimationFrame(animate);
+  }, [applyWand, clamp]);
+
+  const startAnimate = useCallback(() => {
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(animate);
+  }, [animate]);
+
+  // Init default position from first layout — only runs once on mount
   useEffect(() => {
+    const section = sectionRef.current;
+    const wand = wandRef.current;
+    if (!section || !wand) return;
+
+    const rect = section.getBoundingClientRect();
+    const minX = rect.width * 0.06;
+    const minY = rect.height * 0.05;
+    const defaultX = minX;
+    const defaultY = minY + (rect.height * 0.82 - minY) * 0.14;
+
+    currentRef.current = { x: defaultX, y: defaultY };
+    returnRef.current = { x: defaultX, y: defaultY };
+    wand.style.setProperty("--about-wand-x", `${defaultX}px`);
+    wand.style.setProperty("--about-wand-y", `${defaultY}px`);
+    section.style.setProperty("--about-progress", "0");
+
+    const ro = new ResizeObserver(() => {
+      const r = section.getBoundingClientRect();
+      const mx = r.width * 0.06;
+      const my = r.height * 0.05;
+      const dx = mx;
+      const dy = my + (r.height * 0.82 - my) * 0.14;
+      returnRef.current = { x: dx, y: dy };
+      // Don't reset current mid-interaction
+      if (!targetRef.current) {
+        currentRef.current = { x: dx, y: dy };
+        wand.style.setProperty("--about-wand-x", `${dx}px`);
+        wand.style.setProperty("--about-wand-y", `${dy}px`);
+        section.style.setProperty("--about-progress", "0");
+      }
+    });
+    ro.observe(section);
     return () => {
-      if (settleTimeoutRef.current) {
-        window.clearTimeout(settleTimeoutRef.current);
+      ro.disconnect();
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (leaveTimerRef.current !== null) {
+        clearTimeout(leaveTimerRef.current);
+        leaveTimerRef.current = null;
       }
     };
   }, []);
+
+  const handlePointerEnter = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (leaveTimerRef.current !== null) {
+        clearTimeout(leaveTimerRef.current);
+        leaveTimerRef.current = null;
+      }
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const x = event.clientX - rect.left - WAND_HOTSPOT_X;
+      const y = event.clientY - rect.top - WAND_HOTSPOT_Y;
+
+      targetRef.current = { x, y };
+      if (!currentRef.current) {
+        currentRef.current = { x, y };
+      }
+
+      setPointerActive(true);
+      startAnimate();
+    },
+    [startAnimate]
+  );
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      targetRef.current = {
+        x: event.clientX - rect.left - WAND_HOTSPOT_X,
+        y: event.clientY - rect.top - WAND_HOTSPOT_Y,
+      };
+    },
+    []
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    // Debounce leave: if we re-enter within 150ms, cancel the leave
+    if (leaveTimerRef.current !== null) return;
+    leaveTimerRef.current = setTimeout(() => {
+      leaveTimerRef.current = null;
+      targetRef.current = null;
+      setPointerActive(false);
+      startAnimate();
+    }, LEAVE_DEBOUNCE_MS);
+  }, [startAnimate]);
 
   return (
     <section
       ref={sectionRef}
-      className="container relative overflow-hidden py-pagebuilder lg:max-w-full"
+      className="about-section container relative overflow-hidden py-pagebuilder lg:max-w-full"
       id="about"
-      onPointerEnter={(event) => {
-        if (settleTimeoutRef.current) {
-          window.clearTimeout(settleTimeoutRef.current);
-        }
-
-        setIsPointerInside(true);
-        setIsWandSettling(true);
-        const bounds = getBounds();
-        if (!bounds) {
-          return;
-        }
-
-        syncWandPosition(
-          clamp(event.clientX - bounds.sectionLeft - wandHotspotX, bounds.minX, bounds.maxX),
-          clamp(event.clientY - bounds.sectionTop - wandHotspotY, bounds.sectionHeight * 0.05, bounds.sectionHeight * 0.82)
-        );
-        updateReveal(event.clientX);
-
-        settleTimeoutRef.current = window.setTimeout(() => {
-          setIsWandSettling(false);
-          settleTimeoutRef.current = null;
-        }, 220);
-      }}
-      onPointerLeave={() => {
-        if (settleTimeoutRef.current) {
-          window.clearTimeout(settleTimeoutRef.current);
-          settleTimeoutRef.current = null;
-        }
-
-        setIsPointerInside(false);
-        setIsWandSettling(false);
-        const bounds = getBounds();
-        if (!bounds) {
-          return;
-        }
-
-        setWandX(bounds.minX);
-        setWandY(bounds.sectionHeight * 0.14);
-        setRevealProgress(0);
-      }}
-      onPointerMove={(event) => {
-        const bounds = getBounds();
-        if (!bounds) {
-          return;
-        }
-
-        syncWandPosition(
-          clamp(event.clientX - bounds.sectionLeft - wandHotspotX, bounds.minX, bounds.maxX),
-          clamp(event.clientY - bounds.sectionTop - wandHotspotY, bounds.sectionHeight * 0.05, bounds.sectionHeight * 0.82)
-        );
-        updateReveal(event.clientX);
-      }}
+      data-pointer={pointerActive ? "true" : "false"}
+      onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
     >
       <div
+        ref={wandRef}
         aria-hidden
-        className="pointer-events-none absolute top-0 left-0 z-20 aspect-[1/9] w-[46px] overflow-hidden rounded-[22px] shadow-[0_14px_48px_rgba(0,0,0,0.6)]"
+        className="about-wand pointer-events-none absolute top-0 left-0 z-20 aspect-[1/9] w-[46px] overflow-hidden rounded-[22px] shadow-[0_14px_48px_rgba(0,0,0,0.6)]"
         style={{
-          ...wandStyle,
           background: "linear-gradient(90deg,#1a181c 10%,#2a282c 45% 55%,#1a181c 90%)",
         }}
+        suppressHydrationWarning
       >
         <span className="block h-[20%] w-full" style={{ background: "linear-gradient(90deg,#d4ddec 10%,#ffffff 45% 55%,#d4ddec 90%)" }} />
       </div>
@@ -175,23 +236,21 @@ export function AboutSection() {
               className="relative z-2 mb-8 text-balance px-5 text-center text-5xl font-medium tracking-tight sm:text-5xl md:mt-28 md:mb-10 md:text-6xl lg:px-0 lg:text-left"
               style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
             >
-              <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">KNOW ABOUT ME</p>
+              <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
               <span className="font-instrument-serif">
-                <span>Full-Stack Developer and a little bit of </span>
-                <TypedRouteText text="everything" triggerOnView className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
+                <span>{t("heading")} </span>
+                <TypedRouteText text={t("headingAccent")} triggerOnView className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
               </span>
             </h2>
 
             <div className="relative z-5 mx-auto flex max-w-xl flex-col gap-y-8 text-center text-base font-light tracking-wider text-black/80 dark:text-neutral-300 lg:mx-0 lg:max-w-[550px] lg:text-left lg:text-lg">
-              <p>
-                I&apos;m Trinh Van Hao, a proactive full-stack developer passionate about creating dynamic web experiences. From frontend to backend, I thrive on solving complex problems with clean, efficient code. My expertise spans React, Next.js, and Node.js, and I&apos;m always eager to learn more.
-              </p>
-              <p>When I&apos;m not immersed in work, I&apos;m exploring new ideas and staying curious. Life&apos;s about balance, and I love embracing every part of it.</p>
-              <p>I believe in waking up each day eager to make a difference!</p>
+              <p>{t("intro1")}</p>
+              <p>{t("intro2")}</p>
+              <p>{t("intro3")}</p>
             </div>
 
             <Link href="/about#experience" className="group mt-10 flex w-fit items-center justify-center gap-2 font-mono text-neutral-800 transition-colors hover:text-black dark:text-white-1 lg:justify-start">
-              Work Experience
+              {t("workExperienceCta")}
               <span className="inline-flex h-[25px] w-[25px] items-center justify-center overflow-hidden rounded-full border border-neutral-300 bg-white-1/50 transition-colors duration-300 group-hover:bg-neutral-200 dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
                 <span className="text-sm">→</span>
               </span>
@@ -215,25 +274,17 @@ export function AboutSection() {
 
             <Image
               alt="Trinh Hao portrait"
-              className="absolute inset-[12px] z-[8] rotate-3 rounded-[44px] object-cover"
+              className="about-portrait absolute inset-[12px] z-[8] rotate-3 rounded-[44px] object-cover"
               fill
               priority={false}
               sizes="(max-width: 1024px) 256px, 520px"
               src="/images/trinhhao.webp"
-              style={{
-                opacity: 0.06 + revealProgress * 0.94,
-                filter: `blur(${(1 - revealProgress) * 12}px) saturate(${0.8 + revealProgress * 0.35})`,
-                transition: isPointerInside ? "opacity 140ms ease-out, filter 160ms ease-out" : "opacity 280ms ease, filter 280ms ease",
-              }}
+              suppressHydrationWarning
             />
 
             <div
-              className="relative z-10 rotate-3 text-center font-instrument-serif text-6xl text-white/85 lg:text-8xl"
-              style={{
-                opacity: 1 - revealProgress * 0.85,
-                transform: `rotate(3deg) scale(${1 - revealProgress * 0.04})`,
-                transition: isPointerInside ? "opacity 140ms ease-out, transform 160ms ease-out" : "opacity 260ms ease, transform 260ms ease",
-              }}
+              className="about-overlay-text relative z-10 rotate-3 text-center font-instrument-serif text-6xl text-white/85 lg:text-8xl"
+              suppressHydrationWarning
             >
               TH
             </div>

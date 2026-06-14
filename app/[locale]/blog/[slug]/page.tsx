@@ -1,178 +1,89 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { createHighlighter, type BuiltinLanguage, type BuiltinTheme } from "shiki";
+import { codeToHtml } from "shiki";
+import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import type { Root, RootContent, Code } from "mdast";
 
 import { blogPosts } from "@/lib/blog-data";
+import { getPostBySlug, getPostExists } from "@/lib/content";
+import { extractHeadings, buildTocGroups, slugify } from "@/lib/toc";
+import { mdxArticleIntro, mdxArticleSections } from "@/lib/blog-article-data";
+import { MdxCodeBlock } from "@/components/ui/mdx-code-block";
+import { PostShareMenu } from "@/components/ui/post-share-menu";
+import { getTranslations } from "next-intl/server";
 
 type BlogPostPageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 };
 
-type ArticleSection = {
-  id: string;
-  title: string;
-  depth?: 2 | 3;
-  paragraphs: string[];
-  codeTitle?: string;
-  code?: string;
-  codeLang?: string;
+const SHIKI_THEME = "github-dark";
+
+type CodeBlockData = { html: string; code: string; lang: string };
+
+type MdxJsxAttribute = { type: "mdxJsxAttribute"; name: string; value: unknown };
+type MdxJsxFlowElement = {
+  type: "mdxJsxFlowElement";
+  name: string | null;
+  attributes: MdxJsxAttribute[];
+  children: RootContent[];
 };
 
-type TocItem = {
-  id: string;
-  title: string;
-  depth: 2 | 3;
-};
+function remarkCodeToJsx(getCodeData: (code: string, lang: string) => CodeBlockData) {
+  return () => {
+    return (tree: Root) => {
+      const codeNodes: Array<{ index: number; node: Code }> = [];
 
-type TocGroup = {
-  id: string;
-  title: string;
-  children: Array<{ id: string; title: string }>;
-};
+      tree.children.forEach((node: RootContent, i: number) => {
+        if (node.type === "code") {
+          codeNodes.push({ index: i, node: node as Code });
+        }
+      });
 
-const SHIKI_THEME: BuiltinTheme = "github-dark";
-const SHIKI_LANGS = ["bash", "ts", "tsx", "text"] as const;
-const SHIKI_LANG_SET = new Set<string>(SHIKI_LANGS);
+      for (const { index, node } of codeNodes) {
+        const lang: string = node.lang ?? "text";
+        const rawCode: string = node.value ?? "";
+        const data = getCodeData(rawCode, lang);
 
-const highlighterPromise = createHighlighter({
-  themes: [SHIKI_THEME],
-  langs: SHIKI_LANGS as unknown as BuiltinLanguage[],
-});
+        const jsxNode: MdxJsxFlowElement = {
+          type: "mdxJsxFlowElement",
+          name: "MdxCodeBlock",
+          attributes: [
+            { type: "mdxJsxAttribute", name: "html", value: data.html },
+            { type: "mdxJsxAttribute", name: "code", value: data.code },
+            { type: "mdxJsxAttribute", name: "label", value: data.lang },
+          ],
+          children: [],
+        };
 
-async function highlightCode(code: string, lang: string): Promise<string> {
-  const highlighter = await highlighterPromise;
-  const normalizedLang = SHIKI_LANG_SET.has(lang) ? (lang as BuiltinLanguage) : ("text" as BuiltinLanguage);
-
-  return highlighter.codeToHtml(code, {
-    lang: normalizedLang,
-    theme: SHIKI_THEME,
-  });
+        tree.children.splice(index, 1, jsxNode as unknown as RootContent);
+      }
+    };
+  };
 }
 
-const mdxArticleSections: ArticleSection[] = [
-  {
-    id: "the-stack-three-packages-thats-it",
-    title: "The stack (three packages, that's it)",
-    depth: 2,
-    paragraphs: [
-      "Before we scaffold anything, install only what you actually need: next-mdx-remote for server-side MDX rendering, gray-matter for frontmatter parsing, and reading-time for metadata.",
-      "That is enough to ship a clean content system without a CMS SDK, GraphQL layer, or database.",
-    ],
-    codeTitle: "Terminal",
-    codeLang: "bash",
-    code: `pnpm create next-app@latest mdx-blog --typescript --tailwind --app --src-dir=false\ncd mdx-blog\npnpm add next-mdx-remote gray-matter reading-time`,
-  },
-  {
-    id: "project-structure",
-    title: "Project structure",
-    depth: 2,
-    paragraphs: [
-      "Keep your routes and content maps obvious: posts stay in content/blog and route handlers in app/blog.",
-      "The cleaner your folder mapping, the easier it is to generate lists, static params, and SEO metadata from files.",
-    ],
-    codeTitle: "Folder Layout",
-    codeLang: "text",
-    code: `app/\n  blog/\n    page.tsx\n    [slug]/page.tsx\ncontent/\n  blog/\n    my-first-post.mdx\nlib/\n  blog.ts\n  mdx.ts`,
-  },
-  {
-    id: "frontmatter-contract",
-    title: "Frontmatter contract",
-    depth: 2,
-    paragraphs: [
-      "Define a strict frontmatter shape once, then validate each post against it so your list and detail pages never drift.",
-      "This makes dates, titles, descriptions, and cover images predictable for both rendering and metadata generation.",
-    ],
-    codeTitle: "lib/blog.ts",
-    codeLang: "ts",
-    code: `export type Frontmatter = {\n  title: string;\n  excerpt: string;\n  date: string;\n  tags?: string[];\n  cover?: string;\n};\n\nexport function assertFrontmatter(data: Record<string, unknown>): Frontmatter {\n  if (typeof data.title !== "string" || typeof data.excerpt !== "string" || typeof data.date !== "string") {\n    throw new Error("Invalid frontmatter");\n  }\n\n  return {\n    title: data.title,\n    excerpt: data.excerpt,\n    date: data.date,\n    tags: Array.isArray(data.tags) ? data.tags.filter((tag): tag is string => typeof tag === "string") : [],\n    cover: typeof data.cover === "string" ? data.cover : undefined,\n  };\n}`,
-  },
-  {
-    id: "content-layer",
-    title: "Content layer",
-    depth: 2,
-    paragraphs: [
-      "The content layer reads files from content/blog, parses frontmatter, computes reading time, and returns typed objects for routes.",
-      "This keeps routing and rendering clean while making content processing reusable across list pages, feeds, and metadata.",
-    ],
-    codeTitle: "lib/content.ts",
-    codeLang: "ts",
-    code: `import fs from "node:fs";\nimport path from "node:path";\nimport matter from "gray-matter";\nimport readingTime from "reading-time";\n\nconst POSTS_DIR = path.join(process.cwd(), "content", "blog");\n\nexport function getPostSlugs() {\n  return fs.readdirSync(POSTS_DIR).filter((name) => name.endsWith(".mdx"));\n}\n\nexport function getPostBySlug(slug: string) {\n  const file = fs.readFileSync(path.join(POSTS_DIR, \`\${slug}.mdx\`), "utf8");\n  const { data, content } = matter(file);\n\n  return {\n    slug,\n    frontmatter: assertFrontmatter(data),\n    content,\n    readingTime: readingTime(content).text,\n  };\n}`,
-  },
-  {
-    id: "blog-listing-page",
-    title: "Blog listing page",
-    depth: 2,
-    paragraphs: [
-      "The listing route can be a tiny server component: load all posts, sort by date descending, and render cards with title, summary, and metadata.",
-      "This is where file-based content feels best: no API calls and no stale cache synchronization logic.",
-    ],
-  },
-  {
-    id: "rendering-mdx-in-app-router",
-    title: "Article page",
-    depth: 2,
-    paragraphs: [
-      "In App Router, compile post source in the server route and pass custom MDX components for headings, code blocks, links, and callouts.",
-      "This keeps authored content in MDX while preserving your site design language in React components.",
-    ],
-    codeTitle: "app/blog/[slug]/page.tsx",
-    codeLang: "tsx",
-    code: `import { MDXRemote } from "next-mdx-remote/rsc";\n\nexport default async function PostPage({ params }: { params: { slug: string } }) {\n  const post = await getPostBySlug(params.slug);\n\n  return (\n    <article className="prose prose-neutral">\n      <MDXRemote source={post.content} components={mdxComponents} />\n    </article>\n  );\n}`,
-  },
-  {
-    id: "custom-components",
-    title: "Custom components",
-    depth: 2,
-    paragraphs: [
-      "This is where MDX beats plain markdown: pass React components into the renderer and use them directly inside writing.",
-      "Callouts, responsive images, tabbed examples, and embedded demos all become first-class content blocks.",
-    ],
-  },
-  {
-    id: "the-components-map",
-    title: "The components map",
-    depth: 3,
-    paragraphs: [
-      "Define a single components map and keep it strongly typed so JSX tags in MDX resolve consistently.",
-    ],
-    codeTitle: "lib/mdx-components.tsx",
-    codeLang: "tsx",
-    code: `import Image from "next/image";\nimport type { MDXComponents } from "mdx/types";\nimport { Callout } from "@/components/callout";\n\nexport const mdxComponents: MDXComponents = {\n  Callout,\n  Image: (props) => <Image className="rounded-lg" sizes="(max-width: 768px) 100vw, 672px" {...props} />,\n  a: ({ href, children, ...props }) => (\n    <a\n      href={href}\n      target={href?.startsWith("http") ? "_blank" : undefined}\n      rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}\n      {...props}\n    >\n      {children}\n    </a>\n  ),\n};`,
-  },
-  {
-    id: "a-callout-component",
-    title: "A Callout component",
-    depth: 3,
-    paragraphs: [
-      "A minimal callout component handles info, warning, and success messages while keeping prose visually consistent.",
-    ],
-  },
-  {
-    id: "wiring-it-up",
-    title: "Wiring it up",
-    depth: 3,
-    paragraphs: [
-      "Render with MDXRemote in the article route and pass your components map. If a slug is missing, call notFound() for a clean 404.",
-    ],
-  },
-  {
-    id: "styling-the-prose",
-    title: "Styling the prose",
-    depth: 2,
-    paragraphs: [
-      "Use a focused typography layer for paragraphs, heading rhythm, and code block spacing instead of ad-hoc classes per post.",
-      "Once the base is stable, your content authorship flow becomes predictable and fast.",
-    ],
-  },
-];
+function MdxHeading({ level, children }: { level: 2 | 3; children: React.ReactNode }) {
+  const text = String(children);
+  const id = slugify(text);
+  const Tag = `h${level}` as "h2" | "h3";
+  return (
+    <Tag id={id} className="group scroll-mt-24">
+      <a href={`#${id}`} className="no-underline">
+        {children}
+      </a>
+    </Tag>
+  );
+}
 
-const mdxArticleIntro = [
-  "Every blog platform wants to be your landlord. You get a locked database, a fixed editor, and very little control over rendering.",
-  "MDX with Next.js App Router flips that model: content lives in git, renders through your own React components, and deploys as static HTML wherever you want.",
-  "This is the exact architecture behind this blog and why it stays portable.",
-];
+const VALID_LANGS = new Set(["bash", "ts", "tsx", "text", "py", "js", "jsx", "css", "html", "json", "yaml", "md", "sql"]);
+
+async function highlightCode(code: string, lang: string): Promise<string> {
+  const normalizedLang = VALID_LANGS.has(lang) ? lang : "text";
+  return codeToHtml(code, { lang: normalizedLang, theme: SHIKI_THEME });
+}
 
 function CopyIcon() {
   return (
@@ -193,69 +104,70 @@ function TocIcon() {
   );
 }
 
-function buildTocGroups(items: TocItem[]): TocGroup[] {
-  const groups: TocGroup[] = [];
-  let currentGroup: TocGroup | null = null;
-
-  items.forEach((item) => {
-    if (item.depth === 2) {
-      currentGroup = {
-        id: item.id,
-        title: item.title,
-        children: [],
-      };
-      groups.push(currentGroup);
-      return;
-    }
-
-    if (currentGroup) {
-      currentGroup.children.push({ id: item.id, title: item.title });
-    }
-  });
-
-  return groups;
-}
-
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  const locales = ["en", "vi"];
+  return locales.flatMap((locale) =>
+    blogPosts.map((post) => ({
+      slug: post.slug,
+      locale,
+    }))
+  );
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = blogPosts.find((entry) => entry.slug === slug);
 
   if (!post) {
-    return {
-      title: "Blog Post Not Found",
-    };
+    return { title: "Blog Post Not Found" };
   }
 
   return {
     title: `${post.title} | Blog`,
     description: post.excerpt,
+    alternates: {
+      types: {
+        "text/markdown": `/${locale}/blog/${slug}.md`,
+      },
+    },
   };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = blogPosts.find((entry) => entry.slug === slug);
+  const tNav = await getTranslations("nav");
+  const tCommon = await getTranslations("common");
 
   if (!post) {
     notFound();
   }
 
-  const isMdxGuide = post.slug === "build-a-blog-with-nextjs-and-mdx";
+  const hasMdxContent = getPostExists(slug);
+  const isHardcodedMdxGuide = post.slug === "build-a-blog-with-nextjs-and-mdx";
+  const isMdxGuide = isHardcodedMdxGuide;
 
-  const tocItems: TocItem[] = isMdxGuide
+  const postContent = hasMdxContent ? await getPostBySlug(slug) : null;
+
+  const tocItems = isMdxGuide
     ? mdxArticleSections.map((section) => ({
         id: section.id,
         title: section.title,
         depth: (section.depth ?? 2) as 2 | 3,
       }))
-    : [{ id: "overview", title: "Overview", depth: 2 as const }];
+    : hasMdxContent && postContent
+      ? extractHeadings(postContent.content)
+      : [{ id: "overview", title: "Overview", depth: 2 as const }];
 
   const tocGroups = buildTocGroups(tocItems);
   const highlightedCodeBySection = new Map<string, string>();
+
+  // Build absolute URLs for share links from the incoming request.
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000";
+  const protocol = headerStore.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const postUrl = `${protocol}://${host}/${locale}/blog/${slug}`;
+  const markdownUrl = `/${locale}/blog/${slug}.md`;
 
   if (isMdxGuide) {
     const highlightedSections = await Promise.all(
@@ -267,6 +179,49 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     highlightedSections.forEach(([sectionId, html]) => {
       highlightedCodeBySection.set(sectionId, html);
     });
+  }
+
+  let compiledMdx: React.ReactElement | null = null;
+
+  if (hasMdxContent && postContent) {
+    const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+    const rawCodeBlocks: { lang: string; code: string }[] = [];
+    postContent.content.replace(codeBlockRegex, (_full, lang, rawCode) => {
+      rawCodeBlocks.push({ lang: lang || "text", code: rawCode.trimEnd() });
+      return "";
+    });
+
+    const highlightedBlocks = await Promise.all(
+      rawCodeBlocks.map(({ lang, code }) =>
+        codeToHtml(code, { lang: VALID_LANGS.has(lang) ? lang : "text", theme: SHIKI_THEME }).then((html) => ({
+          html,
+          code,
+          lang,
+        })),
+      ),
+    );
+
+    const getCodeData = (code: string, lang: string): CodeBlockData => {
+      const found = highlightedBlocks.find((b) => b.code === code && b.lang === lang);
+      if (found) return found;
+      return { html: "", code, lang };
+    };
+
+    const { content } = await compileMDX({
+      source: postContent.content,
+      components: {
+        MdxCodeBlock,
+        h2: ({ children }: { children: React.ReactNode }) => <MdxHeading level={2}>{children}</MdxHeading>,
+        h3: ({ children }: { children: React.ReactNode }) => <MdxHeading level={3}>{children}</MdxHeading>,
+      },
+      options: {
+        mdxOptions: {
+          remarkPlugins: [remarkGfm, remarkCodeToJsx(getCodeData)],
+        },
+      },
+    });
+
+    compiledMdx = content;
   }
 
   return (
@@ -302,13 +257,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <ol className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
                 <li className="contents">
                   <Link href="/" className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300">
-                    Home
+                    {tNav("home")}
                   </Link>
                 </li>
                 <li className="contents">
                   <span className="size-3">›</span>
                   <Link href="/blog" className="transition-colors hover:text-neutral-600 dark:hover:text-neutral-300">
-                    Blog
+                    {tNav("blog")}
                   </Link>
                 </li>
                 <li className="contents">
@@ -323,33 +278,31 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="mt-5 flex flex-col items-end gap-4 px-4 sm:flex-row sm:items-end sm:justify-between md:px-6">
                 <p className="max-w-2xl self-start text-lg leading-relaxed text-neutral-400">{post.excerpt}</p>
                 <div className="inline-flex shrink-0 items-center overflow-hidden rounded-lg border border-neutral-700 bg-neutral-950/40 shadow-border transition-colors hover:border-neutral-600">
-                  <button type="button" className="inline-flex items-center gap-2 whitespace-nowrap px-3 py-1.5 text-xs tracking-wide text-neutral-400 transition-colors hover:bg-neutral-900 hover:text-neutral-200">
-                    Copy Page
-                  </button>
-                  <span className="w-px self-stretch bg-neutral-800" />
-                  <button type="button" className="px-2 py-2 text-neutral-400 transition-colors hover:bg-neutral-900 hover:text-neutral-200">
-                    ▼
-                  </button>
+                  <PostShareMenu postUrl={postUrl} postTitle={post.title} markdownUrl={markdownUrl} />
                 </div>
               </div>
 
               <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-y border-dashed px-4 py-4 md:px-6">
                 <div className="flex items-center gap-2.5">
                   <Image
-                    src="/images/aayush.webp"
-                    alt="Aayush Bharti"
+                    src="/images/z6715827947073_b0cf72fee8964b9ea4fd8eddd2b10e6c.jpg"
+                    alt="Trinh Van Hao"
                     width={32}
                     height={32}
                     className="size-8 rounded-full ring-1 ring-neutral-700"
                   />
-                  <span className="text-sm font-medium text-neutral-200">Aayush Bharti</span>
+                  <span className="text-sm font-medium text-neutral-200">Trinh Van Hao</span>
                 </div>
                 <span className="text-neutral-700">/</span>
                 <div className="flex items-center gap-1.5 font-mono text-xs text-neutral-500">
-                  <span>{post.dateLabel}</span>
+                  <span suppressHydrationWarning>
+                    {postContent?.frontmatter.date
+                      ? new Date(postContent.frontmatter.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                      : post.dateLabel}
+                  </span>
                 </div>
                 <div className="ml-auto flex items-center gap-1.5 font-mono text-xs text-neutral-500">
-                  <span>{post.readMinutes} min read</span>
+                  <span>{postContent?.readingTime ?? `${post.readMinutes} min read`}</span>
                 </div>
               </div>
             </header>
@@ -392,7 +345,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </ul>
                 </nav>
 
-                {!isMdxGuide ? (
+                {!isMdxGuide && !hasMdxContent ? (
                   <section id="overview" className="space-y-4">
                     <p>
                       This article page is connected to the cloned blog index structure and keeps navigation functional while richer content sections are migrated.
@@ -405,10 +358,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                       ))}
                     </div>
                   </section>
-                ) : (
+                ) : isMdxGuide ? (
                   <div className="space-y-6">
-                    {mdxArticleIntro.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
+                    {mdxArticleIntro.map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
                     ))}
 
                     {mdxArticleSections.map((section) => (
@@ -427,15 +380,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                           </h2>
                         )}
 
-                        {section.paragraphs.map((paragraph) => (
-                          <p key={paragraph}>{paragraph}</p>
+                        {section.paragraphs.map((paragraph, i) => (
+                          <p key={i}>{paragraph}</p>
                         ))}
 
                         {section.code && (
                           <figure className="group relative my-6 w-full min-w-0 overflow-hidden rounded-xl border border-neutral-800">
                             <div className="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/80 px-4 py-1.5">
-                              <span className="truncate font-mono text-xs text-neutral-400">{section.codeTitle} {section.codeLang ? `(${section.codeLang})` : ""}</span>
-                              <button type="button" aria-label="Copy code" className="rounded-lg p-1.5 text-neutral-500 transition-opacity hover:bg-neutral-800 hover:text-neutral-200 xl:opacity-0 xl:group-hover:opacity-100">
+                              <span className="truncate font-mono text-xs text-neutral-400">
+                                {section.codeTitle} {section.codeLang ? `(${section.codeLang})` : ""}
+                              </span>
+                              <button
+                                type="button"
+                                aria-label={tCommon("copyCode")}
+                                className="rounded-lg p-1.5 text-neutral-500 transition-opacity hover:bg-neutral-800 hover:text-neutral-200 xl:opacity-0 xl:group-hover:opacity-100"
+                              >
                                 <CopyIcon />
                               </button>
                             </div>
@@ -448,7 +407,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                       </section>
                     ))}
                   </div>
-                )}
+                ) : compiledMdx ? (
+                  <div className="space-y-4 [&_h2]:scroll-mt-24 [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:text-white [&_h2]:md:text-4xl [&_h2]:mt-10 [&_h2:first-child]:mt-0 [&_h3]:scroll-mt-24 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:text-white [&_h3]:md:text-3xl [&_h3]:mt-8 [&_p]:leading-7 [&_a]:text-neutral-300 [&_a]:underline [&_a]:underline-offset-4 [&_a]:transition-colors [&_a:hover]:text-white [&_h2_a]:!no-underline [&_h3_a]:!no-underline [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-1 [&_ul]:space-y-1 [&_li]:leading-7 [&_strong]:text-white [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-700 [&_blockquote]:pl-4 [&_blockquote]:text-neutral-400 [&_blockquote]:italic [&_hr]:my-10 [&_hr]:border-neutral-800 [&_table]:w-full [&_table]:border-collapse">
+                    {compiledMdx}
+                  </div>
+                ) : null}
               </article>
 
               <aside className="hidden w-64 shrink-0 xl:block">
@@ -491,7 +454,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </nav>
               </aside>
             </div>
-        </div>
+          </div>
 
           <div
             aria-hidden="true"

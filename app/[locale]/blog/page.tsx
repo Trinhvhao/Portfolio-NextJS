@@ -1,39 +1,35 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
-import { BlogContent } from "./blog-content";
+import { BlogContent } from "@/app/blog/blog-content";
 
 export const metadata: Metadata = {
-  title: "Blog | Tutorials & Insights - Aayush Bharti",
+  title: "Blog | Tutorials & Insights - Trinh Van Hao",
   description:
     "Explore tutorials, deep dives, and lessons on React, Next.js, TypeScript, and modern web development from a full-stack engineer.",
 };
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const t = await getTranslations("blog");
+
   return (
     <>
       <div
         className="absolute inset-0 z-[-1] h-[450px] w-full overflow-hidden bg-neutral-100/70 dark:bg-neutral-950/93"
         style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)", opacity: 1 }}
       >
-        <img
+        <Image
           alt="crumpled paper texture"
           className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
           decoding="async"
           loading="lazy"
           sizes="100vw"
           src="/images/crumpled-paper.avif"
-          style={{
-            position: "absolute",
-            height: "100%",
-            width: "100%",
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            color: "transparent",
-          }}
+          fill
+          priority={false}
         />
       </div>
 
@@ -50,11 +46,11 @@ export default function BlogPage() {
                 className="relative z-2 mx-auto mb-16 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:text-6xl"
                 style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.20)" }}
               >
-                <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">The Pensieve</p>
+                <p className="mb-4 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("pensieve")}</p>
                 <span className="inline-block font-instrument-serif">
-                  <span>Handpicked </span>
+                  <span>{t("handpicked")} </span>
                   <TypedRouteText
-                    text="Insights"
+                    text={t("insights")}
                     className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull"
                     delay={0.1}
                   />

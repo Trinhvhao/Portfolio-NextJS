@@ -1,41 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CommandMenu } from "@/components/ui/command-menu";
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/projects", label: "Work" },
-  { href: "/blog", label: "Blog" },
-  { href: "/uses", label: "More", hasChevron: true, isMoreMenu: true },
-  { href: "/links", label: "Contact", isContact: true },
-];
-
-const moreFeatureCards = [
-  {
-    href: "/guestbook",
-    title: "Guestbook",
-    description: "Let me know you were here",
-    background: "linear-gradient(155deg, #70472d 0%, #3f2a20 45%, #1e1718 100%)",
-  },
-  {
-    href: "/bucket-list",
-    title: "Bucket List",
-    description: "Things to do at least once in my life",
-    background: "linear-gradient(155deg, #5f9bef 0%, #2c5ea7 48%, #111f32 100%)",
-  },
-];
-
-const moreQuickLinks = [
-  { href: "/about", label: "Resume / CV", subtitle: "Quick profile summary" },
-  { href: "/uses", label: "Uses", subtitle: "A peek into my digital setup" },
-  { href: "/legal/terms", label: "Attribution", subtitle: "Journey to create this site" },
-];
-
 export function SiteHeader() {
+  const t = useTranslations("nav");
+  const tFeature = useTranslations("feature");
   const pathname = usePathname();
   const router = useRouter();
   const navTrackRef = useRef<HTMLDivElement | null>(null);
@@ -46,19 +19,60 @@ export function SiteHeader() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [isMoreMenuPinned, setIsMoreMenuPinned] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+
+  const navItems = useMemo(() => [
+    { href: "/", label: t("home") },
+    { href: "/about", label: t("about") },
+    { href: "/projects", label: t("work") },
+    { href: "/blog", label: t("blog") },
+    { href: "/uses", label: t("more"), hasChevron: true, isMoreMenu: true },
+    { href: "/links", label: t("contact"), isContact: true },
+  ], [t]);
+
+  const moreFeatureCards = useMemo(() => [
+    {
+      href: "/guestbook",
+      title: t("guestbook"),
+      description: tFeature("remoteDetail"),
+      background: "linear-gradient(155deg, #70472d 0%, #3f2a20 45%, #1e1718 100%)",
+      bgImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='%23ffffff08'/%3E%3Ccircle cx='100' cy='100' r='50' fill='%23ffffff06'/%3E%3C/svg%3E\")",
+      bgPosition: "right top",
+      emoji: "✍️",
+    },
+    {
+      href: "/bucket-list",
+      title: t("bucketList"),
+      description: tFeature("scoopDesc"),
+      background: "linear-gradient(155deg, #5f9bef 0%, #2c5ea7 48%, #111f32 100%)",
+      bgImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='%23ffffff08'/%3E%3Ccircle cx='100' cy='100' r='50' fill='%23ffffff06'/%3E%3C/svg%3E\")",
+      bgPosition: "right top",
+      emoji: "🎯",
+    },
+  ], [t, tFeature]);
+
+  const moreQuickLinks = useMemo(() => [
+    { href: "/resume", label: t("resume"), subtitle: tFeature("resumeSubtitle") },
+    { href: "/uses", label: t("uses"), subtitle: tFeature("technologies") },
+    { href: "/legal/terms", label: tFeature("collaborationCta"), subtitle: "Journey to create this site" },
+  ], [t, tFeature]);
 
   const normalizedPathname = useMemo(() => {
     if (!pathname) return "/";
-    if (pathname !== "/" && pathname.endsWith("/")) {
-      return pathname.slice(0, -1);
+    // Strip locale prefix (/en, /vi) from pathname
+    const stripped = pathname.replace(/^\/(en|vi)/, "");
+    const base = stripped === "" ? "/" : stripped;
+    if (base !== "/" && base.endsWith("/")) {
+      return base.slice(0, -1);
     }
-    return pathname;
+    return base;
   }, [pathname]);
 
   const activeHref = useMemo(() => {
     if (
       normalizedPathname === "/uses" ||
       normalizedPathname === "/guestbook" ||
+      normalizedPathname === "/resume" ||
       normalizedPathname.startsWith("/legal")
     ) {
       return "/uses";
@@ -274,8 +288,10 @@ export function SiteHeader() {
                         ? openMoreMenu
                         : () => {
                             closeMoreMenu(true);
+                            setHoveredHref(item.href);
                           }
                     }
+                    onMouseLeave={() => setHoveredHref(null)}
                     onClick={() => {
                       if (isMoreMenuItem) {
                         setIsMoreMenuOpen((prev) => !prev);
@@ -292,11 +308,11 @@ export function SiteHeader() {
                       padding: isContactItem ? "6px 18px" : "6px 16px",
                       fontSize: "15px",
                       fontWeight: isContactItem ? 600 : 500,
-                      color: isContactItem ? "#fff" : isActive ? "#fff" : "#d4d4d8",
-                      background: isContactItem ? "rgba(255,255,255,0.08)" : "transparent",
+                      color: isContactItem ? "#fff" : isActive ? "#fff" : hoveredHref === item.href ? "#fff" : "#d4d4d8",
+                      background: isContactItem ? "rgba(255,255,255,0.08)" : hoveredHref === item.href ? "rgba(255,255,255,0.08)" : "transparent",
                       border: isContactItem ? "1px solid rgba(255,255,255,0.22)" : "1px solid transparent",
                       boxShadow: isContactItem ? "inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 14px rgba(255,255,255,0.12)" : "none",
-                      transition: "color 180ms ease",
+                      transition: "color 150ms ease, background 150ms ease",
                       lineHeight: 1.25,
                       position: "relative",
                       zIndex: 2,
@@ -350,11 +366,24 @@ export function SiteHeader() {
                     key={card.href}
                     href={card.href}
                     onClick={() => closeMoreMenu(true)}
+                    suppressHydrationWarning
                     className="relative flex min-h-[184px] flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-4"
                     style={{
-                      background: card.background,
+                      background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.35)), ${card.background}`,
+                      backgroundImage: card.bgImage ? `${card.bgImage}, ${card.background}` : card.background,
+                      backgroundPosition: card.bgPosition || "center",
+                      backgroundSize: "auto, cover",
                     }}
                   >
+                    {card.emoji && (
+                      <span
+                        suppressHydrationWarning
+                        className="absolute text-6xl opacity-40"
+                        style={{ top: "16px", right: "16px" }}
+                      >
+                        {card.emoji}
+                      </span>
+                    )}
                     <span className="mb-2 inline-block size-2 rounded-full bg-white/90" />
                     <h3 className="mt-1 text-[14px] font-semibold leading-[1.25] text-white">{card.title}</h3>
                     <p className="mt-1.5 max-w-[22ch] text-[13px] leading-[1.35] text-zinc-200/90">{card.description}</p>

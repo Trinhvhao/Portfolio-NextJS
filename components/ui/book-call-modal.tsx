@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 const BOOK_CALL_OPEN_EVENT = "book-call-modal:open";
@@ -37,6 +38,8 @@ export function BookCallTrigger({ children, className, style, ariaLabel }: BookC
 }
 
 export function BookCallModalRoot() {
+  const tBookCall = useTranslations("bookCall");
+  const tCommon = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -73,7 +76,7 @@ export function BookCallModalRoot() {
     >
       <button
         type="button"
-        aria-label="Close book call modal"
+        aria-label={tBookCall("closeModal")}
         className={`absolute inset-0 bg-black/65 backdrop-blur-[2px] transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
         onClick={() => setIsOpen(false)}
       />
@@ -82,22 +85,22 @@ export function BookCallModalRoot() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Book a call"
+          aria-label={tBookCall("ariaLabel")}
           className={`pointer-events-auto w-full max-w-xl rounded-3xl border border-white/12 bg-[#111214] p-6 text-zinc-100 shadow-[0_24px_80px_rgba(0,0,0,0.55)] transition-all duration-300 sm:p-7 ${
             isOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-mono text-xs tracking-[0.22em] text-zinc-400 uppercase">Book a Call</p>
-              <h2 className="mt-2 font-instrument-serif text-3xl leading-tight text-white">Let&apos;s talk about your next build</h2>
+              <p className="font-mono text-xs tracking-[0.22em] text-zinc-400 uppercase">{tBookCall("eyebrow")}</p>
+              <h2 className="mt-2 font-instrument-serif text-3xl leading-tight text-white">{tBookCall("heading")}</h2>
               <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-                Share your goals, constraints, and expected timeline. I&apos;ll reply quickly with a practical next step.
+                {tBookCall("description")}
               </p>
             </div>
             <button
               type="button"
-              aria-label="Close"
+              aria-label={tBookCall("close")}
               className="inline-flex size-8 items-center justify-center rounded-full border border-white/12 text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
               onClick={() => setIsOpen(false)}
             >
@@ -110,14 +113,14 @@ export function BookCallModalRoot() {
               href="mailto:hello@trinhvhao.com?subject=Book%20a%20Call"
               className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-zinc-200"
             >
-              Email to Book
+              {tBookCall("emailToBook")}
             </a>
             <Link
               href="/links"
               onClick={() => setIsOpen(false)}
               className="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
             >
-              View Contact Details
+              {tBookCall("viewContactDetails")}
             </Link>
           </div>
         </div>

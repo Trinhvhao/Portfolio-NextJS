@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { LinksMainSection } from "../../components/sections/links-main-section";
 
 export const metadata: Metadata = {
@@ -6,9 +8,11 @@ export const metadata: Metadata = {
   description: "Get in touch, explore links, and send a message.",
 };
 
-export default function LinksPage() {
+export default async function LinksPage() {
+  const messages = await getMessages();
+
   return (
-    <>
+    <NextIntlClientProvider messages={messages}>
       <div
         aria-hidden
         className="absolute inset-0 z-[-1] h-[450px] w-full overflow-hidden bg-neutral-100/70 dark:bg-neutral-950/93"
@@ -50,6 +54,6 @@ export default function LinksPage() {
           />
         </div>
       </main>
-    </>
+    </NextIntlClientProvider>
   );
 }

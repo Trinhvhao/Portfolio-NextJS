@@ -1,0 +1,55 @@
+---
+alwaysApply: true
+---
+# Auto Commit Rule
+
+When the user asks to commit code, save changes, or any variation indicating work is done for a session, follow this workflow:
+
+## When to Commit
+
+Commit automatically when:
+- The user explicitly says "commit", "save", "commit code", or similar
+- The user explicitly asks to create a git commit
+- A significant piece of work is complete (new feature, bug fix, refactor)
+
+Do NOT commit automatically on every small edit unless the user asks.
+
+## Commit Workflow
+
+1. **Check git status** to see all untracked and modified files:
+   ```
+   git status
+   ```
+2. **Check git diff** to see staged and unstaged changes:
+   ```
+   git diff
+   ```
+3. **Draft a commit message** following this project convention:
+   - Subject line: concise, max 72 characters, imperative mood
+   - Body (optional): explain WHAT and WHY, not HOW
+   - Format:
+     ```
+     <type>: <short description>
+
+     [Optional body]
+     ```
+   - Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`
+4. **Stage relevant files** - DO NOT stage sensitive files:
+   - ❌ NEVER stage: `.env`, `*.env`, `credentials.json`, `secrets.json`, `*.pem`, `*.key`, `token`, `*.log`, `node_modules/`
+   - ⚠️ Warn user if any of these files appear in changes
+5. **Create the commit** using a HEREDOC for the message:
+   ```
+   git add <files> && git commit -m "$(cat <<'EOF'
+   <commit message>
+   EOF
+   )"
+   ```
+6. **Verify** with `git status` that the working tree is clean
+
+## Safety Rules
+
+- **NEVER run `git push --force`** or `git reset --hard`
+- **NEVER amend a commit** that has already been pushed to remote
+- **NEVER update git config** settings
+- If pre-commit hooks reject the commit, fix the issues and create a NEW commit
+- If the commit fails for any reason, report the error to the user instead of proceeding

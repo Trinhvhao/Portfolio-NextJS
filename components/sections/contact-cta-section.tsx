@@ -1,6 +1,7 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
-function OpenToWorkSpinner() {
+function OpenToWorkSpinner({ text }: { text: string }) {
   const curveId = "contact-open-to-work-curve";
 
   return (
@@ -33,7 +34,7 @@ function OpenToWorkSpinner() {
                   startOffset="0"
                   style={{ fontSize: "13px", fontWeight: 600, wordSpacing: "5px", letterSpacing: "2.1px", fill: "rgba(242,242,242,0.9)" }}
                 >
-                  OPEN TO WORK - OPEN TO WORK -
+                  {text}
                 </textPath>
               </text>
             </svg>
@@ -43,13 +44,16 @@ function OpenToWorkSpinner() {
             <path d="M12 1C12 1 12 8 10 10C8 12 1 12 1 12C1 12 8 12 10 14C12 16 12 23 12 23C12 23 12 16 14 14C16 12 23 12 23 12C23 12 16 12 14 10C12 8 12 1 12 1Z" />
           </svg>
         </div>
-        <span className="sr-only">OPEN TO WORK - OPEN TO WORK -</span>
+        <span className="sr-only">{text}</span>
       </div>
     </div>
   );
 }
 
 export function ContactCtaSection() {
+  const t = useTranslations("contactCta");
+  const spinnerText = `${t("spinner")} - `;
+
   return (
     <section
       className="relative z-0 mt-pagebuilder flex w-full justify-center overflow-x-hidden px-4 py-20 [mask-image:linear-gradient(to_bottom,transparent,black_10rem,black_calc(100%-10rem),transparent)]"
@@ -62,7 +66,7 @@ export function ContactCtaSection() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-20 bg-gradient-to-b from-black/75 via-black/35 to-transparent" />
 
       <div className="container relative z-10 mx-auto flex w-full flex-col items-center justify-center gap-y-2 rounded-[28px] border border-white/8 bg-[#02050d]/70 px-4 py-10 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_rgba(0,0,0,0.55)] sm:px-6">
-        <OpenToWorkSpinner />
+        <OpenToWorkSpinner text={spinnerText} />
 
         <div className="relative">
           <Image
@@ -72,7 +76,7 @@ export function ContactCtaSection() {
             draggable={false}
             height={116}
             src="/images/wings.svg"
-            style={{ height: "auto" }}
+            style={{ height: "auto", width: "auto" }}
             width={320}
           />
           <svg className="absolute top-1/2 left-1/2 z-10 w-8 -translate-x-1/2 -translate-y-1/2 md:w-10" viewBox="0 0 5350 5350" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -88,13 +92,13 @@ export function ContactCtaSection() {
         </div>
 
         <div className="mt-4 text-2xl tracking-wide text-white sm:text-4xl lg:text-5xl">
-          <h3 className="text-nowrap font-light">FROM CONCEPT TO <span className="font-extrabold">CREATION</span></h3>
-          <h3 className="mt-3 text-nowrap font-light">LET&apos;S MAKE IT <span className="font-extrabold">HAPPEN!</span></h3>
+          <h3 className="text-nowrap font-light">{t("title1")} <span className="font-extrabold">{t("title1Accent")}</span></h3>
+          <h3 className="mt-3 text-nowrap font-light">{t("title2")} <span className="font-extrabold">{t("title2Accent")}</span></h3>
         </div>
 
         <div className="group my-10">
           <button className="relative inline-flex cursor-pointer items-center justify-between overflow-hidden rounded-full border border-white/15 bg-white/10 py-[3px] pr-[3px] pl-2 font-medium text-base opacity-95 backdrop-blur-xs transition-all hover:bg-white/12 md:py-1 md:pr-1 md:pl-3">
-            <span className="z-10 px-3 text-white transition-colors duration-300 group-hover:text-black">Get In Touch</span>
+            <span className="z-10 px-3 text-white transition-colors duration-300 group-hover:text-black">{t("button")}</span>
             <span className="absolute inset-0 translate-x-[45%] scale-0 rounded-full bg-white opacity-0 transition-all duration-300 ease-in-out group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100" />
             <span className="z-10 flex items-center justify-center overflow-hidden rounded-full bg-white p-2 text-black transition-colors duration-300 group-hover:bg-transparent group-hover:text-white md:p-2.5">
               <svg aria-hidden className="transition-all duration-300 group-hover:translate-x-5 group-hover:opacity-0" fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="18">
@@ -109,11 +113,11 @@ export function ContactCtaSection() {
           </button>
         </div>
 
-        <p className="text-base font-semibold text-white lg:text-2xl">I&apos;m available for full-time roles &amp; freelance projects.</p>
+        <p className="text-base font-semibold text-white lg:text-2xl">{t("description1")}</p>
         <p className="my-2 text-balance text-sm font-extralight tracking-wide text-white/70 lg:text-xl">
-          I thrive on crafting dynamic web applications, and
+          {t("description2")}
           <br />
-          delivering seamless user experiences.
+          {t("description3")}
         </p>
       </div>
     </section>

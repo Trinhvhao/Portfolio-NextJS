@@ -1,9 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
 export function HeroSection() {
+  const t = useTranslations("hero");
+
   return (
     <section
       id="hero-section"
@@ -14,7 +19,7 @@ export function HeroSection() {
         className="absolute top-1/2 left-1/2 z-0 h-[500px] w-4xl -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-700/20 blur-[150px] dark:bg-[#0b0218]"
       />
 
-      <div className="container relative z-20 mx-auto mb-14 flex w-full flex-col items-center justify-center gap-y-6">
+      <div className="container relative z-30 mx-auto mb-14 flex w-full flex-col items-center justify-center gap-y-6">
         <Link
           href="/projects"
           className="group relative inline-flex max-w-[92vw] cursor-pointer items-center gap-2 overflow-hidden rounded-full border border-white/30 bg-white/40 px-1.5 py-1 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.35),0_8px_30px_rgba(79,70,229,0.14)] backdrop-blur-md transition-all duration-300 ease-in hover:border-white/55 hover:bg-white/55 dark:border-white/15 dark:bg-white/5 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_8px_30px_rgba(79,70,229,0.2)] dark:hover:border-white/30 dark:hover:bg-white/10 lg:text-base"
@@ -24,29 +29,28 @@ export function HeroSection() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
             </span>
-            Upcoming
+            {t("badge")}
             <span className="hero-twinkle ml-0.5 text-[9px]">✦</span>
           </span>
           <span className="relative mr-3 min-w-0 overflow-hidden py-1 text-[rgb(0,0,0,72%)] dark:text-[rgb(255,255,255,90%)]">
             <span className="hero-upcoming-rotator inline-flex flex-col">
-              <span>Fresh launches and standout case studies are on the way.</span>
-              <span>New product drops are coming soon. Stay tuned.</span>
+              <span>{t("badgeText1")}</span>
+              <span>{t("badgeText2")}</span>
             </span>
           </span>
         </Link>
 
-        <h2 className="w-full text-balance text-center font-instrument-serif text-5xl leading-tight text-zinc-700 opacity-90 dark:text-zinc-100 md:text-5xl lg:text-6xl">
-          <span className="md:text-nowrap">I help founders turn ideas</span>
+        <h2 className="w-full text-balance text-center font-instrument-serif text-5xl leading-tight text-zinc-700 opacity-90 dark:text-zinc-100 md:text-5xl lg:text-6xl relative z-30">
+          <span className="md:text-nowrap">{t("subtitle")}</span>
           <br className="hidden md:block" />
-          into seamless{" "}
           <span className="bg-linear-to-b from-zinc-500 via-zinc-600 to-zinc-900 bg-clip-text font-instrument-serif italic tracking-tight text-transparent dark:from-zinc-700 dark:via-zinc-200 dark:to-zinc-50">
-            digital experiences
+            {t("highlightedText")}
           </span>
         </h2>
 
-        <h1 className="grad-white relative z-20 flex flex-col items-center justify-center text-center text-xl tracking-tight sm:flex-row md:text-xl lg:text-2xl">
+        <h1 className="grad-white relative z-30 flex flex-col items-center justify-center text-center text-xl tracking-tight sm:flex-row md:text-xl lg:text-2xl">
           <span className="flex items-center justify-center">
-            Hello, I&apos;m Trinh Van Hao
+            {t("greeting")} {t("name")}
             <div className="group relative z-[300]">
               <div className="mx-2 w-16 cursor-pointer overflow-hidden rounded-3xl md:w-20 lg:mx-3">
                 <Image
@@ -83,7 +87,8 @@ export function HeroSection() {
             </div>
           </span>
           <span className="leading-relaxed">
-            a <TypedRouteText text="Full Stack" className="animate-gradient-x text-colorfull" delay={0.08} /> Developer
+            <span> {t("role")} </span>
+            <TypedRouteText text={t("roleSuffix")} className="animate-gradient-x text-colorfull" delay={0.08} />
           </span>
         </h1>
 
@@ -97,7 +102,7 @@ export function HeroSection() {
               className="absolute inset-y-[3px] right-[3px] z-10 w-9 rounded-full bg-white transition-all duration-500 ease-out group-hover:left-[3px] group-hover:w-[calc(100%-6px)] md:inset-y-1 md:right-1 md:w-10 md:group-hover:left-1 md:group-hover:w-[calc(100%-8px)]"
             />
             <span className="z-20 px-3 text-white transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-black">
-              Let&apos;s Connect
+              {t("cta")}
             </span>
             <span className="z-20 mr-0.5 inline-flex size-9 items-center justify-center rounded-full text-black md:size-10">→</span>
           </Link>
@@ -121,7 +126,7 @@ export function HeroSection() {
               <rect x="8" y="8" width="14" height="14" rx="2" ry="2"></rect>
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
             </svg>
-            hello@trinhvhao
+            {t("email")}
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
@@ -95,7 +96,7 @@ const bucketGroups: BucketGroup[] = [
 ];
 
 export const metadata: Metadata = {
-  title: "Bucket List | Aayush Bharti",
+  title: "Bucket List | Trinh Van Hao",
   description: "A personal roadmap of completed milestones and upcoming life goals.",
 };
 
@@ -195,7 +196,9 @@ function BucketItemRow({ item, isLast }: { item: BucketItem; isLast: boolean }) 
   );
 }
 
-export default function BucketListPage() {
+export default async function BucketListPage() {
+  const t = await getTranslations("bucketList");
+
   return (
     <>
       <div
@@ -235,11 +238,11 @@ export default function BucketListPage() {
                 className="relative z-2 mx-auto mb-24 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:mb-36 md:text-6xl"
                 style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
               >
-                <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">Lifetime</p>
+                <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
                 <span className="font-instrument-serif">
-                  <span>The Bucket </span>
+                  <span>{t("titleStart")} </span>
                   <TypedRouteText
-                    text="Roadmap"
+                    text={t("titleAccent")}
                     className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull"
                     delay={0.1}
                     triggerOnView

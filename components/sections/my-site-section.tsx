@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
@@ -24,16 +25,17 @@ function OutArrowIcon() {
 }
 
 export function MySiteSection() {
+  const t = useTranslations("mySite");
   return (
     <section className="container relative mx-auto px-4">
       <h2
         className="relative z-2 mx-auto mb-4 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:mb-4 md:text-6xl"
         style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
       >
-        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">My Site</p>
+        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("eyebrow")}</p>
         <span className="font-instrument-serif">
-          <span>Explore, experiment </span>
-          <TypedRouteText text="&& say hello" triggerOnView className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
+          <span>{t("explore")} </span>
+          <TypedRouteText text={t("typed")} triggerOnView className="animate-gradient-x pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
         </span>
       </h2>
 
@@ -65,8 +67,8 @@ export function MySiteSection() {
             </div>
 
             <div className="pointer-events-none z-10 flex flex-col gap-1 p-6">
-              <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">Uses</h3>
-              <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">Check out my favorite tools</p>
+              <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">{t("usesTitle")}</h3>
+              <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("usesSubtitle")}</p>
             </div>
 
             <div className="user-select-none pointer-events-none absolute inset-0 z-30 bg-linear-to-tl from-white/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" />
@@ -79,8 +81,8 @@ export function MySiteSection() {
             <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-[#0b0d12] via-[#07090f] to-[#05060a]" />
 
             <div className="relative z-10">
-              <p className="font-mono text-xs font-semibold tracking-widest text-white/55 uppercase">Behind the code</p>
-              <h3 className="mt-1 text-balance font-instrument-serif text-3xl tracking-tight text-white/90 sm:text-2xl">Journey, skills & experience</h3>
+              <p className="font-mono text-xs font-semibold tracking-widest text-white/55 uppercase">{t("behindTitle")}</p>
+              <h3 className="mt-1 text-balance font-instrument-serif text-3xl tracking-tight text-white/90 sm:text-2xl">{t("behindSubtitle")}</h3>
             </div>
 
             <div className="relative z-10 mt-6 w-full flex-1">
@@ -111,8 +113,8 @@ export function MySiteSection() {
               </div>
 
               <div className="pointer-events-none z-10 flex flex-col gap-1 p-6">
-                <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">Guestbook</h3>
-                <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">Let me know you were here</p>
+                <h3 className="max-w-lg font-mono text-xs text-neutral-400 uppercase">{t("guestbookTitle")}</h3>
+                <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("guestbookSubtitle")}</p>
               </div>
 
               <div className="user-select-none pointer-events-none absolute inset-0 z-30 bg-linear-to-tl from-white/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" />

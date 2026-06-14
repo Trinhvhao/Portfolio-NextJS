@@ -17,8 +17,8 @@ type LinkItem = {
 const codeAndCraftLinks: LinkItem[] = [
   {
     title: "GitHub",
-    subtitle: "@aayushbharti",
-    href: "https://github.com/aayushbharti",
+    subtitle: "@Trinhvhao",
+    href: "https://github.com/Trinhvhao",
     icon: "github",
   },
   {
@@ -32,27 +32,21 @@ const codeAndCraftLinks: LinkItem[] = [
 const connectLinks: LinkItem[] = [
   {
     title: "LinkedIn",
-    subtitle: "in/iaayushbharti",
-    href: "https://linkedin.com/in/iaayushbharti",
+    subtitle: "in/trinh-van-hao",
+    href: "https://linkedin.com/in/trinh-van-hao",
     icon: "linkedin",
   },
   {
-    title: "Twitter / X",
-    subtitle: "@iaayushbharti",
-    href: "https://x.com/iaayushbharti",
+    title: "Facebook",
+    subtitle: "@trinhvhao",
+    href: "https://facebook.com/trinhvhao",
     icon: "twitter",
   },
   {
     title: "Telegram",
-    subtitle: "@iaayushbharti",
-    href: "https://t.me/aayush_notes",
+    subtitle: "@trinhvhao",
+    href: "https://t.me/trinhvhao",
     icon: "telegram",
-  },
-  {
-    title: "BlueSky",
-    subtitle: "@aayush.bsky.social",
-    href: "https://bsky.app/profile/aayushbharti.bsky.social",
-    icon: "bluesky",
   },
 ];
 

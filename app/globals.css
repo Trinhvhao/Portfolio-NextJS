@@ -8,7 +8,9 @@
   color-scheme: dark;
   --font-outfit: "Outfit", "Outfit Fallback", "Segoe UI", sans-serif;
   --font-instrument-serif: "Instrument Serif", "Instrument Serif Fallback", "Times New Roman", serif;
+  --font-noto-serif: "Noto Serif", "Noto Serif Fallback", "Times New Roman", serif;
   --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-vietnamese: "Noto Sans", "Noto Sans Fallback", "Segoe UI", "Arial", sans-serif;
 }
 
 * {
@@ -20,6 +22,16 @@ body {
   font-family: var(--font-outfit);
   background: #000;
   color: #f4f4f5;
+}
+
+/* Vietnamese font - applies when html lang="vi" */
+html[lang="vi"] body {
+  font-family: var(--font-vietnamese);
+}
+
+/* For Vietnamese content, use the Vietnamese-friendly font */
+html[lang="vi"] .vietnamese-text {
+  font-family: var(--font-vietnamese) !important;
 }
 
 ::selection {
@@ -173,4 +185,59 @@ body {
   mask-image: radial-gradient(circle, transparent 50%, black 0);
   mask-position: center;
   mask-size: 4px 4px;
+}
+
+/* View details cursor (work section) */
+.vd-spinner {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 140ms ease-out;
+  will-change: transform, opacity;
+}
+
+.vd-spinner[data-visible="true"] {
+  opacity: 1;
+}
+
+.vd-spinner[data-visible="false"] {
+  opacity: 0;
+}
+
+/* About section wand & reveal (ref-driven) */
+.about-section {
+  --about-progress: 0;
+}
+
+.about-section[data-pointer="true"] {
+  --about-pointer: 1;
+}
+
+.about-section[data-pointer="false"] {
+  --about-pointer: 0;
+}
+
+.about-wand {
+  transform: translate3d(var(--about-wand-x, 0px), var(--about-wand-y, 0px), 0) rotate(calc(-7deg + var(--about-progress, 0) * 10deg));
+  transform-origin: 50% 8px;
+  will-change: transform;
+}
+
+.about-portrait {
+  opacity: calc(0.06 + var(--about-progress, 0) * 0.94);
+  filter: blur(calc((1 - var(--about-progress, 0)) * 12px)) saturate(calc(0.8 + var(--about-progress, 0) * 0.35));
+  transition: opacity 280ms ease, filter 280ms ease;
+  will-change: opacity, filter;
+}
+
+.about-section[data-pointer="true"] .about-portrait {
+  transition: opacity 140ms ease-out, filter 160ms ease-out;
+}
+
+.about-overlay-text {
+  opacity: calc(1 - var(--about-progress, 0) * 0.85);
+  transform: rotate(3deg) scale(calc(1 - var(--about-progress, 0) * 0.04));
+  transition: opacity 260ms ease, transform 260ms ease;
+  will-change: opacity, transform;
+}
+
+.about-section[data-pointer="true"] .about-overlay-text {
+  transition: opacity 140ms ease-out, transform 160ms ease-out;
 }

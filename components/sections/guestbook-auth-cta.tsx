@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 const CHARACTER_LIMIT = 100;
 const graphemeSegmenter =
@@ -31,6 +32,7 @@ function clampCharacters(text: string, max: number) {
 }
 
 export function GuestbookAuthCta() {
+  const tGuestbook = useTranslations("guestbook");
   const { data: session, status } = useSession();
   const [draftMessage, setDraftMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -45,7 +47,7 @@ export function GuestbookAuthCta() {
         disabled
         className="relative z-10 inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-6 py-2 font-medium text-white/80 shadow-lg backdrop-blur-sm"
       >
-        Checking account...
+        {tGuestbook("checkingAccount")}
       </button>
     );
   }
@@ -58,14 +60,14 @@ export function GuestbookAuthCta() {
           onClick={() => signIn("github")}
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20"
         >
-          Continue with GitHub
+          {tGuestbook("continueWithGithub")}
         </button>
         <button
           type="button"
           onClick={() => signIn("google")}
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20"
         >
-          Continue with Google
+          {tGuestbook("continueWithGoogle")}
         </button>
       </div>
     );
@@ -88,7 +90,7 @@ export function GuestbookAuthCta() {
           )}
           <div className="text-left">
             <p className="text-sm font-semibold leading-tight text-white">{session.user.name ?? "Guest"}</p>
-            <p className="text-xs text-cyan-300">Composing...</p>
+            <p className="text-xs text-cyan-300">{tGuestbook("composing")}</p>
           </div>
         </div>
 
@@ -96,7 +98,7 @@ export function GuestbookAuthCta() {
           type="button"
           onClick={() => signOut()}
           className="inline-flex size-7 items-center justify-center rounded-md text-white/40 transition hover:bg-white/10 hover:text-white"
-          aria-label="Sign out"
+          aria-label={tGuestbook("signOut")}
         >
           <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
@@ -114,7 +116,7 @@ export function GuestbookAuthCta() {
             setDraftMessage(clampCharacters(event.target.value, CHARACTER_LIMIT));
           }}
           className="min-h-18 w-full resize-none rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-white/35"
-          placeholder="Type something nice..."
+          placeholder={tGuestbook("placeholder")}
         />
 
         <div className="flex items-center justify-between">
@@ -127,7 +129,7 @@ export function GuestbookAuthCta() {
             disabled={!draftMessage.trim() || isOverLimit}
             onClick={() => setIsSubmitted(true)}
             className="inline-flex h-9 w-14 items-center justify-center rounded-lg border border-white/10 bg-white/6 text-white/45 transition enabled:border-white/20 enabled:bg-white/12 enabled:text-white enabled:hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
-            aria-label="Submit message"
+            aria-label={tGuestbook("submitMessage")}
           >
             <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14" />
@@ -136,11 +138,11 @@ export function GuestbookAuthCta() {
           </button>
         </div>
 
-        {isOverLimit && <p className="text-xs text-rose-300">Please keep it within 100 characters.</p>}
+        {isOverLimit && <p className="text-xs text-rose-300">{tGuestbook("characterLimit", { count: CHARACTER_LIMIT })}</p>}
 
         {isSubmitted && (
           <p className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-3 py-2 text-xs text-emerald-200">
-            Message captured. Next step is wiring persistence to backend/database.
+            {tGuestbook("messageCaptured")}
           </p>
         )}
       </div>
