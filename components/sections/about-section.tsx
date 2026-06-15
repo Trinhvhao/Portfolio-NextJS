@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
@@ -30,6 +30,7 @@ export function AboutSection() {
   const returnRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const rafRef = useRef<number | null>(null);
+  const animateRef = useRef<(() => void) | null>(null);
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pointerActive, setPointerActive] = useState(false);
 
@@ -105,13 +106,22 @@ export function AboutSection() {
       return;
     }
 
-    rafRef.current = requestAnimationFrame(animate);
+    rafRef.current = requestAnimationFrame(animateRef.current!);
   }, [applyWand, clamp]);
+
+  // Store the animate function in a ref so it can reference itself
+  useLayoutEffect(() => {
+    animateRef.current = animate;
+  });
 
   const startAnimate = useCallback(() => {
     if (rafRef.current !== null) return;
-    rafRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+    // Access the current animate function from the ref
+    const currentAnimate = animateRef.current;
+    if (currentAnimate) {
+      rafRef.current = requestAnimationFrame(currentAnimate);
+    }
+  }, []);
 
   // Init default position from first layout — only runs once on mount
   useEffect(() => {
@@ -276,7 +286,7 @@ export function AboutSection() {
               alt="Trinh Hao portrait"
               className="about-portrait absolute inset-[12px] z-[8] rotate-3 rounded-[44px] object-cover"
               fill
-              priority={false}
+              priority
               sizes="(max-width: 1024px) 256px, 520px"
               src="/images/trinhhao.webp"
               suppressHydrationWarning

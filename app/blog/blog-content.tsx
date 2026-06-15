@@ -7,8 +7,6 @@ import { useTranslations } from "next-intl";
 
 import { blogPosts, blogTags } from "@/lib/blog-data";
 
-const ALL_POSTS = "All Posts";
-
 function SearchIcon() {
   return (
     <svg aria-hidden="true" className="size-4 shrink-0" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">

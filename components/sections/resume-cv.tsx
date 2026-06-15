@@ -104,13 +104,13 @@ export function ResumeCV() {
             onClick={() => setLang("en")}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${lang === "en" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/70"}`}
           >
-            English
+            {t("langEnglish")}
           </button>
           <button
             onClick={() => setLang("vi")}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${lang === "vi" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/70"}`}
           >
-            Tiếng Việt
+            {t("langVietnamese")}
           </button>
         </div>
       </div>
@@ -239,7 +239,7 @@ export function ResumeCV() {
           {/* Column 1 */}
           <div className="space-y-3">
             <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <p className="mb-2 font-semibold text-white/70">Frontend</p>
+              <p className="mb-2 font-semibold text-white/70">{t("skillFrontend")}</p>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.frontend.map((s) => (
                   <span key={s} className="rounded border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 font-mono text-xs text-blue-300">{s}</span>
@@ -247,7 +247,7 @@ export function ResumeCV() {
               </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <p className="mb-2 font-semibold text-white/70">Backend</p>
+              <p className="mb-2 font-semibold text-white/70">{t("skillBackend")}</p>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.backend.map((s) => (
                   <span key={s} className="rounded border border-green-500/30 bg-green-500/10 px-2 py-0.5 font-mono text-xs text-green-300">{s}</span>
@@ -255,7 +255,7 @@ export function ResumeCV() {
               </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <p className="mb-2 font-semibold text-white/70">Database</p>
+              <p className="mb-2 font-semibold text-white/70">{t("skillDatabase")}</p>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.database.map((s) => (
                   <span key={s} className="rounded border border-yellow-500/30 bg-yellow-500/10 px-2 py-0.5 font-mono text-xs text-yellow-300">{s}</span>
@@ -282,7 +282,7 @@ export function ResumeCV() {
               </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <p className="mb-2 font-semibold text-white/70">Tools</p>
+              <p className="mb-2 font-semibold text-white/70">{t("skillTools")}</p>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.tools.map((s) => (
                   <span key={s} className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 font-mono text-xs text-amber-300">{s}</span>

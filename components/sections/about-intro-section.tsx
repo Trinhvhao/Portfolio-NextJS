@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -35,7 +36,7 @@ function SocialIcon({ icon }: { icon: AboutSocialLink["icon"] }) {
 
 export function AboutIntroSection() {
   const [centerIndex, setCenterIndex] = useState(1);
-  const [captionVisible, setCaptionVisible] = useState(true);
+  const [captionVisible, setCaptionVisible] = useState(false);
 
   useEffect(() => {
     if (aboutIntro.imageCards.length <= 1) {
@@ -52,13 +53,12 @@ export function AboutIntroSection() {
   const activeCaption = aboutIntro.imageCards[centerIndex]?.caption ?? "I Create";
 
   useEffect(() => {
-    setCaptionVisible(false);
-
-    const frame = window.requestAnimationFrame(() => {
+    // Only animate when centerIndex changes (not on initial mount)
+    const frameId = window.requestAnimationFrame(() => {
       setCaptionVisible(true);
     });
 
-    return () => window.cancelAnimationFrame(frame);
+    return () => window.cancelAnimationFrame(frameId);
   }, [centerIndex]);
 
   const getSlotStyle = (slot: "left" | "center" | "right") => {
@@ -148,24 +148,12 @@ export function AboutIntroSection() {
                   }}
                 >
                   <div className="relative aspect-4/5 w-[220px] overflow-hidden rounded-3xl lg:w-[300px]">
-                    <img
+                    <Image
                       alt={card.alt}
                       className="select-none object-cover"
-                      decoding="async"
-                      draggable={false}
-                      loading="lazy"
+                      fill
                       sizes="(max-width: 768px) 220px, 300px"
                       src={card.src}
-                      style={{
-                        position: "absolute",
-                        height: "100%",
-                        width: "100%",
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        color: "transparent",
-                      }}
                     />
                   </div>
                 </div>

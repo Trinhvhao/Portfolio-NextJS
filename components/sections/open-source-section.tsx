@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
@@ -128,7 +128,7 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
 
           <div className="mt-8 flex-1 w-full overflow-hidden flex flex-col justify-center rounded-xl border border-white/5 bg-[#030611] p-5 shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] group/graph relative transition-colors duration-500 group-hover/article:border-white/10 group-hover/article:bg-[#040816]">
             <div className="w-full overflow-x-auto pb-2 custom-scrollbar">
-              <img alt={`${username} contribution heatmap`} className="min-w-[700px] w-full h-auto mix-blend-lighten pointer-events-none transition-transform duration-500 group-hover/graph:scale-[1.01]" src={stats.contributionImageUrl} />
+              <Image alt={`${username} contribution heatmap`} className="min-w-[700px] w-full h-auto mix-blend-lighten pointer-events-none transition-transform duration-500 group-hover/graph:scale-[1.01]" src={stats.contributionImageUrl} width={700} height={120} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-[#7c83fd]/0 via-[#7c83fd]/5 to-[#7c83fd]/0 opacity-0 group-hover/graph:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           </div>

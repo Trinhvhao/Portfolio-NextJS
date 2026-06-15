@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
@@ -179,7 +180,7 @@ function BucketItemRow({ item, isLast }: { item: BucketItem; isLast: boolean }) 
                     className="relative size-10 overflow-hidden rounded-lg border-2 border-white shadow-sm transition-all duration-300 first:ml-0 group-hover:z-10 group-hover:scale-110 dark:border-neutral-950"
                     style={{ zIndex: item.gallery ? item.gallery.length - index : 1 }}
                   >
-                    <img alt={image.alt} className="size-full object-cover" src={image.src} />
+                    <Image alt={image.alt} className="size-full object-cover" src={image.src} fill sizes="40px" />
                   </div>
                 ))}
               </div>
@@ -206,22 +207,13 @@ export default async function BucketListPage() {
         className="absolute inset-0 z-[-1] h-[450px] w-full overflow-hidden bg-neutral-100/70 dark:bg-neutral-950/93"
         style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)", opacity: 1 }}
       >
-        <img
+        <Image
           alt="crumpled paper texture"
           className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
-          decoding="async"
+          fill
           sizes="100vw"
           src="/images/crumpled-paper.avif"
-          style={{
-            position: "absolute",
-            height: "100%",
-            width: "100%",
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            color: "transparent",
-          }}
+          priority
         />
       </div>
 

@@ -19,7 +19,8 @@
     "switchToEnglish": "Chuyển sang tiếng Anh",
     "switchToVietnamese": "Chuyển sang tiếng Việt",
     "copyCode": "Sao chép mã",
-    "copyPage": "Sao chép trang"
+    "copyPage": "Sao chép trang",
+    "author": "Trịnh Văn Hào"
   },
   "nav": {
     "home": "Trang chủ",
@@ -226,7 +227,13 @@
     "getInTouch": "Get in touch",
     "lienHeNgay": "Liên hệ ngay",
     "skillsApi": "API",
-    "skillsAi": "AI"
+    "skillsAi": "AI",
+    "langEnglish": "English",
+    "langVietnamese": "Tiếng Việt",
+    "skillFrontend": "Frontend",
+    "skillBackend": "Backend",
+    "skillDatabase": "Database",
+    "skillTools": "Tools"
   },
   "qualityMarquee": {
     "responsive": "Thiết kế đáp ứng",
@@ -247,6 +254,7 @@
     "noPostsFound": "Không tìm thấy bài viết nào với bộ lọc hiện tại.",
     "minRead": "phút đọc",
     "onThisPage": "Trên trang này",
+    "overview": "Tổng quan",
     "share": {
       "ariaLabel": "Chia sẻ bài viết",
       "openMenu": "Mở menu chia sẻ",

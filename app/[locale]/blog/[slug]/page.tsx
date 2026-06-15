@@ -138,6 +138,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = blogPosts.find((entry) => entry.slug === slug);
   const tNav = await getTranslations("nav");
   const tCommon = await getTranslations("common");
+  const tBlog = await getTranslations("blog");
 
   if (!post) {
     notFound();
@@ -157,7 +158,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       }))
     : hasMdxContent && postContent
       ? extractHeadings(postContent.content)
-      : [{ id: "overview", title: "Overview", depth: 2 as const }];
+      : [{ id: "overview", title: tBlog("overview"), depth: 2 as const }];
 
   const tocGroups = buildTocGroups(tocItems);
   const highlightedCodeBySection = new Map<string, string>();
@@ -286,12 +287,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex items-center gap-2.5">
                   <Image
                     src="/images/z6715827947073_b0cf72fee8964b9ea4fd8eddd2b10e6c.jpg"
-                    alt="Trinh Van Hao"
+                    alt={tCommon("author")}
                     width={32}
                     height={32}
                     className="size-8 rounded-full ring-1 ring-neutral-700"
+                    priority
                   />
-                  <span className="text-sm font-medium text-neutral-200">Trinh Van Hao</span>
+                  <span className="text-sm font-medium text-neutral-200">{tCommon("author")}</span>
                 </div>
                 <span className="text-neutral-700">/</span>
                 <div className="flex items-center gap-1.5 font-mono text-xs text-neutral-500">
@@ -312,7 +314,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <nav aria-label="Table of contents" className="mb-10 rounded-xl border border-neutral-800 bg-neutral-900/30 p-4 xl:hidden">
                   <p className="mb-3 flex items-center gap-2 text-xl text-neutral-200">
                     <TocIcon />
-                    <span>On this page</span>
+                    <span>{tBlog("onThisPage")}</span>
                   </p>
                   <ul className="relative space-y-1 before:absolute before:inset-y-1 before:left-0 before:w-px before:bg-neutral-800/90">
                     {tocGroups.map((group) => (
@@ -419,7 +421,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <div className="p-1">
                     <p className="mb-3 flex items-center gap-2 text-lg text-neutral-200">
                       <TocIcon />
-                      <span>On this page</span>
+                      <span>{tBlog("onThisPage")}</span>
                     </p>
                     <ul className="relative space-y-1 before:absolute before:inset-y-1 before:left-0 before:w-px before:bg-neutral-800/90">
                       {tocGroups.map((group) => (

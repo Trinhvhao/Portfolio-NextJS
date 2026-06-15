@@ -19,7 +19,24 @@
     "switchToEnglish": "Switch to English",
     "switchToVietnamese": "Switch to Vietnamese",
     "copyCode": "Copy code",
-    "copyPage": "Copy Page"
+    "copyPage": "Copy Page",
+    "author": "Trinh Van Hao"
+  },
+  "resume": {
+    "downloadPdf": "Download PDF",
+    "taiPdf": "Tải PDF",
+    "letsWorkTogether": "Let's work together!",
+    "sanSangHopTac": "Sẵn sàng hợp tác!",
+    "getInTouch": "Get in touch",
+    "lienHeNgay": "Liên hệ ngay",
+    "skillsApi": "API",
+    "skillsAi": "AI",
+    "langEnglish": "English",
+    "langVietnamese": "Tiếng Việt",
+    "skillFrontend": "Frontend",
+    "skillBackend": "Backend",
+    "skillDatabase": "Database",
+    "skillTools": "Tools"
   },
   "nav": {
     "home": "Home",
@@ -226,7 +243,13 @@
     "getInTouch": "Get in touch",
     "lienHeNgay": "Liên hệ ngay",
     "skillsApi": "API",
-    "skillsAi": "AI"
+    "skillsAi": "AI",
+    "langEnglish": "English",
+    "langVietnamese": "Tiếng Việt",
+    "skillFrontend": "Frontend",
+    "skillBackend": "Backend",
+    "skillDatabase": "Database",
+    "skillTools": "Tools"
   },
   "qualityMarquee": {
     "responsive": "Responsive Design",
@@ -247,6 +270,7 @@
     "noPostsFound": "No posts found for your current filter.",
     "minRead": "min read",
     "onThisPage": "On this page",
+    "overview": "Overview",
     "share": {
       "ariaLabel": "Share this post",
       "openMenu": "Open share menu",
