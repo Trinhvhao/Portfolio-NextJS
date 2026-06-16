@@ -13,6 +13,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="/assets/css/_next/static/chunks/42bc346dfa57e75d.css" />
+        <link rel="stylesheet" href="/assets/css/_next/static/chunks/fdd8e3b6d7ffc309.css" />
+      </head>
       <body className="bg-black text-zinc-100">
         <AuthSessionProvider>
           {children}

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
 import { ClientProjectsList } from "@/app/projects/client-projects-list";
@@ -27,22 +26,31 @@ export default function ProjectsPage() {
               style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)", opacity: 1 }}
             >
               <StaggerItem>
-                <Image
+                <img
                   aria-hidden="true"
                   alt=""
                   className="pointer-events-none absolute inset-x-0 top-0 z-[-1] h-auto w-full opacity-40"
-                  fill
-                  sizes="100vw"
+                  decoding="async"
                   src="/images/projects-hero-wire.svg"
                 />
               </StaggerItem>
-              <Image
+              <img
                 alt="crumpled paper texture"
                 className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
-                fill
+                decoding="async"
+                loading="lazy"
                 sizes="100vw"
                 src="/images/crumpled-paper.avif"
-                priority
+                style={{
+                  position: "absolute",
+                  height: "100%",
+                  width: "100%",
+                  left: 0,
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  color: "transparent",
+                }}
               />
             </div>
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -79,11 +78,9 @@ export function GuestbookAuthCta() {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           {session.user.image ? (
-            <Image
+            <img
               src={session.user.image}
               alt={session.user.name ?? "Profile"}
-              width={32}
-              height={32}
               className="size-8 rounded-full border border-white/30 object-cover"
             />
           ) : (

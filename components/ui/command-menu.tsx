@@ -1,11 +1,9 @@
 "use client";
 
-import { Command } from "cmdk";
 import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useTransition } from "react";
 import {
   Search,
   Sun,
@@ -21,26 +19,26 @@ import {
   Medal
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { Root as VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-export function CommandMenu({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
+export function CommandMenu({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const router = useRouter();
-  const pathname = usePathname();
   const locale = useLocale();
-  const [isPending, startTransition] = useTransition();
   const tCommon = useTranslations("common");
   const tNav = useTranslations("nav");
   const tLinks = useTranslations("links");
   const tCommandMenu = useTranslations("commandMenu");
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const switchLocale = (newLocale: string) => {
     if (newLocale === locale) return;
-    startTransition(() => {
-      const newPathname = pathname.replace(/^\/(en|vi)/, `/${newLocale}`);
-      router.push(newPathname);
-    });
+    const currentPath = window.location.pathname.replace(/^\/(en|vi)/, "") || "/";
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
     setOpen(false);
+    setTimeout(() => {
+      window.location.href = `/${newLocale}${currentPath}`;
+    }, 100);
   };
 
   useEffect(() => {
@@ -49,7 +47,7 @@ export function CommandMenu({ open, setOpen }: { open: boolean, setOpen: (open: 
         e.preventDefault();
         setOpen(!open);
       }
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && open) {
         setOpen(false);
       }
     };
@@ -58,25 +56,28 @@ export function CommandMenu({ open, setOpen }: { open: boolean, setOpen: (open: 
   }, [open, setOpen]);
 
   useEffect(() => {
+    if (open) {
+      setQuery("");
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (!open) return;
-    
     const handleClickOutside = (e: MouseEvent) => {
-      const dialog = document.querySelector("[role='dialog']");
-      if (dialog && !dialog.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
-
     setTimeout(() => {
       document.addEventListener("mousedown", handleClickOutside);
     }, 0);
-
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, setOpen]);
 
   const runCommand = (command: () => void) => {
     setOpen(false);
-    command();
+    setTimeout(command, 100);
   };
 
   const quickLinks = [
@@ -123,163 +124,192 @@ export function CommandMenu({ open, setOpen }: { open: boolean, setOpen: (open: 
     },
   ];
 
+  const q = query.toLowerCase().trim();
+  const filteredPages = q
+    ? pageLinks.filter((p) => p.label.toLowerCase().includes(q))
+    : pageLinks;
+  const filteredConnect = q
+    ? connectLinks.filter((p) => p.label.toLowerCase().includes(q))
+    : connectLinks;
+
   return (
     <AnimatePresence>
       {open && (
-        <Command.Dialog 
-          open={open} 
-          onOpenChange={setOpen}
-          label={tCommon("commandMenu")}
-          contentClassName="fixed inset-0 z-50 flex items-end sm:items-start justify-center pt-[15vh] pb-6 sm:pb-0"
-          overlayClassName="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-        >
-          <VisuallyHidden>
-            <DialogTitle>{tCommon("commandMenu")}</DialogTitle>
-          </VisuallyHidden>
+        <div className="fixed inset-0 z-[100]">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-2xl flex flex-col mx-4 sm:mx-0 relative z-50"
-            style={{ maxHeight: "calc(100vh - 15vh - 24px)" }}
-          >
-            {/* Top Bar */}
-            <div className="flex items-center justify-between border-b border-white/5 bg-[#141414] px-4 py-3">
-              <div className="flex items-center gap-3 flex-1">
-                <Search className="size-5 text-zinc-500" />
-                <Command.Input 
-                  placeholder={tCommon("searchPlaceholder")} 
-                  className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-zinc-500 text-zinc-100 placeholder:font-normal"
-                  autoFocus
-                />
-              </div>
-              <div className="flex items-center gap-2 border-l border-white/10 pl-3 ml-2 flex-shrink-0">
-                <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5">
-                  <button
-                    onClick={() => switchLocale("en")}
-                    disabled={isPending}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${
-                      locale === "en"
-                        ? "bg-white text-black"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                    aria-label={tCommon("switchToEnglish")}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          />
+          <div className="absolute inset-0 flex items-end justify-center pb-[18px] px-4 pointer-events-none">
+            <motion.div
+              ref={containerRef}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-2xl flex flex-col pointer-events-auto"
+              style={{ maxHeight: "calc(100vh - 18px - 24px)" }}
+            >
+              {/* Top Bar */}
+              <div className="flex items-center justify-between border-b border-white/5 bg-[#141414] px-4 py-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <Search className="size-5 text-zinc-500 shrink-0" />
+                  <input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={tCommon("searchPlaceholder")}
+                    className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-zinc-500 text-zinc-100 placeholder:font-normal min-w-0"
+                  />
+                </div>
+                <div className="flex items-center gap-2 border-l border-white/10 pl-3 ml-2 flex-shrink-0">
+                  <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => switchLocale("en")}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors cursor-pointer ${
+                        locale === "en"
+                          ? "bg-white text-black"
+                          : "text-zinc-400 hover:text-white hover:bg-white/10"
+                      }`}
+                      aria-label={tCommon("switchToEnglish")}
+                    >
+                      EN
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => switchLocale("vi")}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors cursor-pointer ${
+                        locale === "vi"
+                          ? "bg-white text-black"
+                          : "text-zinc-400 hover:text-white hover:bg-white/10"
+                      }`}
+                      aria-label={tCommon("switchToVietnamese")}
+                    >
+                      VI
+                    </button>
+                  </div>
+                  <Link 
+                    href="/links" 
+                    onClick={() => setOpen(false)}
+                    className="rounded-full px-3 py-1 text-sm font-medium text-white hover:bg-white/10 border border-white/10 transition-colors"
                   >
-                    EN
-                  </button>
-                  <button
-                    onClick={() => switchLocale("vi")}
-                    disabled={isPending}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${
-                      locale === "vi"
-                        ? "bg-white text-black"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                    aria-label={tCommon("switchToVietnamese")}
+                    {tCommandMenu("connectLink")}
+                  </Link>
+                  <button 
+                    type="button"
+                    className="rounded-full p-[6px] text-zinc-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors flex items-center justify-center"
                   >
-                    VI
+                    <Sun className="size-4" />
                   </button>
                 </div>
-                <Link href="/links" className="rounded-full px-3 py-1 text-sm font-medium text-white hover:bg-white/10 border border-white/10 transition-colors">
-                  {tCommandMenu("connectLink")}
-                </Link>
-                <button className="rounded-full p-[6px] text-zinc-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors flex items-center justify-center">
-                  <Sun className="size-4" />
-                </button>
               </div>
-            </div>
 
-            <Command.List className="overflow-y-auto overflow-x-hidden p-3 style-scroll">
-              <Command.Empty className="py-6 text-center text-sm text-zinc-400">
-                {tCommon("noResults")}
-              </Command.Empty>
+              <div className="overflow-y-auto overflow-x-hidden p-3 style-scroll" style={{ maxHeight: "calc(100vh - 18px - 130px)" }}>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between px-2 mb-2">
+                    <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("recent")}</h3>
+                    <button 
+                      type="button"
+                      className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase hover:text-zinc-300"
+                    >
+                      {tCommandMenu("clear")}
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 overflow-x-auto pb-3 px-2 no-scrollbar">
+                    {quickLinks.map((item, i) => (
+                      <button 
+                        key={i} 
+                        type="button"
+                        onClick={() => runCommand(() => router.push(item.href))} 
+                        className="flex flex-shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 cursor-pointer hover:bg-white/10 transition-colors"
+                      >
+                        <item.icon className="size-3.5 text-zinc-500" />
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="mb-4">
-                <div className="flex items-center justify-between px-2 mb-2">
-                  <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("recent")}</h3>
-                  <button className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase hover:text-zinc-300">{tCommandMenu("clear")}</button>
+                <div className="px-2 mb-2">
+                  <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("pages")}</h3>
                 </div>
                 
-                <div className="flex items-center gap-2 overflow-x-auto pb-3 px-2 no-scrollbar">
-                  {quickLinks.map((item, i) => (
-                     <button key={i} onClick={() => runCommand(() => router.push(item.href))} className="flex flex-shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 cursor-pointer hover:bg-white/10 transition-colors">
-                       <item.icon className="size-3.5 text-zinc-500" />
-                       {item.label}
-                     </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="px-2 mb-2">
-                <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("pages")}</h3>
-              </div>
-              
-              <Command.Group className="mb-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1">
-                  {pageLinks.map((item) => (
-                    <Command.Item
-                      key={item.label}
-                      onSelect={() => runCommand(() => router.push(item.href))}
-                      className="group flex cursor-pointer items-center justify-between rounded-xl px-2.5 py-2.5 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-8 items-center justify-center rounded-lg border border-white/5 bg-white/5 text-zinc-400 transition-colors group-hover:bg-white/10 group-hover:border-white/10 group-hover:text-white group-data-[selected=true]:bg-white/10 group-data-[selected=true]:border-white/10 group-data-[selected=true]:text-white">
-                          <item.icon className="size-4" />
-                        </div>
-                        <span className="font-medium">{item.label}</span>
-                      </div>
-                    </Command.Item>
-                  ))}
-                </div>
-              </Command.Group>
-
-              <div className="px-2 mb-2 mt-4">
-                <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("connect")}</h3>
-              </div>
-
-              <Command.Group>
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-1">
-                   {connectLinks.map((item) => (
-                      <Command.Item
+                {filteredPages.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-zinc-400">
+                    {tCommon("noResults")}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1 mb-4">
+                    {filteredPages.map((item) => (
+                      <button
                         key={item.label}
-                        onSelect={() => runCommand(() => window.open(item.href, "_blank"))}
-                      className="group flex cursor-pointer items-center gap-2 rounded-xl px-2.5 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white data-[selected=true]:bg-white/10 data-[selected=true]:text-white"
+                        type="button"
+                        onClick={() => runCommand(() => router.push(item.href))}
+                        className="group flex cursor-pointer items-center justify-between rounded-xl px-2.5 py-2.5 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white text-left"
                       >
-                       <div className="flex size-8 items-center justify-center rounded-lg border border-white/5 bg-white/5 text-zinc-400 transition-colors group-hover:bg-white/10 group-hover:text-white group-data-[selected=true]:bg-white/10 group-data-[selected=true]:text-white">
+                        <div className="flex items-center gap-3">
+                          <div className="flex size-8 items-center justify-center rounded-lg border border-white/5 bg-white/5 text-zinc-400 transition-colors group-hover:bg-white/10 group-hover:border-white/10 group-hover:text-white">
                             <item.icon className="size-4" />
-                         </div>
-                         <span className="font-medium">{item.label}</span>
-                       <span className="ml-auto text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 group-data-[selected=true]:opacity-100">↗</span>
-                      </Command.Item>
-                   ))}
-                 </div>
-              </Command.Group>
-            </Command.List>
+                          </div>
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-            <style jsx global>{`
-              .style-scroll::-webkit-scrollbar {
-                width: 12px;
-                background-color: transparent;
-              }
-              .style-scroll::-webkit-scrollbar-thumb {
-                border-radius: 6px;
-                background-color: rgba(255, 255, 255, 0.1);
-                border: 3px solid #0f0f0f;
-              }
-              .style-scroll::-webkit-scrollbar-thumb:hover {
-                background-color: rgba(255, 255, 255, 0.2);
-              }
-              .no-scrollbar::-webkit-scrollbar {
-                display: none;
-              }
-              .no-scrollbar {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-              }
-            `}</style>
-          </motion.div>
-        </Command.Dialog>
+                <div className="px-2 mb-2 mt-4">
+                  <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">{tCommandMenu("connect")}</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-1">
+                  {filteredConnect.map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => runCommand(() => window.open(item.href, "_blank"))}
+                      className="group flex cursor-pointer items-center gap-2 rounded-xl px-2.5 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white text-left"
+                    >
+                      <div className="flex size-8 items-center justify-center rounded-lg border border-white/5 bg-white/5 text-zinc-400 transition-colors group-hover:bg-white/10 group-hover:text-white shrink-0">
+                        <item.icon className="size-4" />
+                      </div>
+                      <span className="font-medium truncate">{item.label}</span>
+                      <span className="ml-auto text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 shrink-0">↗</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          <style jsx global>{`
+            .style-scroll::-webkit-scrollbar {
+              width: 12px;
+              background-color: transparent;
+            }
+            .style-scroll::-webkit-scrollbar-thumb {
+              border-radius: 6px;
+              background-color: rgba(255, 255, 255, 0.1);
+              border: 3px solid #0f0f0f;
+            }
+            .style-scroll::-webkit-scrollbar-thumb:hover {
+              background-color: rgba(255, 255, 255, 0.2);
+            }
+            .no-scrollbar::-webkit-scrollbar {
+              display: none;
+            }
+            .no-scrollbar {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+          `}</style>
+        </div>
       )}
     </AnimatePresence>
   );

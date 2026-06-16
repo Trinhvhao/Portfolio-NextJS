@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { LinksMainSection } from "../../components/sections/links-main-section";
@@ -19,13 +18,22 @@ export default async function LinksPage() {
         className="absolute inset-0 z-[-1] h-[450px] w-full overflow-hidden bg-neutral-100/70 dark:bg-neutral-950/93"
         style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)" }}
       >
-        <Image
+        <img
           alt="crumpled paper texture"
           className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
-          fill
+          decoding="async"
           sizes="100vw"
           src="/images/crumpled-paper.avif"
-          priority
+          style={{
+            position: "absolute",
+            height: "100%",
+            width: "100%",
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            color: "transparent",
+          }}
         />
       </div>
 

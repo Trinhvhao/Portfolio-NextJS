@@ -39,6 +39,7 @@ export function BookCallTrigger({ children, className, style, ariaLabel }: BookC
 
 export function BookCallModalRoot() {
   const tBookCall = useTranslations("bookCall");
+  const tCommon = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {

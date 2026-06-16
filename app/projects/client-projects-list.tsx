@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring } from "framer-motion";
@@ -169,6 +169,7 @@ function ProjectCard({ item, index, isEven }: ProjectCardProps) {
   }, []);
 
   const staggerClass = index === 0 ? "lg:mt-0" : (isEven ? "lg:-mt-12" : "lg:mt-48");
+  const cardId = `project-${item.id}`;
 
   return (
     <StaggerItem key={item.id} className={`relative flex flex-col ${staggerClass}`}>

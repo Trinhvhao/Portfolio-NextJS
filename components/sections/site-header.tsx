@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -194,13 +193,10 @@ export function SiteHeader() {
     >
       <nav className="container flex py-1.5" style={{ pointerEvents: "auto" }}>
         <Link aria-label="Homepage" className="hidden size-8 md:block md:size-9" href="/">
-          <Image
+          <img
             src="/images/site-img/icon.png"
             alt="AB"
-            width={35}
-            height={35}
             className="size-[35px] rounded-md"
-            priority
           />
         </Link>
 

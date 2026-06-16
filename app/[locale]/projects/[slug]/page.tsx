@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -101,13 +100,12 @@ export default async function ProjectDetailPage({ params }: DetailParams) {
             className="absolute inset-0 z-[-1] h-80 w-full overflow-hidden bg-transparent dark:bg-neutral-950/55"
             style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)", opacity: 1 }}
           >
-            <Image
+            <img
               alt={frontmatter.title}
-              className="pointer-events-none absolute inset-0 z-[-1] select-none object-cover"
-              fill
+              className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
+              loading="lazy"
               sizes="100vw"
               src={frontmatter.heroImage}
-              priority
             />
           </div>
 

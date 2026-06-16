@@ -1,7 +1,6 @@
 "use client";
 
-import createGlobe, { type COBEOptions } from "cobe";
-import Image from "next/image";
+import createGlobe from "cobe";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, type CSSProperties } from "react";
@@ -233,16 +232,12 @@ function MarqueeRow({
   const renderBadgeIcon = (item: string) => {
     if (item === "Next.js") {
       return (
-        <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-[3px] bg-black/5 px-0.5 text-[10px] leading-none dark:bg-white/10">
-          <Image
-            aria-hidden
-            alt=""
-            className="size-4 object-contain"
-            src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
-            width={16}
-            height={16}
-          />
-        </span>
+        <img
+          aria-hidden
+          alt=""
+          className="mr-1.5 h-4 w-4"
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
+        />
       );
     }
 
@@ -466,7 +461,7 @@ function VietnamGlobe() {
     let frameId = 0;
     const dpr = 2;
     const size = Math.max(Math.round(canvas.clientWidth), 260);
-    const globeConfig: COBEOptions = {
+    const globe = createGlobe(canvas, {
       devicePixelRatio: dpr,
       width: size * dpr,
       height: size * dpr,
@@ -480,8 +475,7 @@ function VietnamGlobe() {
       markerColor: [1, 1, 1],
       glowColor: [0.2, 0.35, 0.9],
       markers: [{ location: [16.0471, 108.2068], size: 0.028, id: "vn" }],
-    };
-    const globe = createGlobe(canvas, globeConfig) as { update: (state: Record<string, unknown>) => void; destroy: () => void };
+    } as any) as { update: (state: Record<string, unknown>) => void; destroy: () => void };
 
     let isDragging = false;
     let lastPoint: { x: number; y: number } | null = null;
@@ -575,6 +569,7 @@ function VietnamGlobe() {
 
 export function FeatureGridSection() {
   const t = useTranslations("feature");
+  const tCommon = useTranslations("common");
   const copyEmail = useCallback(() => {
     void navigator.clipboard?.writeText("hello@trinhvhao");
   }, []);
@@ -657,7 +652,7 @@ export function FeatureGridSection() {
                     style={{ boxShadow: "0 0 60px 20px rgba(99, 102, 241, 0.35)" }}
                   >
                     <div className="h-[114px] w-[114px] overflow-hidden rounded-full border-[1.5px] border-[#494949]">
-                      <Image src="/images/trinhhao.png" alt="Trinh Van Hao" className="h-full w-full object-cover" width={114} height={114} />
+                      <img src="/images/trinhhao.png" alt="Trinh Van Hao" className="h-full w-full object-cover" />
                     </div>
                   </div>
                 </div>
@@ -671,7 +666,7 @@ export function FeatureGridSection() {
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
                     <div className="h-full w-full rounded-full border border-white/5 bg-[#2A2A2A] p-1">
-                      <Image alt="" className="h-full w-full rounded-full object-cover" src={c.image} width={48} height={48} />
+                      <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
                     </div>
                   </div>
                 ))}
@@ -684,7 +679,7 @@ export function FeatureGridSection() {
                     className={`rounded-full border border-white/5 bg-[#2A2A2A] translate-y-1 scale-90 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 ${c.className}`}
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
-                    <Image alt="" className="h-full w-full rounded-full object-cover" src={c.image} width={40} height={40} />
+                    <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
                   </div>
                 ))}
               </span>
