@@ -71,7 +71,7 @@ export function BookCallModalRoot() {
 
   return (
     <div
-      className={`fixed inset-0 z-[7000] transition-all duration-300 ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-[7000] transition-all duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       aria-hidden={!isOpen}
     >
       <button
@@ -81,13 +81,13 @@ export function BookCallModalRoot() {
         onClick={() => setIsOpen(false)}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pb-4 sm:px-6 sm:pb-6">
+      <div className="absolute inset-x-0 bottom-0 flex justify-center px-4 pb-4 sm:px-6 sm:pb-6">
         <div
           role="dialog"
           aria-modal="true"
           aria-label={tBookCall("ariaLabel")}
-          className={`pointer-events-auto w-full max-w-xl rounded-3xl border border-white/12 bg-[#111214] p-6 text-zinc-100 shadow-[0_24px_80px_rgba(0,0,0,0.55)] transition-all duration-300 sm:p-7 ${
-            isOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          className={`w-full max-w-xl rounded-3xl border border-white/12 bg-[#111214] p-6 text-zinc-100 shadow-[0_24px_80px_rgba(0,0,0,0.55)] transition-all duration-300 sm:p-7 ${
+            isOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
           }`}
         >
           <div className="flex items-start justify-between gap-4">

@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
-import { BlogContent } from "@/app/blog/blog-content";
+import { BlogContent } from "@/components/blog/blog-content";
 
 export const metadata: Metadata = {
   title: "Blog | Tutorials & Insights - Trinh Van Hao",

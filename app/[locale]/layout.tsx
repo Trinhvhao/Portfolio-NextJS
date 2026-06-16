@@ -2,8 +2,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/sections/site-header";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { BookCallModalRoot } from "@/components/ui/book-call-modal";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 export default async function LocaleLayout({
   children,
@@ -24,7 +24,6 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <SiteHeader />
-      <LanguageSwitcher />
       <BookCallModalRoot />
       {/* Black gradient header bar - placed after interactive elements to avoid creating a containing block (filter) that traps fixed positioning */}
       <div
@@ -37,6 +36,7 @@ export default async function LocaleLayout({
         }}
       />
       {children}
+      <LanguageSwitcher />
     </NextIntlClientProvider>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
-import { ClientProjectsList } from "@/app/projects/client-projects-list";
+import { ClientProjectsList } from "@/components/projects/client-projects-list";
 import { StaggerContainer, StaggerItem } from "@/components/ui/stagger";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 

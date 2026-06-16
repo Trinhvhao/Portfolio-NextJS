@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
 
-import { AboutExperienceSection } from "@/components/sections/about-experience-section";
-import { AboutIntroSection } from "@/components/sections/about-intro-section";
-import { CertificationsProofSection } from "@/components/sections/certifications-proof-section";
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
-import { MySiteSection } from "@/components/sections/my-site-section";
-import { OpenSourceSection } from "@/components/sections/open-source-section";
-import { aboutOpenSource } from "@/lib/about-data";
+import { StaticPageLayout } from "@/components/sections/static-page-layout";
+import { usesPageContent } from "@/lib/static-page-content";
 
 export const metadata: Metadata = {
-  title: "About | Trinh Van Hao",
-  description: "Learn more about Trinh Van Hao - his journey, skills, and experiences.",
+  title: "Uses | Trinh Van Hao",
+  description: "A list of tools and technologies I use daily.",
 };
 
-export default function AboutPage() {
+export default function UsesPage() {
   return (
     <>
       <div
@@ -48,11 +44,7 @@ export default function AboutPage() {
           />
 
           <div className="relative col-span-1 flex flex-col justify-center gap-16 py-16 pt-36">
-            <AboutIntroSection />
-            <AboutExperienceSection />
-            <CertificationsProofSection />
-            <OpenSourceSection username={aboutOpenSource.githubUsername} />
-            <MySiteSection />
+            <StaticPageLayout content={usesPageContent} />
           </div>
 
           <div

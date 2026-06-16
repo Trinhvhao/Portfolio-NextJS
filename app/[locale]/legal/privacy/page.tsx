@@ -5,7 +5,7 @@ import { privacyPageContent } from "@/lib/static-page-content";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Trinh Van Hao",
-  description: "How data is collected, used, and protected on this website.",
+  description: "How we collect, use, and protect your personal information.",
 };
 
 export default function PrivacyPage() {

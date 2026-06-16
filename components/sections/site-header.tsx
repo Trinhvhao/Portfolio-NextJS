@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -54,7 +54,7 @@ export function SiteHeader() {
   const moreQuickLinks = useMemo(() => [
     { href: "/resume", label: t("resume"), subtitle: tFeature("resumeSubtitle") },
     { href: "/uses", label: t("uses"), subtitle: tFeature("technologies") },
-    { href: "/legal/terms", label: tFeature("collaborationCta"), subtitle: "Journey to create this site" },
+    { href: "/tiktok", label: tFeature("followMeOnTiktok"), subtitle: "Behind the content" },
   ], [t, tFeature]);
 
   const normalizedPathname = useMemo(() => {
@@ -317,9 +317,9 @@ export function SiteHeader() {
                       position: "relative",
                       zIndex: 2,
                     }}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <span>{item.label}</span>
+                  aria-current={isActive ? "page" : undefined}
+                >
+                    <span suppressHydrationWarning>{item.label}</span>
                     {item.hasChevron && (
                       <svg
                         aria-hidden
@@ -420,7 +420,7 @@ export function SiteHeader() {
           <button
             aria-label="Open command"
             onClick={() => setIsCommandOpen(true)}
-            className="inline-flex size-10 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm"
+            className="inline-flex size-10 items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm"
           >
             <span className="font-mono text-lg leading-none">⌘</span>
           </button>

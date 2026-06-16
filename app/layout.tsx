@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/providers/auth-session-provider";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { SiteHeader } from "@/components/sections/site-header";
+import { BookCallModalRoot } from "@/components/ui/book-call-modal";
 
 export const metadata: Metadata = {
   title: "Trinh Van Hao",
@@ -10,7 +14,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const messages = await getMessages();
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
@@ -19,7 +27,21 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="bg-black text-zinc-100">
         <AuthSessionProvider>
-          {children}
+          <NextIntlClientProvider messages={messages}>
+            <SiteHeader />
+            <BookCallModalRoot />
+            {/* Black gradient header bar */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed left-0 z-[4000] w-full select-none"
+              style={{
+                top: 0,
+                height: "150px",
+                background: "linear-gradient(to bottom, #0a0a0aa4 0%, #0a0a0aa4 50%, transparent 100%)",
+              }}
+            />
+            {children}
+          </NextIntlClientProvider>
         </AuthSessionProvider>
       </body>
     </html>

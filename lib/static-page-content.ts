@@ -141,3 +141,25 @@ export const termsPageContent: StaticPageContent = {
     },
   ],
 };
+
+export const tiktokPageContent: StaticPageContent = {
+  eyebrow: "Social",
+  title: "Follow Me on TikTok",
+  intro:
+    "Behind the content — Vietnamese tech content, coding tips, and day-in-the-life snippets from a developer who codes for a living.",
+  sections: [
+    {
+      title: "@itlamcontent.th",
+      paragraphs: [
+        "I post in Vietnamese about web development, tools, productivity, and the reality of working as a software engineer.",
+        "Content is casual and practical — no fluff, just things I find useful or interesting.",
+      ],
+      bullets: [
+        "Coding tips and shortcuts",
+        "Tech tool reviews from a developer's perspective",
+        "Workday glimpses and routine breakdowns",
+        " Vietnamese tech talk",
+      ],
+    },
+  ],
+};

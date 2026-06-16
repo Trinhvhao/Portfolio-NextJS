@@ -22,11 +22,11 @@ const nextConfig: NextConfig = {
         destination: "/assets/:path*",
       },
       {
-        // /en/blog/my-post.md and /vi/blog/my-post.md => /en/blog/md/my-post
+        // /blog/my-post.md => /blog/md/my-post
         // Lets visitors (and AI agents) grab the Markdown source of any post
         // by appending `.md` to the canonical URL.
-        source: "/:locale(en|vi)/blog/:slug.md",
-        destination: "/:locale/blog/md/:slug",
+        source: "/blog/:slug.md",
+        destination: "/blog/md/:slug",
       },
     ];
   },

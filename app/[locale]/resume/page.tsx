@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { ResumeCV } from "@/components/sections/resume-cv";
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
 import { MySiteSection } from "@/components/sections/my-site-section";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Resume | Trinh Van Hao",
   description: "Professional resume of Trinh Van Hao - Fullstack Developer & AI Enthusiast.",
 };
 
-const NOTO_SERIF_FALLBACK =
-  '"Iowan Old Style", "Apple Garamond", "Palatino Linotype", "Times New Roman", "Droid Serif", Times, serif';
 
 export default function ResumePage() {
   return (
@@ -20,29 +21,17 @@ export default function ResumePage() {
         className="absolute inset-0 z-[-1] h-[450px] w-full overflow-hidden bg-neutral-100/70 dark:bg-neutral-950/93"
         style={{ maskImage: "linear-gradient(rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 100%)" }}
       >
-        <img
+        <Image
           alt=""
           className="pointer-events-none absolute inset-0 z-[-1] h-[450px] w-full select-none object-cover mix-blend-overlay"
-          decoding="async"
+          fill
           sizes="100vw"
           src="/images/crumpled-paper.avif"
-          style={{
-            position: "absolute",
-            height: "100%",
-            width: "100%",
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            color: "transparent",
-          }}
+          priority
         />
       </div>
 
-      <main
-        className="container relative flex min-h-screen flex-col max-sm:px-1"
-        style={{ fontFamily: NOTO_SERIF_FALLBACK }}
-      >
+      <main className="container relative flex min-h-screen flex-col max-sm:px-1">
         <div className="grid flex-1 grid-cols-[12px_1fr_12px] lg:grid-cols-[32px_1fr_32px]">
           <div
             aria-hidden="true"
