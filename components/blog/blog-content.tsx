@@ -154,10 +154,10 @@ export function BlogContent() {
               </div>
 
               <div className="flex flex-1 flex-col px-2 pb-3 pt-5">
-                <h3 className="text-lg leading-snug font-semibold text-neutral-900 transition-colors duration-300 group-hover:text-neutral-600 dark:text-white dark:group-hover:text-neutral-300">
+                <h3 className="text-xl leading-snug font-semibold text-neutral-900 transition-colors duration-300 group-hover:text-neutral-600 dark:text-white dark:group-hover:text-neutral-300">
                   {post.title}
                 </h3>
-                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{post.excerpt}</p>
+                <p className="mt-2 line-clamp-3 text-lg leading-relaxed text-neutral-600 dark:text-neutral-400">{post.excerpt}</p>
                 <div className="mt-auto pt-5 font-mono text-xs text-neutral-600 dark:text-neutral-400">
                   <time dateTime={post.dateISO}>{post.dateLabel}</time>
                   <span className="mx-1.5">·</span>

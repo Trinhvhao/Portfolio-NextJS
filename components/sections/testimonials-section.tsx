@@ -32,14 +32,14 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Head of AI-IoT Lab",
     gradientClass: "bg-[radial-gradient(84.35%_70.19%_at_50%_38.11%,rgba(2,96,101,0.57),rgba(5,136,178,0.06))]",
   },
-  {
-    title: "Willing to Work, Learn, and Take Responsibility",
-    content:
-      "Hao has been with Zaka Edu since the early days. Back then, the workload was heavy and we often had to work overtime on weekends — he never once complained. He learns fast, from frontend development to collaborating with the team to receiving feedback from clients. What I value most about him is his sense of responsibility — whatever task is given, it always gets done from start to finish. Zaka Edu always welcomes him back.",
-    author: "Bui Xuan Hieu",
-    role: "Director • Zaka Edu Center",
-    gradientClass: "bg-[radial-gradient(86.88%_75.47%_at_50%_24.53%,rgba(82,48,145,0.7),rgba(26,11,51,0.14))]",
-  },
+  // {
+  //   title: "Willing to Work, Learn, and Take Responsibility",
+  //   content:
+  //     "Hao has been with Zaka Edu since the early days. Back then, the workload was heavy and we often had to work overtime on weekends — he never once complained. He learns fast, from frontend development to collaborating with the team to receiving feedback from clients. What I value most about him is his sense of responsibility — whatever task is given, it always gets done from start to finish. Zaka Edu always welcomes him back.",
+  //   author: "Bui Xuan Hieu",
+  //   role: "Director • Zaka Edu Center",
+  //   gradientClass: "bg-[radial-gradient(86.88%_75.47%_at_50%_24.53%,rgba(82,48,145,0.7),rgba(26,11,51,0.14))]",
+  // },
   {
     title: "A Young Partner Who Works Very Professionally",
     content:
@@ -49,13 +49,29 @@ const TESTIMONIALS: Testimonial[] = [
     gradientClass: "bg-[radial-gradient(90.35%_49.25%_at_50%_59.06%,rgba(2,61,114,0.7),rgba(5,11,28,0.42))]",
   },
   {
-    title: "He Understands Learners Because He Was One",
+    title: "A Reliable Teammate on the AI Ngoc Dung Project",
     content:
-      "English With Us has had Hao involved since the product development phase. What I like about him is how he puts himself in the user's shoes — he tests thoroughly, often asks 'where will a newcomer get confused?' and fixes it himself. He doesn't try to make products that flaunt technical complexity but focuses on the real experience. Working with him is easy, trustworthy, and the output is always on time.",
-    author: "Trang Tran",
-    role: "Founder • English With Us",
-    gradientClass: "bg-[radial-gradient(126.42%_76.6%_at_50%_32.26%,rgba(84,95,102,0.7),rgba(0,36,69,0.13))]",
+      "Hao and I worked together on the AI Ngoc Dung project. What I appreciate most is his ability to quickly understand the product requirements and translate them into clean, working code. He's always willing to help when teammates get stuck, and he doesn't hesitate to speak up when he sees potential improvements. Working with him feels smooth and productive — he's not just a coder, but someone who truly cares about the end result.",
+    author: "Le Van Viet",
+    role: "Teammate • AI Ngoc Dung Project",
+    gradientClass: "bg-[radial-gradient(94.21%_78.4%_at_50%_29.91%,rgba(6,89,135,0.65),rgba(5,20,40,0.35))]",
   },
+  {
+    title: "Eager to Learn, Reliable and Communicative",
+    content:
+      "What strikes me most about Hao is his eagerness to learn and his hard work. He never backs down from a challenge and is always willing to put in extra effort to get things done right. Communication is another strong point — he's clear, responsive, and easy to work with. When I delegate tasks to him, I can trust that they'll be handled with care and delivered on time. He's the kind of person you can count on.",
+    author: "Tran Viet Linh",
+    role: "Director • Thai Binh Xanh Company",
+    gradientClass: "bg-[radial-gradient(84.35%_70.19%_at_50%_38.11%,rgba(46,125,50,0.6),rgba(10,40,15,0.3))]",
+  },
+  // {
+  //   title: "He Understands Learners Because He Was One",
+  //   content:
+  //     "English With Us has had Hao involved since the product development phase. What I like about him is how he puts himself in the user's shoes — he tests thoroughly, often asks 'where will a newcomer get confused?' and fixes it himself. He doesn't try to make products that flaunt technical complexity but focuses on the real experience. Working with him is easy, trustworthy, and the output is always on time.",
+  //   author: "Trang Tran",
+  //   role: "Founder • English With Us",
+  //   gradientClass: "bg-[radial-gradient(126.42%_76.6%_at_50%_32.26%,rgba(84,95,102,0.7),rgba(0,36,69,0.13))]",
+  // },
 ];
 
 function InitialsAvatar({ name }: { name: string }) {

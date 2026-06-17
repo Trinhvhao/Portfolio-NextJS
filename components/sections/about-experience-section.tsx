@@ -177,23 +177,23 @@ export function AboutExperienceSection() {
             {experienceItems.map((item) => (
               <article key={item.id} className="grid grid-cols-1 gap-6 border-b border-white/6 py-12 first:pt-0 last:border-b-0 last:pb-0 md:grid-cols-[2fr_1fr_5fr]">
                 <div className="w-full lg:max-w-sm">
-                  <div className="flex flex-col items-start gap-y-3 text-sm font-light">
+                  <div className="flex flex-col items-start gap-y-3">
                     <time className="font-medium text-muted-foreground text-xs tracking-wide uppercase" dateTime={item.period}>
                       {item.period}
                     </time>
                     <div className="flex items-center gap-2">
                       <h3 className="font-instrument-serif text-2xl font-bold tracking-wide text-neutral-900 md:text-3xl dark:text-neutral-100">{item.company}</h3>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 text-sm">
                       {item.location ? (
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <MapPinIcon />
-                          <span className="text-sm">{item.location}</span>
+                          <span>{item.location}</span>
                         </div>
                       ) : null}
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <BriefcaseIcon />
-                        <span className="text-sm font-medium">{item.workMode}</span>
+                        <span className="font-medium">{item.workMode}</span>
                       </div>
                     </div>
                   </div>
@@ -202,7 +202,7 @@ export function AboutExperienceSection() {
                 <div className="hidden md:block" />
 
                 <div className="relative w-full">
-                  <div className="flex flex-col gap-y-6 text-xs leading-relaxed md:text-sm">
+                  <div className="flex flex-col gap-y-6 text-base leading-relaxed lg:text-lg">
                     <header>
                       <h4 className="font-instrument-serif text-2xl font-bold tracking-wide text-neutral-900 md:text-3xl dark:text-neutral-100">{item.role}</h4>
                     </header>
