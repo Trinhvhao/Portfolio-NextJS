@@ -222,7 +222,7 @@ export function PostShareMenu({ postUrl, postTitle, markdownUrl }: PostShareMenu
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 hover:text-white"
           >
             <CopyIcon />
-            <span className="flex-1">{t("copyUrl")}</span>
+            <span className="flex-1 truncate">{t("copyUrl")}</span>
           </button>
           <button
             type="button"
@@ -231,7 +231,7 @@ export function PostShareMenu({ postUrl, postTitle, markdownUrl }: PostShareMenu
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 hover:text-white"
           >
             <MarkdownIcon />
-            <span className="flex-1">{t("copyMarkdown")}</span>
+            <span className="flex-1 truncate">{t("copyMarkdown")}</span>
           </button>
           <a
             role="menuitem"
@@ -242,7 +242,7 @@ export function PostShareMenu({ postUrl, postTitle, markdownUrl }: PostShareMenu
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 hover:text-white"
           >
             <ExternalIcon />
-            <span className="flex-1">{t("viewMarkdown")}</span>
+            <span className="flex-1 truncate">{t("viewMarkdown")}</span>
           </a>
           <div aria-hidden="true" className="my-1 h-px bg-neutral-800" />
           <button
@@ -252,7 +252,7 @@ export function PostShareMenu({ postUrl, postTitle, markdownUrl }: PostShareMenu
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 hover:text-white"
           >
             <ChatGptIcon />
-            <span className="flex-1">{t("openChatgpt")}</span>
+            <span className="flex-1 truncate">{t("openChatgpt")}</span>
             <ExternalIcon />
           </button>
           <button
@@ -262,7 +262,7 @@ export function PostShareMenu({ postUrl, postTitle, markdownUrl }: PostShareMenu
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 hover:text-white"
           >
             <ClaudeIcon />
-            <span className="flex-1">{t("openClaude")}</span>
+            <span className="flex-1 truncate">{t("openClaude")}</span>
             <ExternalIcon />
           </button>
         </div>

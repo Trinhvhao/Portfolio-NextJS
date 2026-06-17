@@ -16,7 +16,6 @@ import {
   Laptop,
   Link as LinkIcon,
   CalendarDays,
-  Medal
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -84,8 +83,7 @@ export function CommandMenu({ open, setOpen }: { open: boolean; setOpen: (open: 
     { label: tCommandMenu("quickLinks.bookACall"), icon: CalendarDays, href: "/book" },
     { label: tCommandMenu("quickLinks.resume"), icon: FileText, href: "/about" },
     { label: tCommandMenu("quickLinks.bucketList"), icon: ListChecks, href: "/bucket-list" },
-    { label: tCommandMenu("quickLinks.skills"), icon: Briefcase, href: "/projects" },
-    { label: tCommandMenu("quickLinks.attribution"), icon: Medal, href: "/attribution" }
+    { label: tCommandMenu("quickLinks.skills"), icon: Briefcase, href: "/projects" }
   ];
 
   const pageLinks = [
@@ -96,7 +94,6 @@ export function CommandMenu({ open, setOpen }: { open: boolean; setOpen: (open: 
     { label: tNav("guestbook"), icon: BookHeart, href: "/guestbook" },
     { label: tNav("bucketList"), icon: ListChecks, href: "/bucket-list" },
     { label: tNav("uses"), icon: Laptop, href: "/uses" },
-    { label: tCommandMenu("quickLinks.attribution"), icon: Medal, href: "/attribution" },
     { label: tNav("contact"), icon: LinkIcon, href: "/links" },
   ];
 
@@ -151,7 +148,7 @@ export function CommandMenu({ open, setOpen }: { open: boolean; setOpen: (open: 
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-2xl flex flex-col pointer-events-auto"
+              className="w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-2xl flex flex-col pointer-events-auto"
               style={{ maxHeight: "calc(100vh - 18px - 24px)" }}
             >
               {/* Top Bar */}

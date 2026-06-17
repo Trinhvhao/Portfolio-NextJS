@@ -110,7 +110,7 @@ export function BookCallModalRoot() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <a
-              href="mailto:hello@trinhvhao.com?subject=Book%20a%20Call"
+              href="mailto:haotrinh142@gmail.com?subject=Book%20a%20Call"
               className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-zinc-200"
             >
               {tBookCall("emailToBook")}
