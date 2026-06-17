@@ -11,15 +11,15 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
-    slug: "terminal-first-dev-setup",
-    title: "Every Tool in My Terminal-First Dev Setup",
+    slug: "how-i-structure-my-learning-time-as-a-self-taught-dev",
+    title: "How I Structure My Learning Time as a Self-Taught Dev",
     excerpt:
-      "Neovim, Wezterm, Tmux, and the rest - what survived two years of daily use and why I picked each one over the obvious alternatives.",
+      "The learning system that helped me go from confused beginner to confident developer - featuring spaced repetition, project-based learning, and a simple note-taking workflow.",
     dateISO: "2025-10-19T00:00:00.000Z",
     dateLabel: "Oct 19, 2025",
-    readMinutes: 11,
-    image: "/images/blog/my-2025-stack/thumbnail.jpg",
-    tags: ["developer-tools", "terminal", "neovim", "workflow"],
+    readMinutes: 8,
+    image: "/images/blog/how-i-structure-my-learning-time/cover.webp",
+    tags: ["career", "learning", "productivity"],
   },
   {
     slug: "build-a-blog-with-nextjs-and-mdx",
@@ -46,10 +46,10 @@ export const blogPosts: BlogPost[] = [
 ];
 
 export const blogTags: string[] = [
-  "developer-tools",
-  "terminal",
   "nextjs",
   "mdx",
   "react",
   "career",
+  "learning",
+  "productivity",
 ];

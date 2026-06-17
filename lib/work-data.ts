@@ -53,6 +53,7 @@ export const workItems: WorkItem[] = [
     ],
     gradient: "linear-gradient(10deg, #7E22CE 49.9%, #7E22CE 81.7%, #C084FC 99.88%, #F9D793 113.5%)",
     accentColor: "#A855F7",
+    image: "https://github.com/AayushBharti/finote-app/blob/main/.github/images/img1.jpeg?raw=true",
     tags: ["Expo", "TypeScript", "Firebase", "Zod", "Zustand", "Cloudinary", "Reanimated", "Gifted Charts"],
   },
   {
