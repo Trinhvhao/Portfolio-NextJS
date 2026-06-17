@@ -5,11 +5,14 @@ import { buildHardcodedGuideMarkdown } from "@/lib/blog-article-data";
 import { getPostBySlug, getPostExists } from "@/lib/content";
 
 type RouteContext = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 };
 
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  const locales = ["en", "vi"];
+  return locales.flatMap((locale) =>
+    blogPosts.map((post) => ({ slug: post.slug, locale }))
+  );
 }
 
 function buildHardcodedFrontmatter(post: (typeof blogPosts)[number]): string {
@@ -53,7 +56,7 @@ function assembleFilePostMarkdown(slug: string): string | null {
 }
 
 export async function GET(_request: Request, { params }: RouteContext) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = blogPosts.find((entry) => entry.slug === slug);
 
   if (!post) {

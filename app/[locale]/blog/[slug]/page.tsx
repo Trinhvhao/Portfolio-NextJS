@@ -14,6 +14,7 @@ import { extractHeadings, buildTocGroups, slugify } from "@/lib/toc";
 import { mdxArticleIntro, mdxArticleSections } from "@/lib/blog-article-data";
 import { MdxCodeBlock } from "@/components/ui/mdx-code-block";
 import { PostShareMenu } from "@/components/ui/post-share-menu";
+import { CodeBlockCopyButton } from "@/components/ui/code-block-copy-button";
 import { getTranslations } from "next-intl/server";
 
 type BlogPostPageProps = {
@@ -85,15 +86,6 @@ async function highlightCode(code: string, lang: string): Promise<string> {
   return codeToHtml(code, { lang: normalizedLang, theme: SHIKI_THEME });
 }
 
-function CopyIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="size-4">
-      <path d="M7.5 7.5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2v-5Z" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M5.5 12.5h-.5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.5a2 2 0 0 1 2 2v.5" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
 function TocIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="size-4 text-neutral-500">
@@ -127,7 +119,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     description: post.excerpt,
     alternates: {
       types: {
-        "text/markdown": `/${locale}/blog/${slug}.md`,
+        "text/markdown": `/${locale}/blog/md/${slug}`,
       },
     },
   };
@@ -137,7 +129,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug, locale } = await params;
   const post = blogPosts.find((entry) => entry.slug === slug);
   const tNav = await getTranslations("nav");
-  const tCommon = await getTranslations("common");
 
   if (!post) {
     notFound();
@@ -167,7 +158,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000";
   const protocol = headerStore.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const postUrl = `${protocol}://${host}/${locale}/blog/${slug}`;
-  const markdownUrl = `/${locale}/blog/${slug}.md`;
+  const markdownUrl = `/${locale}/blog/md/${slug}`;
 
   if (isMdxGuide) {
     const highlightedSections = await Promise.all(
@@ -277,7 +268,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <h1 className="px-4 font-instrument-serif text-4xl tracking-wide text-white md:px-6 md:text-6xl">{post.title}</h1>
               <div className="mt-5 flex flex-col items-end gap-4 px-4 sm:flex-row sm:items-end sm:justify-between md:px-6">
                 <p className="max-w-2xl self-start text-lg leading-relaxed text-neutral-400">{post.excerpt}</p>
-                <div className="inline-flex shrink-0 items-center overflow-hidden rounded-lg border border-neutral-700 bg-neutral-950/40 shadow-border transition-colors hover:border-neutral-600">
+                <div className="inline-flex shrink-0 items-center rounded-lg border border-neutral-700 bg-neutral-950/40 shadow-border transition-colors hover:border-neutral-600">
                   <PostShareMenu postUrl={postUrl} postTitle={post.title} markdownUrl={markdownUrl} />
                 </div>
               </div>
@@ -308,7 +299,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </header>
 
             <div className="relative mt-8 flex gap-14 px-4 md:px-6">
-              <article className="min-w-0 flex-1 overflow-x-hidden text-[15px] leading-7 text-neutral-300">
+              <article className="min-w-0 flex-1 overflow-x-hidden text-lg leading-7 text-neutral-300">
                 <nav aria-label="Table of contents" className="mb-10 rounded-xl border border-neutral-800 bg-neutral-900/30 p-4 xl:hidden">
                   <p className="mb-3 flex items-center gap-2 text-xl text-neutral-200">
                     <TocIcon />
@@ -390,13 +381,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                               <span className="truncate font-mono text-xs text-neutral-400">
                                 {section.codeTitle} {section.codeLang ? `(${section.codeLang})` : ""}
                               </span>
-                              <button
-                                type="button"
-                                aria-label={tCommon("copyCode")}
-                                className="rounded-lg p-1.5 text-neutral-500 transition-opacity hover:bg-neutral-800 hover:text-neutral-200 xl:opacity-0 xl:group-hover:opacity-100"
-                              >
-                                <CopyIcon />
-                              </button>
+                              <CodeBlockCopyButton code={section.code ?? ""} />
                             </div>
                             <div
                               className="overflow-x-auto bg-[linear-gradient(180deg,#0f1222_0%,#090b16_100%)] [&_.shiki]:!bg-transparent [&_.shiki]:m-0 [&_.shiki]:px-4 [&_.shiki]:py-4 [&_.shiki]:text-[13px] [&_.shiki]:leading-6"
