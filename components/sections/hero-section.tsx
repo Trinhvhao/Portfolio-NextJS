@@ -108,7 +108,7 @@ export function HeroSection() {
           </Link>
 
           <a
-            href="mailto:hello@trinhvhao"
+            href="mailto:haotrinh142@gmail.com"
             className="flex cursor-pointer items-center gap-2 py-2 text-base font-light text-black transition-all duration-300 hover:text-black/60 dark:text-white/75 dark:hover:text-white/90"
           >
             <svg

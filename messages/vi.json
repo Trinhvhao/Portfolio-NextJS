@@ -39,14 +39,14 @@
     "badge": "Sắp ra mắt",
     "badgeText1": "Những dự án mới và nghiên cứu đang trong quá trình phát triển.",
     "badgeText2": "Sản phẩm mới sắp ra mắt. Hãy theo dõi!",
-    "subtitle": "Tôi biến ý tưởng thành những",
-    "highlightedText": "trải nghiệm web hoàn chỉnh",
+    "subtitle": "Biến ý tưởng thành những trải nghiệm.",
+    "highlightedText": "Được xây dựng với sự tỉ mỉ và chu đáo.",
     "greeting": "Xin chào, tôi là",
     "name": "Trịnh Văn Hào",
     "role": "Full Stack",
     "roleSuffix": "Developer",
     "cta": "Kết nối ngay",
-    "email": "hello@trinhvhao"
+    "email": "haotrinh142@gmail.com"
   },
   "feature": {
     "collaboration": "Hợp tác",
@@ -98,7 +98,7 @@
     "goToTestimonial": "Đi tới lời chứng nhận {index}"
   },
   "contactCta": {
-    "spinner": "SẴN SÀNG CƠ HỘI - SẴN SÀNG CƠ HỘI -",
+    "spinner": "SẴN SÀNG LÀM VIỆC - SẴN SÀNG LÀM VIỆC -",
     "title1": "TỪ HỌC HỎI ĐẾN",
     "title1Accent": "XÂY DỰNG",
     "title2": "CÙNG NHAU",
@@ -165,8 +165,7 @@
       "bookACall": "Đặt lịch gọi",
       "resume": "Sơ yếu lý lịch",
       "bucketList": "Danh sách ước",
-      "skills": "Kỹ năng",
-      "attribution": "Ghi công"
+      "skills": "Kỹ năng"
     }
   },
   "bookCall": {

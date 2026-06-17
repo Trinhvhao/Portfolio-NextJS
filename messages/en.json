@@ -39,14 +39,14 @@
     "badge": "Upcoming",
     "badgeText1": "Fresh launches and standout case studies are on the way.",
     "badgeText2": "New product drops are coming soon. Stay tuned.",
-    "subtitle": "I turn ideas into polished",
-    "highlightedText": "web experiences",
+    "subtitle": "Turning ideas into experiences.",
+    "highlightedText": "Built with precision and care.",
     "greeting": "Hello, I'm",
     "name": "Trinh Van Hao",
     "role": "Full Stack",
     "roleSuffix": "Developer",
     "cta": "Let's Connect",
-    "email": "hello@trinhvhao"
+    "email": "haotrinh142@gmail.com"
   },
   "feature": {
     "collaboration": "Collaboration",
@@ -98,7 +98,7 @@
     "goToTestimonial": "Go to testimonial {index}"
   },
   "contactCta": {
-    "spinner": "OPEN TO OPPORTUNITIES - OPEN TO OPPORTUNITIES -",
+    "spinner": "OPEN TO WORK - OPEN TO WORK -",
     "title1": "FROM LEARNING TO",
     "title1Accent": "BUILDING",
     "title2": "LET'S CREATE",
@@ -165,8 +165,7 @@
       "bookACall": "Book a call",
       "resume": "Resume",
       "bucketList": "Bucket List",
-      "skills": "Skills",
-      "attribution": "Attribution"
+      "skills": "Skills"
     }
   },
   "bookCall": {

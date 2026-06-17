@@ -3,7 +3,7 @@
 import createGlobe from "cobe";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { BookCallTrigger } from "@/components/ui/book-call-modal";
 
@@ -132,24 +132,24 @@ function fallbackLabel(name: string): string {
 
 const scoopFigures: { title: string; quote: string }[] = [
   {
-    title: "Responsive UI Development",
-    quote: "Building accessible, mobile-first interfaces using React, Next.js, and Tailwind CSS.",
+    title: "Responsive UI Dev",
+    quote: "Building accessible, mobile-first interfaces using React, Next.js, Tailwind CSS platforms.",
   },
   {
-    title: "REST API Development",
-    quote: "Creating backend services with Node.js and Express.js, connected to PostgreSQL and MongoDB.",
+    title: "REST API Services",
+    quote: "Creating backend services using Node.js and Express.js, connected to PostgreSQL and MongoDB.",
   },
   {
     title: "AI Integration",
-    quote: "Exploring NLP and Computer Vision for practical applications like sentiment analysis.",
+    quote: "Exploring NLP and Computer Vision, building practical applications like sentiment analysis.",
   },
   {
-    title: "Clean Code Practices",
-    quote: "Writing maintainable, typed code with TypeScript and following best practices.",
+    title: "Clean Code Practice",
+    quote: "Writing maintainable, typed code with TypeScript, following clean architecture principles.",
   },
   {
     title: "Version Control & Git",
-    quote: "Managing code changes and collaborative workflows through Git and GitHub.",
+    quote: "Managing code changes and collaborative workflows through Git and GitHub platforms.",
   },
 ];
 
@@ -303,7 +303,7 @@ function ScoopFigure({ title, quote }: { title: string; quote: string }) {
           <figcaption className="text-sm leading-5 font-medium dark:text-white">{title}</figcaption>
         </div>
       </div>
-      <blockquote className="mt-2 text-xs leading-5 text-neutral-700 dark:text-neutral-300">{quote}</blockquote>
+      <blockquote className="mt-2 text-xs leading-5 text-neutral-600 dark:text-neutral-200">{quote}</blockquote>
     </figure>
   );
 }
@@ -570,8 +570,11 @@ function VietnamGlobe() {
 export function FeatureGridSection() {
   const t = useTranslations("feature");
   const tCommon = useTranslations("common");
+  const [emailCopied, setEmailCopied] = useState(false);
   const copyEmail = useCallback(() => {
-    void navigator.clipboard?.writeText("hello@trinhvhao");
+    void navigator.clipboard?.writeText("haotrinh142@gmail.com");
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 2000);
   }, []);
 
   return (
@@ -910,11 +913,17 @@ export function FeatureGridSection() {
                 onClick={copyEmail}
                 className="flex cursor-pointer items-center gap-2 py-2 text-base font-light text-black transition-all duration-300 outline-hidden hover:text-black/60 dark:text-white/75 dark:hover:text-white/90"
               >
-                <svg aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <rect height="14" rx="2" width="14" x="8" y="8" />
-                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                </svg>
-                hello@trinhvhao
+                {emailCopied ? (
+                  <svg aria-hidden className="size-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                ) : (
+                  <svg aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <rect height="14" rx="2" width="14" x="8" y="8" />
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                  </svg>
+                )}
+                haotrinh142@gmail.com
               </button>
             </span>
           </div>
@@ -924,9 +933,9 @@ export function FeatureGridSection() {
       </div>
 
       {/* 5 — The Inside Scoop */}
-      <div className={`${cardShell} col-span-6 max-md:h-[21rem] md:col-span-6 lg:col-span-4`}>
+      <div className={`${cardShell} col-span-6 max-md:h-[17rem] md:col-span-6 lg:col-span-4`}>
         <div className="size-full">
-          <div className="absolute top-10 flex w-full flex-col gap-1 overflow-hidden p-2 pb-24 font-instrument-serif">
+          <div className="absolute top-8 flex w-full flex-col gap-1 overflow-hidden pb-14">
             <ScoopMarqueeLane />
           </div>
         </div>

@@ -189,7 +189,7 @@ export function ContactMainSection() {
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4">
           <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-3 sm:flex-row">
             <div className="flex shrink-0 items-center gap-1">
-              <a className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-neutral-200/50 hover:text-foreground dark:hover:bg-neutral-800/50" href="mailto:hello@trinhvhao.com" target="_blank" rel="noopener noreferrer" title="Email">
+              <a className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-neutral-200/50 hover:text-foreground dark:hover:bg-neutral-800/50" href="mailto:haotrinh142@gmail.com" target="_blank" rel="noopener noreferrer" title="Email">
                 <span className="sr-only">Email</span>
                 <SocialIcon type="mail" />
               </a>
