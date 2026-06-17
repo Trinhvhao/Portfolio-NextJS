@@ -142,9 +142,9 @@ export const termsPageContent: StaticPageContent = {
   ],
 };
 
-export const tiktokPageContent: StaticPageContent = {
+export const socialPageContent: StaticPageContent = {
   eyebrow: "Social",
-  title: "Follow Me on TikTok",
+  title: "Connect with Me",
   intro:
     "Behind the content — Vietnamese tech content, coding tips, and day-in-the-life snippets from a developer who codes for a living.",
   sections: [

@@ -54,7 +54,7 @@ export function SiteHeader() {
   const moreQuickLinks = useMemo(() => [
     { href: "/resume", label: t("resume"), subtitle: tFeature("resumeSubtitle") },
     { href: "/uses", label: t("uses"), subtitle: tFeature("technologies") },
-    { href: "/tiktok", label: tFeature("followMeOnTiktok"), subtitle: "Behind the content" },
+    { href: "/social", label: tFeature("followMeOnTiktok"), subtitle: "Behind the content" },
   ], [t, tFeature]);
 
   const normalizedPathname = useMemo(() => {
