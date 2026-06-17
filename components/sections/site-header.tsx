@@ -194,8 +194,12 @@ export function SiteHeader() {
       <nav className="container flex py-1.5" style={{ pointerEvents: "auto" }}>
         <Link aria-label="Homepage" className="hidden size-8 md:block md:size-9" href="/">
           <img
-            src="/images/site-img/icon.png"
+            src="/images/site-img/icon.webp"
             alt="AB"
+            width={35}
+            height={35}
+            decoding="async"
+            fetchPriority="high"
             className="size-[35px] rounded-md"
           />
         </Link>
