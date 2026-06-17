@@ -2,13 +2,22 @@
 
 export function DeviconStyles() {
   return (
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-      media="print"
-      onLoad={(e) => {
-        e.currentTarget.media = "all";
-      }}
-    />
+    <>
+      <link
+        rel="preload"
+        href="/fonts/devicon.woff"
+        as="font"
+        type="font/woff"
+        crossOrigin="anonymous"
+      />
+      <link
+        rel="stylesheet"
+        href="/fonts/devicon.min.css"
+        media="print"
+        onLoad={(e) => {
+          e.currentTarget.media = "all";
+        }}
+      />
+    </>
   );
 }
