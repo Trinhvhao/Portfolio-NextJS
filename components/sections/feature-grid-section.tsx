@@ -214,8 +214,15 @@ function MarqueeRow({
       animationFrame = requestAnimationFrame(animate);
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      stripWidth = Math.max(firstStrip.offsetWidth, 1);
+    const resizeObserver = new ResizeObserver((entries) => {
+      // Prefer contentBoxSize (no layout flush) over offsetWidth.
+      const entry = entries[0];
+      const inlineSize = entry?.contentBoxSize?.[0]?.inlineSize;
+      if (typeof inlineSize === "number" && inlineSize > 0) {
+        stripWidth = inlineSize;
+      } else {
+        stripWidth = Math.max(firstStrip.offsetWidth, 1);
+      }
       x = wrapOffset(x, stripWidth);
       track.style.transform = `translate3d(${x}px, 0, 0)`;
     });
@@ -326,6 +333,7 @@ function ScoopMarqueeLane() {
     let lastTime = performance.now();
     let x = 0;
     let paused = false;
+    let inView = true;
     let stripWidth = Math.max(strip.offsetWidth, 1);
     const durationMs = 32000;
 
@@ -335,11 +343,14 @@ function ScoopMarqueeLane() {
         return;
       }
 
+      // Read wrapperRect + trackRect once per frame; reuse across cards.
       const wrapperRect = wrapper.getBoundingClientRect();
+      const trackRect = track.getBoundingClientRect();
       const focusCenterX = wrapperRect.left + wrapperRect.width / 2;
       const sharpRadius = wrapperRect.width * 0.18;
       const fadeRadius = wrapperRect.width * 0.42;
       const radiusDelta = Math.max(fadeRadius - sharpRadius, 1);
+      const trackLeft = trackRect.left - x;
 
       for (const card of cards) {
         if (card.matches(":hover")) {
@@ -350,8 +361,10 @@ function ScoopMarqueeLane() {
           continue;
         }
 
-        const rect = card.getBoundingClientRect();
-        const cardCenterX = rect.left + rect.width / 2;
+        // Compute card center from offsetLeft/offsetWidth (relative to track),
+        // then translate to viewport using trackRect.left - x.
+        // Avoids per-card getBoundingClientRect (forced reflow).
+        const cardCenterX = trackLeft + card.offsetLeft + card.offsetWidth / 2;
         const distance = Math.abs(cardCenterX - focusCenterX);
 
         let focus = 0;
@@ -385,22 +398,30 @@ function ScoopMarqueeLane() {
       const delta = now - lastTime;
       lastTime = now;
 
-      if (!paused) {
-        const pxPerMs = stripWidth / durationMs;
-        x -= pxPerMs * delta;
-        if (x <= -stripWidth) {
-          x += stripWidth;
+      if (inView) {
+        if (!paused) {
+          const pxPerMs = stripWidth / durationMs;
+          x -= pxPerMs * delta;
+          if (x <= -stripWidth) {
+            x += stripWidth;
+          }
+          track.style.transform = `translate3d(${x}px, 0, 0)`;
         }
-        track.style.transform = `translate3d(${x}px, 0, 0)`;
-      }
 
-      applyFocusZone();
+        applyFocusZone();
+      }
 
       frameId = requestAnimationFrame(animate);
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      stripWidth = Math.max(strip.offsetWidth, 1);
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const inlineSize = entry?.contentBoxSize?.[0]?.inlineSize;
+      if (typeof inlineSize === "number" && inlineSize > 0) {
+        stripWidth = inlineSize;
+      } else {
+        stripWidth = Math.max(strip.offsetWidth, 1);
+      }
       if (x <= -stripWidth) {
         x = 0;
       }
@@ -411,6 +432,15 @@ function ScoopMarqueeLane() {
     wrapper.addEventListener("pointerenter", onEnter);
     wrapper.addEventListener("pointerleave", onLeave);
     resizeObserver.observe(strip);
+
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        inView = entries[0]?.isIntersecting ?? true;
+      },
+      { rootMargin: "50px" }
+    );
+    intersectionObserver.observe(wrapper);
+
     applyFocusZone();
     frameId = requestAnimationFrame(animate);
 
@@ -418,6 +448,7 @@ function ScoopMarqueeLane() {
       wrapper.removeEventListener("pointerenter", onEnter);
       wrapper.removeEventListener("pointerleave", onLeave);
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       cancelAnimationFrame(frameId);
 
       const cards = track.querySelectorAll<HTMLElement>(".scoop-card");

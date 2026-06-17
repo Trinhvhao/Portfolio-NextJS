@@ -131,12 +131,24 @@ export function AboutSection() {
     wand.style.setProperty("--about-wand-y", `${defaultY}px`);
     section.style.setProperty("--about-progress", "0");
 
-    const ro = new ResizeObserver(() => {
-      const r = section.getBoundingClientRect();
-      const mx = r.width * 0.06;
-      const my = r.height * 0.05;
+    const ro = new ResizeObserver((entries) => {
+      // Prefer contentBoxSize (no layout flush) over getBoundingClientRect.
+      const entry = entries[0];
+      let width = 0;
+      let height = 0;
+      const box = entry?.contentBoxSize?.[0];
+      if (box) {
+        width = box.inlineSize;
+        height = box.blockSize;
+      } else {
+        const r = section.getBoundingClientRect();
+        width = r.width;
+        height = r.height;
+      }
+      const mx = width * 0.06;
+      const my = height * 0.05;
       const dx = mx;
-      const dy = my + (r.height * 0.82 - my) * 0.14;
+      const dy = my + (height * 0.82 - my) * 0.14;
       returnRef.current = { x: dx, y: dy };
       // Don't reset current mid-interaction
       if (!targetRef.current) {

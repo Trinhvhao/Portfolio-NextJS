@@ -359,6 +359,7 @@ export function WorkSection({ limit }: WorkSectionProps) {
   const [activeId, setActiveId] = useState(workItems[0]?.id ?? "");
   const activeIdRef = useRef(activeId);
   const frameRef = useRef<number | null>(null);
+  const scheduledFrameRef = useRef<number | null>(null);
 
   // Limit items for home page
   const displayItems = limit ? workItems.slice(0, limit) : workItems;
@@ -380,19 +381,28 @@ export function WorkSection({ limit }: WorkSectionProps) {
     if (cards.length === 0) return;
 
     const update = () => {
+      if (scheduledFrameRef.current !== null) return;
+      scheduledFrameRef.current = requestAnimationFrame(() => {
+        scheduledFrameRef.current = null;
+        runUpdate();
+      });
+    };
+
+    const runUpdate = () => {
       const viewportHeight = window.innerHeight;
-      const focalY = viewportHeight * 0.4; // 40% from top of viewport
+      const focalY = viewportHeight * 0.4;
       let bestId: string | null = null;
       let bestDistance = Infinity;
 
-      for (const card of cards) {
-        const rect = card.getBoundingClientRect();
-        // Distance from card center to focalY
+      // Batch-read card rects in a single rAF to coalesce layout reads.
+      const rects = cards.map((card) => card.getBoundingClientRect());
+      for (let i = 0; i < cards.length; i++) {
+        const rect = rects[i];
         const cardCenter = rect.top + rect.height / 2;
         const distance = Math.abs(cardCenter - focalY);
         if (distance < bestDistance) {
           bestDistance = distance;
-          bestId = card.dataset.workId ?? null;
+          bestId = cards[i].dataset.workId ?? null;
         }
       }
 
@@ -416,6 +426,10 @@ export function WorkSection({ limit }: WorkSectionProps) {
     return () => {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      if (scheduledFrameRef.current !== null) {
+        cancelAnimationFrame(scheduledFrameRef.current);
+        scheduledFrameRef.current = null;
+      }
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
