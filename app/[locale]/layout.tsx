@@ -3,7 +3,6 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/sections/site-header";
 import { BookCallModalRoot } from "@/components/ui/book-call-modal";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 export default async function LocaleLayout({
   children,
@@ -36,7 +35,6 @@ export default async function LocaleLayout({
         }}
       />
       {children}
-      <LanguageSwitcher />
     </NextIntlClientProvider>
   );
 }
