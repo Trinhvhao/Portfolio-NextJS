@@ -1,8 +1,4 @@
-@import "tailwindcss" source(none);
-@import "devicon/devicon.min.css";
-@source "../app/**/*.{ts,tsx}";
-@source "../components/**/*.{ts,tsx}";
-@source "../lib/**/*.{ts,tsx}";
+@import "tailwindcss";
 
 :root {
   color-scheme: dark;

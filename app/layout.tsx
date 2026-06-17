@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DeviconStyles } from "@/components/devicon-styles";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/providers/auth-session-provider";
 import { NextIntlClientProvider } from "next-intl";
@@ -24,6 +25,7 @@ export default async function RootLayout({
       <head>
         <link rel="stylesheet" href="/assets/css/_next/static/chunks/42bc346dfa57e75d.css" />
         <link rel="stylesheet" href="/assets/css/_next/static/chunks/fdd8e3b6d7ffc309.css" />
+        <DeviconStyles />
       </head>
       <body className="bg-black text-zinc-100">
         <AuthSessionProvider>
