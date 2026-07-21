@@ -6,6 +6,7 @@ import { MySiteSection } from "@/components/sections/my-site-section";
 import { QualityMarqueeSection } from "@/components/sections/quality-marquee-section";
 import { SkillsSection } from "@/components/sections/skills-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
+import { TiktokSection } from "@/components/sections/tiktok-section";
 import { WorkSection } from "@/components/sections/work-section";
 
 export default function HomePage() {
@@ -19,6 +20,7 @@ export default function HomePage() {
       <AboutSection />
       <TestimonialsSection />
       <MySiteSection />
+      <TiktokSection />
       <ContactCtaSection />
     </>
   );

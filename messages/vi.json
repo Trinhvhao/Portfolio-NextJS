@@ -97,6 +97,15 @@
     "resumeAutoAdvance": "Tiếp tục tự động chuyển",
     "goToTestimonial": "Đi tới lời chứng nhận {index}"
   },
+  "tiktokSection": {
+    "tagline": "Kênh TikTok của tôi",
+    "title": "Engage Audiences with Stunning Videos",
+    "description": "Chia sẻ hành trình, kiến thức và câu chuyện nghề IT theo cách gần gũi, dễ hiểu. Cùng mình khám phá thế giới công nghệ mỗi ngày nhé!",
+    "handle": "@itlamcontent.th",
+    "followersCount": "4,300+",
+    "followersLabel": "Followers",
+    "ctaText": "Theo dõi kênh"
+  },
   "contactCta": {
     "spinner": "SẴN SÀNG LÀM VIỆC - SẴN SÀNG LÀM VIỆC -",
     "title1": "TỪ HỌC HỎI ĐẾN",

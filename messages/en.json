@@ -97,6 +97,15 @@
     "resumeAutoAdvance": "Resume auto-advance",
     "goToTestimonial": "Go to testimonial {index}"
   },
+  "tiktokSection": {
+    "tagline": "My TikTok Channel",
+    "title": "Engage Audiences with Stunning Videos",
+    "description": "Sharing my journey, knowledge, and stories from the IT world in a friendly, easy-to-understand way. Let's explore tech together every day!",
+    "handle": "@itlamcontent.th",
+    "followersCount": "4,300+",
+    "followersLabel": "Followers",
+    "ctaText": "Follow the channel"
+  },
   "contactCta": {
     "spinner": "OPEN TO WORK - OPEN TO WORK -",
     "title1": "FROM LEARNING TO",
