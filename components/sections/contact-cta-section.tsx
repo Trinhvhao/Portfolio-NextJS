@@ -1,5 +1,6 @@
 "use client";
 
+import { CSSProperties } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -52,22 +53,73 @@ function OpenToWorkSpinner({ text }: { text: string }) {
   );
 }
 
+type BlobStyle = CSSProperties & Record<`--${string}`, string | number>;
+
+const blobBaseStyle = {
+  animationTimingFunction: "ease-in-out",
+  animationIterationCount: "infinite",
+  animationDirection: "alternate" as const,
+  willChange: "transform",
+  contain: "paint",
+  filter: "blur(28px)",
+};
+
+const blobAStyle: BlobStyle = {
+  ...blobBaseStyle,
+  animationName: "cta-blob-a",
+  animationDuration: "14s",
+};
+
+const blobBStyle: BlobStyle = {
+  ...blobBaseStyle,
+  animationName: "cta-blob-b",
+  animationDuration: "16s",
+};
+
 export function ContactCtaSection() {
   const t = useTranslations("contactCta");
   const spinnerText = `${t("spinner")} - `;
 
   return (
     <section
-      className="relative z-0 mt-pagebuilder flex w-full justify-center overflow-x-hidden px-4 py-20 [mask-image:linear-gradient(to_bottom,transparent,black_10rem,black_calc(100%-10rem),transparent)]"
+      className="relative z-0 mt-pagebuilder flex w-full justify-center overflow-x-hidden px-4 py-16 [mask-image:linear-gradient(to_bottom,transparent,black_10rem,black_calc(100%-10rem),transparent)]"
       id="contact"
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-0 bg-[radial-gradient(85%_130%_at_50%_0%,rgba(46,70,122,0.35),transparent_58%),radial-gradient(70%_120%_at_50%_100%,rgba(10,23,46,0.55),transparent_65%),linear-gradient(180deg,#02040a,#03070f_40%,#040814)]"
+        className="absolute inset-0 z-0 bg-[linear-gradient(180deg,#02040a,#03070f_40%,#040814)]"
       />
+
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-20 bg-gradient-to-b from-black/75 via-black/35 to-transparent" />
 
-      <div className="container relative z-10 mx-auto flex w-full flex-col items-center justify-center gap-y-2 rounded-[28px] border border-white/8 bg-[#02050d]/70 px-4 py-10 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_rgba(0,0,0,0.55)] sm:px-6">
+      <div className="container relative isolate mx-auto flex w-full flex-col items-center justify-center gap-y-2 overflow-hidden rounded-[28px] border border-white/8 px-4 py-10 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_rgba(0,0,0,0.55)] sm:px-6">
+        {/* Layer 1 — solid dark card background */}
+        <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[#02050d]/70" />
+
+        {/* Layer 2 — moving blue gradient blobs (aurora-like), clipped to this card.
+            Hidden entirely when the user prefers reduced motion (no GPU cost). */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[28px] motion-reduce:hidden"
+        >
+          <div
+            className="absolute -top-[15%] -left-[10%] h-[60%] w-[60%] rounded-full"
+            style={{
+              ...blobAStyle,
+              background: "radial-gradient(circle, rgba(59,130,246,0.9) 0%, rgba(37,99,235,0.5) 40%, rgba(0,0,0,0) 72%)",
+            }}
+          />
+          <div
+            className="absolute -bottom-[20%] -right-[15%] h-[65%] w-[65%] rounded-full"
+            style={{
+              ...blobBStyle,
+              background: "radial-gradient(circle, rgba(96,165,250,0.85) 0%, rgba(59,130,246,0.45) 45%, rgba(0,0,0,0) 75%)",
+            }}
+          />
+          {/* Subtle dark overlay so text stays readable on top of moving blobs */}
+          <div className="absolute inset-0 bg-[#02050d]/40" />
+        </div>
+
         <OpenToWorkSpinner text={spinnerText} />
 
         <div className="relative">

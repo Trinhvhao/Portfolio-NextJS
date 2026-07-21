@@ -8,6 +8,8 @@
   --font-noto-serif: "Noto Serif", "Noto Serif Fallback", "Times New Roman", serif;
   --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-vietnamese: "Noto Sans", "Noto Sans Fallback", "Segoe UI", "Arial", sans-serif;
+  --pagebuilder: 5rem;
+  --mt-pagebuilder: 5rem;
 }
 
 * {
@@ -81,6 +83,25 @@ html[lang="vi"] .vietnamese-text {
 .animate-gradient-x {
   background-size: 200% 200%;
   animation: 6s infinite gradient-x;
+}
+
+/* Moving blue gradient blobs (aurora-like) for Contact CTA section */
+@keyframes cta-blob-a {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(12%, -8%, 0);
+  }
+}
+
+@keyframes cta-blob-b {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-14%, 10%, 0);
+  }
 }
 
 .text-colorfull {

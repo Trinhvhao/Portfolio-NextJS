@@ -12,7 +12,7 @@ export function HeroSection() {
   return (
     <section
       id="hero-section"
-      className="relative flex h-screen max-h-[1000px] min-h-[800px] w-full flex-col items-center justify-center overflow-hidden py-pagebuilder"
+      className="relative flex h-screen max-h-[820px] min-h-[640px] w-full flex-col items-center justify-center overflow-hidden py-pagebuilder"
     >
       <div
         aria-hidden="true"
