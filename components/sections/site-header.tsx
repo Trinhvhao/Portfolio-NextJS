@@ -458,23 +458,24 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-2 md:ml-auto md:flex">
+        <div className="hidden md:ml-auto md:flex md:items-center md:gap-2">
           <button
             aria-label="Open command"
             onClick={() => setIsCommandOpen(true)}
-            className="hidden size-10 items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm md:inline-flex"
+            className="inline-flex size-10 items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm"
           >
             <span className="font-mono text-lg leading-none">⌘</span>
           </button>
+        </div>
 
-          <button
-            type="button"
-            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-nav-drawer"
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className="inline-flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm md:hidden"
-          >
+        <button
+          type="button"
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-nav-drawer"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          className="ml-auto inline-flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm md:hidden"
+        >
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               {isMobileMenuOpen ? (
                 <>
@@ -490,7 +491,6 @@ export function SiteHeader() {
               )}
             </svg>
           </button>
-        </div>
       </nav>
 
       <MobileNavDrawer
