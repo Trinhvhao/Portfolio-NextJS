@@ -495,7 +495,7 @@ export function SiteHeader() {
 
       <MobileNavDrawer
         open={isMobileMenuOpen}
-        navItems={navItems.filter((i) => !i.isMoreMenu)}
+        navItems={navItems.filter((i) => !i.isMoreMenu && !i.isContact)}
         moreItem={navItems.find((i) => i.isMoreMenu)}
         moreFeatureCards={moreFeatureCards}
         moreQuickLinks={moreQuickLinks}
@@ -608,16 +608,24 @@ function MobileNavDrawer({
                     type="button"
                     onClick={() => onNavigate(item.href)}
                     aria-current={isActive ? "page" : undefined}
-                    className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-base font-medium transition-colors"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-base font-medium transition-colors"
                     style={{
                       color: isActive ? "#fff" : "#d4d4d8",
                       background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
                     }}
                   >
+                    <span
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border"
+                      style={{
+                        borderColor: isActive ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.08)",
+                        background: isActive ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)",
+                        color: isActive ? "#fff" : "#a1a1aa",
+                      }}
+                      aria-hidden
+                    >
+                      <NavItemIcon href={item.href} />
+                    </span>
                     <span>{item.label}</span>
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden style={{ opacity: 0.5 }}>
-                      <path d="M7 5l6 5-6 5" />
-                    </svg>
                   </button>
                 </li>
               );
@@ -711,10 +719,10 @@ function MobileNavDrawer({
           <button
             type="button"
             onClick={() => onNavigate("/links")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3.5 text-base font-semibold text-black transition-transform active:scale-[0.98]"
+            className="flex w-full items-center justify-center rounded-xl bg-white px-4 py-3.5 text-base font-semibold text-black transition-transform active:scale-[0.98]"
             style={{ boxShadow: "0 0 14px rgba(255,255,255,0.18)" }}
           >
-            {navItems.find((i) => i.href === "/links")?.label ?? "Contact"}
+            Contact
           </button>
 
           <button
@@ -728,5 +736,70 @@ function MobileNavDrawer({
         </div>
       </div>
     </div>
+  );
+}
+
+function NavItemIcon({ href }: { href: string }) {
+  const common = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 20 20",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.6,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+  };
+
+  if (href === "/") {
+    return (
+      <svg {...common}>
+        <path d="M3 9.5L10 4l7 5.5" />
+        <path d="M5 9v6h10V9" />
+        <path d="M9 15v-3h2v3" />
+      </svg>
+    );
+  }
+  if (href === "/about") {
+    return (
+      <svg {...common}>
+        <circle cx="10" cy="7.5" r="3" />
+        <path d="M3.5 16.5c.8-3 3.4-4.5 6.5-4.5s5.7 1.5 6.5 4.5" />
+      </svg>
+    );
+  }
+  if (href === "/projects") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="14" height="12" rx="2" />
+        <path d="M3 8h14" />
+        <path d="M7 12h3" />
+      </svg>
+    );
+  }
+  if (href === "/blog") {
+    return (
+      <svg {...common}>
+        <path d="M5 3h7l3 3v11H5z" />
+        <path d="M7 9h6" />
+        <path d="M7 12h6" />
+        <path d="M7 15h4" />
+      </svg>
+    );
+  }
+  if (href === "/links") {
+    return (
+      <svg {...common}>
+        <path d="M5 9a3 3 0 0 1 3-3h2" />
+        <path d="M15 11a3 3 0 0 1-3 3h-2" />
+        <path d="M8 12h7" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <circle cx="10" cy="10" r="6" />
+    </svg>
   );
 }
