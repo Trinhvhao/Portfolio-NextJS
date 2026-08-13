@@ -229,7 +229,7 @@ export function SiteHeader() {
       className="fixed z-[5000] w-full"
       style={{ top: "14px", pointerEvents: "none" }}
     >
-      <nav className="container flex items-center py-1.5" style={{ pointerEvents: "auto" }}>
+      <nav className="container relative flex items-center py-1.5" style={{ pointerEvents: "auto" }}>
         <Link aria-label="Homepage" className="size-9 md:size-9" href="/">
           <img
             src="/images/site-img/icon.webp"
@@ -244,7 +244,7 @@ export function SiteHeader() {
 
         <div
           ref={moreMenuRef}
-          className="relative mx-auto hidden justify-center md:flex"
+          className="pointer-events-auto absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 justify-center md:flex"
           onMouseLeave={scheduleCloseMoreMenu}
         >
           <div
@@ -458,7 +458,7 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-2 md:ml-0 md:flex">
+        <div className="ml-auto flex items-center gap-2 md:ml-auto md:flex">
           <button
             aria-label="Open command"
             onClick={() => setIsCommandOpen(true)}
