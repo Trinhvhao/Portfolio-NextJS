@@ -171,17 +171,22 @@ export function SiteHeader() {
     };
   }, [activeHref, updateActiveIndicator]);
 
+  const moreMenuOpenRef = useRef(isMoreMenuOpen);
+  const mobileMenuOpenRef = useRef(isMobileMenuOpen);
+  useEffect(() => { moreMenuOpenRef.current = isMoreMenuOpen; }, [isMoreMenuOpen]);
+  useEffect(() => { mobileMenuOpenRef.current = isMobileMenuOpen; }, [isMobileMenuOpen]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (isMoreMenuOpen && moreMenuRef.current && !moreMenuRef.current.contains(target)) {
+      if (moreMenuOpenRef.current && moreMenuRef.current && !moreMenuRef.current.contains(target)) {
         closeMoreMenu(true);
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        if (isMobileMenuOpen) {
+        if (mobileMenuOpenRef.current) {
           setIsMobileMenuOpen(false);
           setIsMobileMoreOpen(false);
           return;
@@ -196,7 +201,7 @@ export function SiteHeader() {
       window.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [closeMoreMenu, isMoreMenuOpen, isMobileMenuOpen]);
+  }, [closeMoreMenu]);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -213,10 +218,28 @@ export function SiteHeader() {
     if (!isMobileMenuOpen) setIsMobileMoreOpen(false);
   }, [isMobileMenuOpen]);
 
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    setIsMobileMoreOpen(activeHref === "/uses");
-  }, [activeHref, isMobileMenuOpen]);
+  const mobileNavItems = useMemo(
+    () => navItems.filter((i) => !i.isMoreMenu && !i.isContact),
+    [navItems],
+  );
+  const mobileMoreItem = useMemo(
+    () => navItems.find((i) => i.isMoreMenu),
+    [navItems],
+  );
+
+  const handleMobileClose = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setIsMobileMoreOpen(false);
+  }, []);
+
+  const handleMobileOpenCommand = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setIsCommandOpen(true);
+  }, []);
+
+  const handleToggleMobileMore = useCallback(() => {
+    setIsMobileMoreOpen((v) => !v);
+  }, []);
 
   const navigateAndCloseMobile = useCallback((href: string) => {
     setIsMobileMenuOpen(false);
@@ -495,22 +518,16 @@ export function SiteHeader() {
 
       <MobileNavDrawer
         open={isMobileMenuOpen}
-        navItems={navItems.filter((i) => !i.isMoreMenu && !i.isContact)}
-        moreItem={navItems.find((i) => i.isMoreMenu)}
+        navItems={mobileNavItems}
+        moreItem={mobileMoreItem}
         moreFeatureCards={moreFeatureCards}
         moreQuickLinks={moreQuickLinks}
         activeHref={activeHref}
         isMoreOpen={isMobileMoreOpen}
-        onToggleMore={() => setIsMobileMoreOpen((v) => !v)}
+        onToggleMore={handleToggleMobileMore}
         onNavigate={navigateAndCloseMobile}
-        onClose={() => {
-          setIsMobileMenuOpen(false);
-          setIsMobileMoreOpen(false);
-        }}
-        onOpenCommand={() => {
-          setIsMobileMenuOpen(false);
-          setIsCommandOpen(true);
-        }}
+        onClose={handleMobileClose}
+        onOpenCommand={handleMobileOpenCommand}
       />
 
       <CommandMenu open={isCommandOpen} setOpen={setIsCommandOpen} />
@@ -553,6 +570,19 @@ function MobileNavDrawer({
   onClose,
   onOpenCommand,
 }: MobileNavDrawerProps) {
+  const [mounted, setMounted] = useState(true);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      return;
+    }
+    const t = window.setTimeout(() => setMounted(false), 340);
+    return () => window.clearTimeout(t);
+  }, [open]);
+
+  if (!mounted) return null;
+
   const visible = open;
 
   return (
@@ -565,10 +595,10 @@ function MobileNavDrawer({
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed inset-0 z-[4998] bg-black/55 backdrop-blur-sm"
+        className="fixed inset-0 z-[4998] bg-black/60"
         style={{
           opacity: visible ? 1 : 0,
-          transition: "opacity 220ms ease",
+          transition: "opacity 240ms ease-out",
         }}
       />
 
@@ -576,11 +606,11 @@ function MobileNavDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className="fixed right-0 top-0 z-[4999] flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10]/95 shadow-2xl"
+        className="fixed right-0 top-0 z-[4999] flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10] shadow-xl"
         style={{
           transform: visible ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)",
-          backdropFilter: "blur(18px)",
+          transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+          willChange: visible ? "transform" : "auto",
         }}
       >
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
