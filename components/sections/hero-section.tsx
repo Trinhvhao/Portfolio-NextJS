@@ -12,7 +12,7 @@ export function HeroSection() {
   return (
     <section
       id="hero-section"
-      className="relative flex h-screen max-h-[820px] min-h-[640px] w-full flex-col items-center justify-center overflow-hidden pt-[calc(96px+env(safe-area-inset-top))] pb-pagebuilder"
+      className="relative flex h-screen max-h-[820px] min-h-[640px] w-full flex-col items-center justify-center overflow-hidden pt-[calc(48px+env(safe-area-inset-top))] pb-pagebuilder"
     >
       <div
         aria-hidden="true"
