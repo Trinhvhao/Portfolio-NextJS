@@ -609,7 +609,7 @@ export function FeatureGridSection() {
   }, []);
 
   return (
-    <section className="container mx-auto grid w-full grid-cols-6 gap-4 py-pagebuilder md:auto-rows-[19rem]">
+    <section className="container mx-auto hidden w-full grid-cols-6 gap-4 py-pagebuilder md:grid md:auto-rows-[19rem]">
       {/* 1 — Collaboration: top-left wide (lg 4/6) */}
       <div className={`${cardShell} col-span-6 max-md:h-[21rem] md:col-span-3 lg:col-span-4`}>
         <div className="size-full">
