@@ -34,11 +34,11 @@ export function QualityMarqueeSection() {
   ];
 
   return (
-    <section className="overflow-hidden py-pagebuilder" aria-label={t("ariaLabel")}>
+    <section className="overflow-visible py-16 md:py-20" aria-label={t("ariaLabel")}>
       <div className="relative scale-[1.1]">
         <div aria-hidden className="z-0 translate-y-10 rotate-6 bg-linear-to-r from-[#6799fe] to-[#0a255b] py-4 opacity-60 md:rotate-3 lg:translate-y-16 lg:py-8" />
-        <div className="-rotate-3 z-2 flex items-center justify-center overflow-hidden bg-linear-to-r from-[#6799fe] to-[#0255fb] py-1.5 will-change-transform lg:py-2">
-          <div className="group flex flex-row overflow-hidden p-2 [--duration:50s] [--gap:1rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] motion-reduce:[mask-image:none]">
+        <div className="-rotate-3 z-2 flex items-center justify-center overflow-visible bg-linear-to-r from-[#6799fe] to-[#0255fb] py-1.5 will-change-transform lg:py-2">
+          <div className="group flex flex-row overflow-visible p-2 [--duration:50s] [--gap:1rem] [gap:var(--gap)] [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] motion-reduce:[mask-image:none]">
             <div className="flex shrink-0 justify-around [gap:var(--gap)] animate-marquee flex-row motion-reduce:animate-none">
               <MarqueeSegment tags={QUALITY_TAGS} keyPrefix="first" />
               <MarqueeSegment tags={QUALITY_TAGS} keyPrefix="second" />

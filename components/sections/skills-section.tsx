@@ -192,12 +192,12 @@ function createScatterTransform(name: string, rowIndex: number, index: number, r
   return { x, y, rotate, scale };
 }
 
-function SkillBadge({ name, isAligned, scatter, style, compact }: { name: string; isAligned: boolean; scatter: ScatterTransform; style?: CSSProperties; compact?: boolean }) {
+function SkillBadge({ name, isAligned, scatter, style, compact, small }: { name: string; isAligned: boolean; scatter: ScatterTransform; style?: CSSProperties; compact?: boolean; small?: boolean }) {
   const iconClass = TECH_ICON_MAP[name];
   const customSvg = CUSTOM_SVG_ICONS[name];
-  const shellSize = compact ? "size-12" : "h-14 w-14";
-  const iconWrapSize = compact ? "h-8 w-8" : "h-10 w-10";
-  const iconSize = compact ? "text-[1.9rem]" : "text-[2.35rem]";
+  const shellSize = small ? "size-10 sm:size-12" : compact ? "size-12" : "h-14 w-14";
+  const iconWrapSize = small ? "h-6 w-6 sm:h-8 sm:w-8" : compact ? "h-8 w-8" : "h-10 w-10";
+  const iconSize = small ? "text-[1.5rem] sm:text-[1.9rem]" : compact ? "text-[1.9rem]" : "text-[2.35rem]";
 
   return (
     <span
@@ -229,7 +229,7 @@ function SkillBadge({ name, isAligned, scatter, style, compact }: { name: string
           />
         </span>
       ) : (
-        <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center rounded-sm bg-black/8 font-mono text-xs tracking-wide text-neutral-700 dark:bg-white/12 dark:text-neutral-200`}>
+        <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center rounded-sm bg-black/8 font-mono text-[10px] tracking-wide text-neutral-700 dark:bg-white/12 dark:text-neutral-200 sm:text-xs`}>
           {fallbackLabel(name)}
         </span>
       )}
@@ -241,7 +241,9 @@ export function SkillsSection() {
   const t = useTranslations("skills");
   const skillsGridRef = useRef<HTMLDivElement | null>(null);
   const [isAligned, setIsAligned] = useState(false);
+  const [isMobileScrollEnabled, setIsMobileScrollEnabled] = useState(false);
   const alignTimerRef = useRef<number | null>(null);
+  const scrollTimerRef = useRef<number | null>(null);
   const inViewRef = useRef(false);
 
   useEffect(() => {
@@ -257,6 +259,13 @@ export function SkillsSection() {
       }
     };
 
+    const clearScrollTimer = () => {
+      if (scrollTimerRef.current !== null) {
+        window.clearTimeout(scrollTimerRef.current);
+        scrollTimerRef.current = null;
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
@@ -265,10 +274,16 @@ export function SkillsSection() {
         if (shouldEnter && !inViewRef.current) {
           inViewRef.current = true;
           setIsAligned(false);
+          setIsMobileScrollEnabled(false);
           clearAlignTimer();
+          clearScrollTimer();
           alignTimerRef.current = window.setTimeout(() => {
             setIsAligned(true);
             alignTimerRef.current = null;
+            scrollTimerRef.current = window.setTimeout(() => {
+              setIsMobileScrollEnabled(true);
+              scrollTimerRef.current = null;
+            }, 1000);
           }, 250);
           return;
         }
@@ -276,7 +291,9 @@ export function SkillsSection() {
         if (!shouldEnter && inViewRef.current) {
           inViewRef.current = false;
           clearAlignTimer();
+          clearScrollTimer();
           setIsAligned(false);
+          setIsMobileScrollEnabled(false);
         }
       },
       { root: null, threshold: [0, 0.12, 0.22, 0.35], rootMargin: "-6% 0px -10% 0px" }
@@ -286,6 +303,7 @@ export function SkillsSection() {
     return () => {
       observer.disconnect();
       clearAlignTimer();
+      clearScrollTimer();
     };
   }, []);
 
@@ -349,24 +367,34 @@ export function SkillsSection() {
           <div className="container relative flex flex-col items-center justify-center gap-4">
             <div className="w-full max-w-5xl text-center font-geist lg:hidden">
               {skillRows.map((row, rowIndex) => (
-                <div key={`mobile-row-${rowIndex}`} className="mb-2 flex flex-wrap justify-center gap-2">
-                  {row.map((name, index) => (
-                    (() => {
-                      const badgeIndex = rowIndex * 16 + index;
-                      const delayMs = 25 + badgeIndex * 8;
-                      const scatter = createScatterTransform(name, rowIndex, index, row.length, true);
-                      return (
-                        <SkillBadge
-                          key={`${rowIndex}-${name}`}
-                          name={name}
-                          compact
-                          isAligned={isAligned}
-                          scatter={scatter}
-                          style={{ transitionDelay: `${delayMs}ms` }}
-                        />
-                      );
-                    })()
-                  ))}
+                <div
+                  key={`mobile-row-${rowIndex}`}
+                  className={`mb-2 w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                    isMobileScrollEnabled
+                      ? "touch-pan-x overflow-x-auto overscroll-x-contain"
+                      : "overflow-visible"
+                  }`}
+                >
+                  <div className="mx-auto flex w-max flex-nowrap gap-1 px-1 sm:gap-2 sm:px-2">
+                    {row.map((name, index) => (
+                      (() => {
+                        const badgeIndex = rowIndex * 16 + index;
+                        const delayMs = 25 + badgeIndex * 8;
+                        const scatter = createScatterTransform(name, rowIndex, index, row.length, true);
+                        return (
+                          <SkillBadge
+                            key={`${rowIndex}-${name}`}
+                            name={name}
+                            compact
+                            isAligned={isAligned}
+                            scatter={scatter}
+                            style={{ transitionDelay: `${delayMs}ms` }}
+                            small
+                          />
+                        );
+                      })()
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

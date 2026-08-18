@@ -42,7 +42,9 @@
     "badgeText2": "Sản phẩm mới sắp ra mắt.",
     "badgeText2Mobile": "Sản phẩm mới sắp ra!",
     "subtitle": "Biến ý tưởng thành những trải nghiệm.",
+    "subtitleMobile": "Biến ý tưởng thành trải nghiệm số.",
     "highlightedText": "Được xây dựng với sự tỉ mỉ và chu đáo.",
+    "highlightedTextMobile": "Chỉn chu trong từng chi tiết.",
     "greeting": "Xin chào, tôi là",
     "name": "Trịnh Văn Hào",
     "role": "Full Stack",
@@ -296,6 +298,108 @@
       "publication": "Công bố",
       "talk": "Bài nói",
       "hackathon": "Hackathon"
+    }
+  },
+  "projects": {
+    "nextVenture": {
+      "type": "Web App",
+      "description": "Không gian để những nhà khởi nghiệp pitch ý tưởng, khám phá ý tưởng của người khác và tiếp cận với thiết kế tinh tế",
+      "detailDescription": "Nền tảng được thiết kế cho các nhà khởi nghiệp giai đoạn đầu để pitch, duyệt và tương tác với các ý tưởng startup. Nó được xây dựng để gây ấn tượng với cả người dùng và nhà đầu tư bằng tốc độ nhanh, hình ảnh hấp dẫn và tech stack hiện đại.",
+      "highlights": [
+        "Tận dụng Partial Prerendering và After để tải nhanh hơn.",
+        "Đơn giản hóa việc đăng ý tưởng với thiết kế sạch, trực quan.",
+        "Cải thiện trải nghiệm duyệt với tối ưu hiệu suất liền mạch."
+      ]
+    },
+    "finote": {
+      "type": "Ứng dụng di động",
+      "description": "Người bạn đồng hành di động trực quan để tổ chức ví kỹ thuật số và phân tích sức khỏe tài chính của bạn",
+      "detailDescription": "Người bạn đồng hành di động trực quan để tổ chức ví kỹ thuật số, theo dõi hành vi chi tiêu và giúp người dùng đưa ra quyết định tài chính tốt hơn thông qua UX di động sạch sẽ và tập trung.",
+      "highlights": [
+        "Xây dựng trải nghiệm ưu tiên ví với các tương tác di động dễ tiếp cận.",
+        "Trình bày thông tin chi tiêu rõ ràng cho các quyết định hàng ngày.",
+        "Tập trung vào điều hướng nhanh với các layer dữ liệu và trạng thái có thể mở rộng."
+      ]
+    },
+    "zenithMinds": {
+      "type": "Web App",
+      "description": "Nền tảng kết nối học sinh và giảng viên để nâng cao trải nghiệm học tập",
+      "detailDescription": "Nền tảng học tập hiện đại giúp học sinh và giảng viên cộng tác hiệu quả với khám phá khóa học, công cụ giao tiếp và quy trình làm việc nhận biết tiến độ.",
+      "highlights": [
+        "Cải thiện khám phá khóa học và onboarding cho người học mới.",
+        "Tạo quy trình thân thiện với giảng viên cho nội dung và tương tác.",
+        "Cân bằng hiệu suất và khả năng mở rộng cho hoạt động lớp học ngày càng tăng."
+      ]
+    },
+    "snippix": {
+      "type": "Web App",
+      "description": "Nền tảng để tạo và chia sẻ đoạn code với thiết kế sạch sẽ và trực quan",
+      "detailDescription": "Nền tảng snippet dành cho developer để tạo, quản lý và chia sẻ các đoạn code có thể tái sử dụng với tìm kiếm nhanh, chỉnh sửa công thái học sạch sẽ và giao diện đọc hoàn thiện.",
+      "highlights": [
+        "Làm cho việc tạo và chia sẻ snippet nhanh chóng với ma sát tối thiểu.",
+        "Cải thiện khả năng đọc với các mẫu tương tác thân thiện với bàn phím.",
+        "Xây dựng hệ thống UI có thể mở rộng cho các bề mặt nặng về code."
+      ]
+    },
+    "starForge": {
+      "type": "Landing SaaS",
+      "description": "Trang landing SaaS AI thanh lịch với thiết kế thân thiện người dùng giúp tăng tương tác.",
+      "detailDescription": "Trải nghiệm tiếp thị SaaS AI thanh lịch được chế tác cho sự rõ ràng, tin cậy và chuyển đổi với kể chuyện bóng bẩy, hình ảnh cao cấp và nền tảng hiệu suất mạnh.",
+      "highlights": [
+        "Thiết kế các section tập trung chuyển đổi với dòng chảy câu chuyện rõ ràng.",
+        "Sử dụng chuyển động và phân cấp để hướng sự chú ý hiệu quả.",
+        "Giữ tương tác mượt mà trong khi duy trì bản sắc hình ảnh mạnh mẽ."
+      ]
+    },
+    "cloudPulse": {
+      "type": "Dashboard",
+      "description": "Dashboard giám sát hạ tầng thời gian thực với trực quan hóa dữ liệu đẹp mắt",
+      "detailDescription": "Giải pháp giám sát toàn diện cho các đội DevOps để theo dõi sức khỏe máy chủ, độ trễ API và metrics hệ thống theo thời gian thực với dashboard trực quan và cảnh báo thông minh.",
+      "highlights": [
+        "Xây dựng cập nhật metrics thời gian thực qua WebSocket.",
+        "Thiết kế trực quan hóa dữ liệu trực quan với biểu đồ tùy chỉnh.",
+        "Triển khai cảnh báo thông minh với ngưỡng có thể cấu hình."
+      ]
+    },
+    "artFlow": {
+      "type": "Công cụ sáng tạo",
+      "description": "Nền tảng nghệ thuật số cộng tác cho nghệ sĩ tạo, chia sẻ và kiếm tiền từ tác phẩm của họ",
+      "detailDescription": "Không gian làm việc nghệ thuật số giàu tính năng với quản lý layer, bút vẽ, bộ lọc và marketplace để nghệ sĩ giới thiệu và bán tác phẩm trực tiếp cho người sưu tập.",
+      "highlights": [
+        "Phát triển engine canvas mạnh mẽ với hỗ trợ layer.",
+        "Xây dựng marketplace tích hợp với thanh toán Stripe.",
+        "Tạo tính năng cộng tác thời gian thực cho các đội."
+      ]
+    },
+    "taskBeat": {
+      "type": "Năng suất",
+      "description": "Ứng dụng quản lý công việc được gamify khiến năng suất trở nên vui vẻ với phần thưởng và thành tích",
+      "detailDescription": "Ứng dụng năng suất đổi mới biến các công việc hàng ngày thành quest với điểm XP, chuỗi ngày, thành tích và bảng xếp hạng để giữ người dùng có động lực và tham gia.",
+      "highlights": [
+        "Gamify hoàn thành công việc với hệ thống XP và level-up.",
+        "Triển khai theo dõi chuỗi với nhắc nhở thông minh.",
+        "Thiết kế hệ thống thành tích với phần thưởng có thể mở khóa."
+      ]
+    },
+    "nexaCart": {
+      "type": "Thương mại điện tử",
+      "description": "Nền tảng thương mại điện tử headless hiện đại với hiệu suất nhanh như chớp và checkout đẹp mắt",
+      "detailDescription": "Giải pháp commerce headless được xây dựng cho tốc độ và chuyển đổi với server-side rendering, trang sản phẩm được tối ưu và trải nghiệm checkout liền mạch giảm bỏ cart abandonment.",
+      "highlights": [
+        "Đạt điểm Lighthouse 95+ trên tất cả các metrics.",
+        "Xây dựng kiến trúc headless với tích hợp API linh hoạt.",
+        "Thiết kế luồng checkout tối ưu chuyển đổi với upsells."
+      ]
+    },
+    "healthSync": {
+      "type": "Health Tech",
+      "description": "Ứng dụng theo dõi sức khỏe cá nhân đồng bộ dữ liệu từ wearables và cung cấp insights AI",
+      "detailDescription": "Người bạn sức khỏe toàn diện tổng hợp dữ liệu từ Apple Health, Google Fit và wearables để cung cấp insights sức khỏe cá nhân hóa, phân tích xu hướng và khuyến nghị có thể hành động.",
+      "highlights": [
+        "Tích hợp với các nền tảng sức khỏe lớn qua HealthKit và Google Fit APIs.",
+        "Xây dựng engine insights AI cho phát hiện xu hướng.",
+        "Thiết kế kiến trúc ưu tiên quyền riêng tư với xử lý trên thiết bị."
+      ]
     }
   }
 }

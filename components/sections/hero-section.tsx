@@ -43,10 +43,12 @@ export function HeroSection() {
         </Link>
 
         <h2 className="w-full text-balance text-center font-instrument-serif text-5xl leading-tight text-zinc-700 opacity-90 dark:text-zinc-100 md:text-5xl lg:text-6xl relative z-30">
-          <span className="md:text-nowrap">{t("subtitle")}</span>
-          <br className="hidden md:block" />
+          <span className="md:hidden!">{t("subtitleMobile")}</span>
+          <span className="hidden text-nowrap md:inline!">{t("subtitle")}</span>
+          <br />
           <span className="bg-linear-to-b from-zinc-500 via-zinc-600 to-zinc-900 bg-clip-text font-instrument-serif italic tracking-tight text-transparent dark:from-zinc-700 dark:via-zinc-200 dark:to-zinc-50">
-            {t("highlightedText")}
+            <span className="md:hidden!">{t("highlightedTextMobile")}</span>
+            <span className="hidden md:inline!">{t("highlightedText")}</span>
           </span>
         </h2>
 
@@ -61,7 +63,7 @@ export function HeroSection() {
                   width={854}
                   height={425}
                   sizes="(min-width: 768px) 80px, 64px"
-                  quality={100}
+                  quality={75}
                   className="pointer-events-none h-10 w-full object-cover object-[center_12%] transition-transform duration-300 group-hover:rotate-6 hover:scale-110 md:h-full"
                   priority
                 />

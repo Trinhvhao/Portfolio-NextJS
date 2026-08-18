@@ -261,10 +261,22 @@ export function AboutSection() {
               <p>{t("intro3")}</p>
             </div>
 
-            <Link href="/about#experience" className="group mt-10 flex w-fit items-center justify-center gap-2 font-mono text-neutral-800 transition-colors hover:text-black dark:text-white-1 lg:justify-start">
-              {t("workExperienceCta")}
-              <span className="inline-flex h-[25px] w-[25px] items-center justify-center overflow-hidden rounded-full border border-neutral-300 bg-white-1/50 transition-colors duration-300 group-hover:bg-neutral-200 dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
-                <span className="text-sm">→</span>
+            <Link href="/about#experience" className="group mt-10 flex w-fit items-center justify-center gap-3 font-mono text-[13px] tracking-[0.02em] text-white transition-colors hover:text-white/80 lg:justify-start sm:text-base sm:tracking-wide"
+              style={{
+                textShadow: "0 0 20px rgba(255,255,255,0.15)",
+              }}
+            >
+              <span
+                className="relative"
+                style={{
+                  textShadow:
+                    "0 0 20px rgba(255,255,255,0.15), 1px 0 0 rgba(255,0,0,0.4), -1px 0 0 rgba(0,255,255,0.4), 0 1px 0 rgba(255,0,0,0.3), 0 -1px 0 rgba(0,255,255,0.3)",
+                }}
+              >
+                {t("workExperienceCta")}
+              </span>
+              <span className="inline-flex h-[34px] w-[34px] items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.1),inset_0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300 group-hover:h-[38px] group-hover:w-[38px] group-hover:border-white/40 group-hover:bg-white/15 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.15),inset_0_0_20px_rgba(255,255,255,0.08)] sm:h-[38px] sm:w-[38px]">
+                <span className="text-sm transition-transform duration-300 group-hover:translate-x-[2px] sm:text-base">→</span>
               </span>
             </Link>
           </div>

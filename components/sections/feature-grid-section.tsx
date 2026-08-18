@@ -1,11 +1,13 @@
 "use client";
 
-import createGlobe from "cobe";
+import type { Globe } from "cobe";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { BookCallTrigger } from "@/components/ui/book-call-modal";
+
+const MOBILE_NAV_STATE_EVENT = "portfolio:mobile-nav-state";
 
 const cardShell =
   "group relative flex size-full flex-col justify-between overflow-hidden rounded-xl transform-gpu [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]";
@@ -267,11 +269,13 @@ function ScoopMarqueeLane() {
 
     let frameId = 0;
     let lastTime = performance.now();
+    let lastFocusTime = 0;
     let x = 0;
     let paused = false;
     let inView = true;
     let stripWidth = Math.max(strip.offsetWidth, 1);
     const durationMs = 32000;
+    const focusIntervalMs = 100;
 
     const applyFocusZone = () => {
       const cards = track.querySelectorAll<HTMLElement>(".scoop-card");
@@ -344,7 +348,10 @@ function ScoopMarqueeLane() {
           track.style.transform = `translate3d(${x}px, 0, 0)`;
         }
 
-        applyFocusZone();
+        if (now - lastFocusTime >= focusIntervalMs) {
+          lastFocusTime = now;
+          applyFocusZone();
+        }
       }
 
       frameId = requestAnimationFrame(animate);
@@ -425,37 +432,24 @@ function VietnamGlobe() {
       return;
     }
 
+    const isMobile = window.innerWidth < 768;
     let phi = 0;
     let theta = 0.2;
-    let frameId = 0;
-    const dpr = 2;
-    const size = Math.max(Math.round(canvas.clientWidth), 260);
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: dpr,
-      width: size * dpr,
-      height: size * dpr,
-      phi: 0,
-      theta,
-      dark: 1,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.16, 0.22, 0.4],
-      markerColor: [1, 1, 1],
-      glowColor: [0.2, 0.35, 0.9],
-      markers: [{ location: [16.0471, 108.2068], size: 0.028, id: "vn" }],
-    } as any) as { update: (state: Record<string, unknown>) => void; destroy: () => void };
-
+    let frameId: number | null = null;
+    let globe: Globe | null = null;
+    let globeLoadStarted = false;
+    let isDisposed = false;
+    const dpr = isMobile
+      ? 1
+      : Math.min(window.devicePixelRatio || 1, 2);
     let isDragging = false;
-    let isVisible = true;
+    let isPageVisible = !document.hidden;
+    let isInViewport = false;
+    let isMobileMenuOpen = document.documentElement.dataset.mobileMenuOpen === "true";
     let lastPoint: { x: number; y: number } | null = null;
+    let skipFrame = false;
 
     const clampTheta = (value: number) => Math.max(-0.45, Math.min(0.45, value));
-
-    const onVisibilityChange = () => {
-      isVisible = !document.hidden;
-    };
-    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const onPointerDown = (event: PointerEvent) => {
       isDragging = true;
@@ -474,7 +468,7 @@ function VietnamGlobe() {
       phi += dx * 0.008;
       theta = clampTheta(theta + dy * 0.004);
       lastPoint = { x: event.clientX, y: event.clientY };
-      globe.update({ phi, theta });
+      globe?.update({ phi, theta });
     };
 
     const onPointerUp = (event: PointerEvent) => {
@@ -486,36 +480,107 @@ function VietnamGlobe() {
     };
 
     const animate = () => {
-      if (isVisible && !isDragging) {
-        phi += 0.003;
+      frameId = null;
+      if (!isPageVisible || !isInViewport || isMobileMenuOpen) {
+        return;
       }
-      if (isVisible) {
-        globe.update({ phi, theta });
+
+      if (!isDragging) {
+        phi += isMobile ? 0.0015 : 0.003;
+        if (isMobile && skipFrame) {
+          skipFrame = false;
+          frameId = requestAnimationFrame(animate);
+          return;
+        }
+        skipFrame = true;
       }
+      globe?.update({ phi, theta });
       frameId = requestAnimationFrame(animate);
+    };
+
+    const syncAnimation = () => {
+      const shouldAnimate = globe !== null && isPageVisible && isInViewport && !isMobileMenuOpen;
+      if (shouldAnimate && frameId === null) {
+        frameId = requestAnimationFrame(animate);
+      } else if (!shouldAnimate && frameId !== null) {
+        cancelAnimationFrame(frameId);
+        frameId = null;
+      }
+    };
+
+    const onVisibilityChange = () => {
+      isPageVisible = !document.hidden;
+      syncAnimation();
+    };
+
+    const onMobileNavStateChange = (event: Event) => {
+      isMobileMenuOpen = (event as CustomEvent<boolean>).detail;
+      syncAnimation();
     };
 
     const resizeObserver = new ResizeObserver(() => {
       const nextSize = Math.max(Math.round(canvas.clientWidth), 260);
-      globe.update({ width: nextSize * dpr, height: nextSize * dpr });
+      globe?.update({ width: nextSize, height: nextSize });
     });
 
+    const loadGlobe = async () => {
+      if (globeLoadStarted) return;
+      globeLoadStarted = true;
+
+      const { default: createGlobe } = await import("cobe");
+      if (isDisposed) return;
+
+      const size = Math.max(Math.round(canvas.clientWidth), 260);
+      globe = createGlobe(canvas, {
+        devicePixelRatio: dpr,
+        width: size,
+        height: size,
+        phi: 0,
+        theta,
+        dark: 1,
+        diffuse: 1.2,
+        mapSamples: isMobile ? 6000 : 16000,
+        mapBrightness: 6,
+        baseColor: [0.16, 0.22, 0.4],
+        markerColor: [1, 1, 1],
+        glowColor: [0.2, 0.35, 0.9],
+        markers: [{ location: [16.0471, 108.2068], size: 0.028, id: "vn" }],
+      });
+      syncAnimation();
+    };
+
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry?.isIntersecting ?? false;
+        if (isInViewport) void loadGlobe();
+        syncAnimation();
+      },
+      { rootMargin: "0px" },
+    );
+
     resizeObserver.observe(canvas);
+    intersectionObserver.observe(canvas);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener(MOBILE_NAV_STATE_EVENT, onMobileNavStateChange);
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointercancel", onPointerUp);
-    frameId = requestAnimationFrame(animate);
 
     return () => {
+      isDisposed = true;
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener(MOBILE_NAV_STATE_EVENT, onMobileNavStateChange);
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
       canvas.removeEventListener("pointercancel", onPointerUp);
-      cancelAnimationFrame(frameId);
-      globe.destroy();
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+      globe?.destroy();
     };
   }, []);
 
@@ -634,7 +699,13 @@ export function FeatureGridSection() {
                     style={{ boxShadow: "0 0 60px 20px rgba(99, 102, 241, 0.35)" }}
                   >
                     <div className="h-[114px] w-[114px] overflow-hidden rounded-full border-[1.5px] border-[#494949]">
-                      <img src="/images/trinhhao.png" alt="Trinh Van Hao" className="h-full w-full object-cover" />
+                      <img
+                        src="/images/trinhhao.webp"
+                        alt="Trinh Van Hao"
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -926,7 +997,7 @@ export function FeatureGridSection() {
       </div>
 
       {/* 5 — The Inside Scoop */}
-      <div className={`${cardShell} col-span-6 max-md:h-[17rem] md:col-span-6 lg:col-span-4`}>
+      <div className={`${cardShell} col-span-6 max-md:hidden md:col-span-6 lg:col-span-4`}>
         <div className="size-full">
           <div className="absolute top-8 flex w-full flex-col gap-1 overflow-hidden pb-14">
             <ScoopMarqueeLane />

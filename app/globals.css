@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "devicon/devicon.min.css";
 
+/* The upstream Devicon font contains every icon (~1.5 MB). This subset keeps
+   only the glyphs used by this portfolio and prevents it blocking first paint. */
+@font-face {
+  font-family: "devicon";
+  src: url("/fonts/devicon-subset.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --font-outfit: "Outfit", "Outfit Fallback", "Segoe UI", sans-serif;
@@ -8,6 +18,9 @@
   --font-noto-serif: "Noto Serif", "Noto Serif Fallback", "Times New Roman", serif;
   --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-vietnamese: "Noto Sans", "Noto Sans Fallback", "Segoe UI", "Arial", sans-serif;
+  /* These aliases previously came from the removed legacy Tailwind bundle. */
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-geist-mono);
   --pagebuilder: 5rem;
   --mt-pagebuilder: 5rem;
 }
@@ -23,6 +36,18 @@ body {
   color: #f4f4f5;
 }
 
+/* Preserve the site's original container gutters without loading the old
+   generated Tailwind bundle a second time. */
+.container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Custom font utility previously supplied by the legacy Tailwind output. */
+.font-instrument-serif {
+  font-family: var(--font-instrument-serif);
+}
+
 /* Vietnamese font - applies when html lang="vi" */
 html[lang="vi"] body {
   font-family: var(--font-vietnamese);
@@ -30,6 +55,21 @@ html[lang="vi"] body {
 
 /* For Vietnamese content, use the Vietnamese-friendly font */
 html[lang="vi"] .vietnamese-text {
+  font-family: var(--font-vietnamese) !important;
+}
+
+/* Override font-mono with Vietnamese font when lang=vi */
+html[lang="vi"] .font-mono {
+  font-family: var(--font-vietnamese) !important;
+}
+
+/* Override font-sans with Vietnamese font when lang=vi */
+html[lang="vi"] .font-sans {
+  font-family: var(--font-vietnamese) !important;
+}
+
+/* Override font-outfit with Vietnamese font when lang=vi */
+html[lang="vi"] .font-outfit {
   font-family: var(--font-vietnamese) !important;
 }
 
@@ -54,6 +94,19 @@ html[lang="vi"] .vietnamese-text {
 
 .animate-marquee {
   animation: marquee var(--duration, 80s) linear infinite;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
 }
 
 @keyframes work-panel-in {

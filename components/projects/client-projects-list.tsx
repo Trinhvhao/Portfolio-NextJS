@@ -4,9 +4,65 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
 
 import { workItems } from "@/lib/work-data";
 import { StaggerItem } from "@/components/ui/stagger";
+
+interface TranslatedItem {
+  type: string;
+  description: string;
+}
+
+function useProjectTranslations(): Record<string, TranslatedItem> | null {
+  const locale = useLocale();
+  const t = useTranslations("projects");
+
+  if (locale !== "vi") return null;
+
+  return {
+    "next-venture": {
+      type: t("nextVenture.type"),
+      description: t("nextVenture.description"),
+    },
+    "finote": {
+      type: t("finote.type"),
+      description: t("finote.description"),
+    },
+    "zenith-minds": {
+      type: t("zenithMinds.type"),
+      description: t("zenithMinds.description"),
+    },
+    "snippix": {
+      type: t("snippix.type"),
+      description: t("snippix.description"),
+    },
+    "star-forge": {
+      type: t("starForge.type"),
+      description: t("starForge.description"),
+    },
+    "cloudpulse": {
+      type: t("cloudPulse.type"),
+      description: t("cloudPulse.description"),
+    },
+    "artflow": {
+      type: t("artFlow.type"),
+      description: t("artFlow.description"),
+    },
+    "taskbeat": {
+      type: t("taskBeat.type"),
+      description: t("taskBeat.description"),
+    },
+    "nexacart": {
+      type: t("nexaCart.type"),
+      description: t("nexaCart.description"),
+    },
+    "healthsync": {
+      type: t("healthSync.type"),
+      description: t("healthSync.description"),
+    },
+  };
+}
 
 const TECH_ICON_MAP: Record<string, string> = {
   "Next.js": "devicon-nextjs-original",
@@ -127,11 +183,15 @@ interface ProjectCardProps {
   item: (typeof workItems)[0];
   index: number;
   isEven: boolean;
+  translations?: TranslatedItem | null;
 }
 
-function ProjectCard({ item, index, isEven }: ProjectCardProps) {
+function ProjectCard({ item, index, isEven, translations }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLAnchorElement>(null);
+
+  const displayType = translations?.type ?? item.type;
+  const displayDescription = translations?.description ?? item.description;
 
   // Motion values riêng cho mỗi card
   const rawX = useMotionValue(0);
@@ -195,7 +255,7 @@ function ProjectCard({ item, index, isEven }: ProjectCardProps) {
                 </span>
                 <div className="h-px w-8 bg-neutral-200 dark:bg-neutral-800" />
                 <span className="font-mono text-[10px] uppercase tracking-wider text-white">
-                  {item.type}
+                  {displayType}
                 </span>
               </div>
               <Link href={item.href} className="group/title flex items-center gap-2">
@@ -228,7 +288,7 @@ function ProjectCard({ item, index, isEven }: ProjectCardProps) {
             <div aria-hidden="true" className="absolute inset-x-0 top-0 z-10 hidden h-[0.8px] bg-[linear-gradient(90deg,rgba(0,0,0,0)_20%,rgb(255,255,255)_50%,rgba(0,0,0,0)_80%)] opacity-70 dark:block" />
 
             <div className="z-10 flex w-full flex-row items-center justify-between gap-8 px-4 py-2 text-white/70 md:px-6 md:py-4 lg:px-5 lg:py-5">
-              <h3 className="text-sm sm:text-base md:text-lg">{item.description}</h3>
+              <h3 className="text-sm sm:text-base md:text-lg">{displayDescription}</h3>
               <svg aria-hidden="true" className="hidden size-5 shrink-0 transition-transform duration-300 ease-in-out group-hover/card:translate-x-1 sm:block" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
@@ -292,6 +352,8 @@ function ProjectCard({ item, index, isEven }: ProjectCardProps) {
 }
 
 export function ClientProjectsList() {
+  const projectTranslations = useProjectTranslations();
+
   return (
     <div className="relative px-3 mt-16 md:mt-24">
       {/* Center Dashed Timeline Line for Desktop */}
@@ -308,6 +370,7 @@ export function ClientProjectsList() {
             item={item}
             index={index}
             isEven={index % 2 === 0}
+            translations={projectTranslations?.[item.id]}
           />
         ))}
       </div>

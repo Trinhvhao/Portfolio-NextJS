@@ -41,20 +41,6 @@ export function CommandMenu({ open, setOpen }: { open: boolean; setOpen: (open: 
   };
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen(!open);
-      }
-      if (e.key === "Escape" && open) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, [open, setOpen]);
-
-  useEffect(() => {
     if (open) {
       setQuery("");
       setTimeout(() => inputRef.current?.focus(), 50);

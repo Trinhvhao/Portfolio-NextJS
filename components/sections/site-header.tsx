@@ -1,10 +1,17 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { CommandMenu } from "@/components/ui/command-menu";
+
+const CommandMenu = dynamic(
+  () => import("@/components/ui/command-menu").then((module) => module.CommandMenu),
+  { ssr: false },
+);
+
+const MOBILE_NAV_STATE_EVENT = "portfolio:mobile-nav-state";
 
 // ─── Pure components (no props refs, no parent re-render coupling) ─────────────
 
@@ -112,13 +119,16 @@ const MobileNavDrawer = memo(function MobileNavDrawer({
       id="mobile-nav-drawer"
       className="fixed inset-0 z-[4998] overflow-x-hidden md:hidden"
       aria-hidden={!open}
-      style={{ visibility: open ? "visible" : "hidden", pointerEvents: "auto" }}
+      style={{
+        visibility: open ? "visible" : "hidden",
+        pointerEvents: open ? "auto" : "none",
+      }}
     >
       {/* Backdrop */}
       <div
         aria-hidden
-        onClick={onClose}
-        className="absolute inset-0 bg-black/60 transition-opacity duration-200"
+        onPointerDown={onClose}
+        className="absolute inset-0 bg-black/60 transition-opacity duration-200 will-change-opacity"
         style={{ opacity: open ? 1 : 0 }}
       />
 
@@ -127,11 +137,12 @@ const MobileNavDrawer = memo(function MobileNavDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className="absolute right-0 top-0 flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10]"
+        className="absolute right-0 top-0 flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10] will-change-transform"
         style={{
-          transform: open ? "translateX(0)" : "translateX(100%)",
+          transform: open ? "translate3d(0, 0, 0)" : "translate3d(100%, 0, 0)",
           transition: "transform 280ms cubic-bezier(0.32, 0.72, 0, 1)",
           boxShadow: open ? "-8px 0 32px rgba(0,0,0,0.5)" : "none",
+          contain: "layout paint",
         }}
       >
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
@@ -472,7 +483,14 @@ export function SiteHeader() {
     };
 
     const handleEscape = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setIsCommandOpen((open) => !open);
+        return;
+      }
+
       if (event.key === "Escape") {
+        setIsCommandOpen(false);
         if (mobileMenuOpenRef.current) {
           setIsMobileMenuOpen(false);
           setIsMobileMoreOpen(false);
@@ -492,11 +510,14 @@ export function SiteHeader() {
 
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [isMobileMenuOpen]);
+    document.documentElement.dataset.mobileMenuOpen = String(isMobileMenuOpen);
+    window.dispatchEvent(
+      new CustomEvent<boolean>(MOBILE_NAV_STATE_EVENT, {
+        detail: isMobileMenuOpen,
+      }),
+    );
 
-  useEffect(() => {
-    if (!isMobileMenuOpen) setIsMobileMoreOpen(false);
+    return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen]);
 
   const mobileNavItems = useMemo(
@@ -521,6 +542,30 @@ export function SiteHeader() {
   const handleToggleMobileMore = useCallback(() => {
     setIsMobileMoreOpen((v) => !v);
   }, []);
+
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMoreOpen(false);
+    setIsMobileMenuOpen((open) => !open);
+  }, []);
+
+  const handleMobileMenuPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType === "mouse" && event.button !== 0) {
+        return;
+      }
+
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      toggleMobileMenu();
+    },
+    [toggleMobileMenu],
+  );
+
+  const handleMobileMenuClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (event.detail === 0) {
+      toggleMobileMenu();
+    }
+  }, [toggleMobileMenu]);
 
   const navigateAndCloseMobile = useCallback((href: string) => {
     setIsMobileMenuOpen(false);
@@ -777,8 +822,9 @@ export function SiteHeader() {
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-nav-drawer"
-          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          className="ml-auto inline-flex size-11 items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm border border-transparent md:border-white/10 md:hidden"
+          onPointerDown={handleMobileMenuPointerDown}
+          onClick={handleMobileMenuClick}
+          className="ml-auto inline-flex size-11 touch-manipulation items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm border border-transparent md:border-white/10 md:hidden"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             {isMobileMenuOpen ? (
@@ -811,7 +857,7 @@ export function SiteHeader() {
         onOpenCommand={handleMobileOpenCommand}
       />
 
-      <CommandMenu open={isCommandOpen} setOpen={setIsCommandOpen} />
+      {isCommandOpen ? <CommandMenu open setOpen={setIsCommandOpen} /> : null}
     </header>
   );
 }

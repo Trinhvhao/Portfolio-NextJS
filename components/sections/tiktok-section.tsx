@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -73,6 +73,21 @@ const ActionButton = ({ children }: { children: React.ReactNode }) => (
 export function TiktokSection() {
   const t = useTranslations("tiktokSection");
   const duplicatedImages = [...DEMO_IMAGES, ...DEMO_IMAGES];
+  const marqueeRef = useRef<HTMLDivElement | null>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (!el) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { rootMargin: "100px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -183,16 +198,17 @@ export function TiktokSection() {
         </motion.div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-1/3 md:h-2/5 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]">
-        <motion.div
-          className="flex gap-4"
-          animate={{
-            x: ["-100%", "0%"],
-            transition: {
-              ease: "linear",
-              duration: 40,
-              repeat: Infinity,
-            },
+      <div
+        ref={marqueeRef}
+        className="pointer-events-none absolute bottom-0 left-0 w-full h-1/3 md:h-2/5 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
+      >
+        <div
+          className="flex gap-4 will-change-transform"
+          style={{
+            animation: isInView
+              ? "tiktok-marquee 40s linear infinite"
+              : "none",
+            transform: "translate3d(-50%, 0, 0)",
           }}
         >
           {duplicatedImages.map((src, index) => (
@@ -201,14 +217,23 @@ export function TiktokSection() {
               className="relative aspect-[3/4] h-48 md:h-64 shrink-0"
               style={{ rotate: `${index % 2 === 0 ? -2 : 5}deg` }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
                 alt={`Showcase image ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="size-full object-cover rounded-2xl shadow-md"
               />
             </div>
           ))}
-        </motion.div>
+        </div>
+        <style>{`
+          @keyframes tiktok-marquee {
+            from { transform: translate3d(0, 0, 0); }
+            to { transform: translate3d(-50%, 0, 0); }
+          }
+        `}</style>
       </div>
     </section>
   );

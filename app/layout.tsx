@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthSessionProvider } from "@/components/providers/auth-session-provider";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/sections/site-header";
 import { BookCallModalRoot } from "@/components/ui/book-call-modal";
 
@@ -17,18 +16,20 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
   const messages = await getMessages();
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang={locale} className="dark" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" />
         <link rel="preload" href="/images/site-img/icon.webp" as="image" type="image/webp" fetchPriority="high" />
-        <link rel="stylesheet" href="/assets/css/_next/static/chunks/42bc346dfa57e75d.css" />
         <link rel="stylesheet" href="/assets/css/_next/static/chunks/fdd8e3b6d7ffc309.css" />
       </head>
       <body className="bg-black text-zinc-100 overflow-x-hidden">
-        <AuthSessionProvider>
-          <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={messages}>
             <SiteHeader />
             <BookCallModalRoot />
             {/* Black gradient header bar */}
@@ -42,8 +43,7 @@ export default async function RootLayout({
               }}
             />
             {children}
-          </NextIntlClientProvider>
-        </AuthSessionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

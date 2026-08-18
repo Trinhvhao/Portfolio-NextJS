@@ -7,6 +7,124 @@ import Image from "next/image";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 import { workItems } from "@/lib/work-data";
+import { useLocale } from "next-intl";
+
+interface TranslatedItem {
+  type: string;
+  description: string;
+  detailDescription: string;
+  highlights: string[];
+}
+
+function useProjectTranslations(): Record<string, TranslatedItem> | null {
+  const locale = useLocale();
+  const t = useTranslations("projects");
+
+  if (locale !== "vi") return null;
+
+  return {
+    "next-venture": {
+      type: t("nextVenture.type"),
+      description: t("nextVenture.description"),
+      detailDescription: t("nextVenture.detailDescription"),
+      highlights: [
+        t("nextVenture.highlights.0"),
+        t("nextVenture.highlights.1"),
+        t("nextVenture.highlights.2"),
+      ],
+    },
+    "finote": {
+      type: t("finote.type"),
+      description: t("finote.description"),
+      detailDescription: t("finote.detailDescription"),
+      highlights: [
+        t("finote.highlights.0"),
+        t("finote.highlights.1"),
+        t("finote.highlights.2"),
+      ],
+    },
+    "zenith-minds": {
+      type: t("zenithMinds.type"),
+      description: t("zenithMinds.description"),
+      detailDescription: t("zenithMinds.detailDescription"),
+      highlights: [
+        t("zenithMinds.highlights.0"),
+        t("zenithMinds.highlights.1"),
+        t("zenithMinds.highlights.2"),
+      ],
+    },
+    "snippix": {
+      type: t("snippix.type"),
+      description: t("snippix.description"),
+      detailDescription: t("snippix.detailDescription"),
+      highlights: [
+        t("snippix.highlights.0"),
+        t("snippix.highlights.1"),
+        t("snippix.highlights.2"),
+      ],
+    },
+    "star-forge": {
+      type: t("starForge.type"),
+      description: t("starForge.description"),
+      detailDescription: t("starForge.detailDescription"),
+      highlights: [
+        t("starForge.highlights.0"),
+        t("starForge.highlights.1"),
+        t("starForge.highlights.2"),
+      ],
+    },
+    "cloudpulse": {
+      type: t("cloudPulse.type"),
+      description: t("cloudPulse.description"),
+      detailDescription: t("cloudPulse.detailDescription"),
+      highlights: [
+        t("cloudPulse.highlights.0"),
+        t("cloudPulse.highlights.1"),
+        t("cloudPulse.highlights.2"),
+      ],
+    },
+    "artflow": {
+      type: t("artFlow.type"),
+      description: t("artFlow.description"),
+      detailDescription: t("artFlow.detailDescription"),
+      highlights: [
+        t("artFlow.highlights.0"),
+        t("artFlow.highlights.1"),
+        t("artFlow.highlights.2"),
+      ],
+    },
+    "taskbeat": {
+      type: t("taskBeat.type"),
+      description: t("taskBeat.description"),
+      detailDescription: t("taskBeat.detailDescription"),
+      highlights: [
+        t("taskBeat.highlights.0"),
+        t("taskBeat.highlights.1"),
+        t("taskBeat.highlights.2"),
+      ],
+    },
+    "nexacart": {
+      type: t("nexaCart.type"),
+      description: t("nexaCart.description"),
+      detailDescription: t("nexaCart.detailDescription"),
+      highlights: [
+        t("nexaCart.highlights.0"),
+        t("nexaCart.highlights.1"),
+        t("nexaCart.highlights.2"),
+      ],
+    },
+    "healthsync": {
+      type: t("healthSync.type"),
+      description: t("healthSync.description"),
+      detailDescription: t("healthSync.detailDescription"),
+      highlights: [
+        t("healthSync.highlights.0"),
+        t("healthSync.highlights.1"),
+        t("healthSync.highlights.2"),
+      ],
+    },
+  };
+}
 
 const TECH_ICON_MAP: Record<string, string> = {
   "Next.js": "devicon-nextjs-original",
@@ -122,14 +240,18 @@ interface ProjectCardProps {
   index: number;
   prefix: string;
   isMobile?: boolean;
+  translations?: TranslatedItem | null;
 }
 
-function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps) {
+function ProjectCard({ item, index, prefix, isMobile = false, translations }: ProjectCardProps) {
   const cardRef = useRef<HTMLAnchorElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorFrameRef = useRef<number | null>(null);
   const spinnerMountedRef = useRef(false);
   const [spinnerMounted, setSpinnerMounted] = useState(false);
+
+  const displayType = translations?.type ?? item.type;
+  const displayDescription = translations?.description ?? item.description;
 
   const updateCursor = useCallback((x: number, y: number) => {
     const cursor = cursorRef.current;
@@ -194,7 +316,7 @@ function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps
             <div className="flex items-center gap-3">
               <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.index}</span>
               <div className="h-px w-8 bg-neutral-200 dark:bg-neutral-800" />
-              <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.type}</span>
+              <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{displayType}</span>
             </div>
             <Link href={item.href} className="flex items-center gap-2">
               <h3 className="font-instrument-serif text-3xl leading-tight font-bold text-neutral-900 dark:text-white">{item.title}</h3>
@@ -214,15 +336,15 @@ function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="relative flex size-full flex-col justify-between overflow-hidden rounded-xl bg-black/70 ring-1 ring-white/12 lg:rounded-2xl">
+          <div className="relative flex size-full min-h-0 flex-col overflow-hidden rounded-xl bg-black/70 ring-1 ring-white/12 lg:rounded-2xl">
             <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
             <div className="relative z-10 flex items-start justify-between gap-8 px-4 py-4 text-white/80 lg:px-5 lg:py-5">
-              <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base">{item.description}</p>
+              <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base">{displayDescription}</p>
               <span className="hidden shrink-0 text-lg transition-transform duration-500 ease-out group-hover:translate-x-1 sm:block">→</span>
             </div>
-            <div className="relative z-10 px-4 pb-4 lg:px-5 lg:pb-5">
+            <div className="relative z-10 mt-auto flex-1 min-h-0 px-4 pb-4 lg:px-5 lg:pb-5">
               {item.image ? (
-                <div className="relative h-48 w-full overflow-hidden rounded-xl shadow-2xl">
+                <div className="relative h-full w-full overflow-hidden rounded-xl shadow-2xl">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -242,7 +364,7 @@ function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps
                   ) : null}
                 </div>
               ) : (
-                <div className="flex h-48 w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
+                <div className="flex h-full w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
                   Finote App
                 </div>
               )}
@@ -302,7 +424,7 @@ function ProjectCard({ item, index, prefix, isMobile = false }: ProjectCardProps
           <div className="relative flex size-full flex-col overflow-hidden rounded-2xl bg-black/70 ring-1 ring-white/12">
             <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
             <div className="relative z-10 flex items-start justify-between gap-8 px-8 pt-8 pb-6 lg:px-10 lg:pt-10 lg:pb-8 text-white/90">
-              <p className="text-2xl font-medium leading-snug transition-transform duration-500 ease-out group-hover:-translate-y-1">{item.description}</p>
+              <p className="text-2xl font-medium leading-snug transition-transform duration-500 ease-out group-hover:-translate-y-1">{displayDescription}</p>
               <span className="shrink-0 pt-1 text-2xl transition-transform duration-500 ease-out group-hover:translate-x-1.5">→</span>
             </div>
             <div className="relative z-10 mt-auto flex-1 w-full px-8 min-h-0 lg:px-10">
@@ -356,6 +478,7 @@ interface WorkSectionProps {
 
 export function WorkSection({ limit }: WorkSectionProps) {
   const t = useTranslations("work");
+  const projectTranslations = useProjectTranslations();
   const [activeId, setActiveId] = useState(workItems[0]?.id ?? "");
   const activeIdRef = useRef(activeId);
   const frameRef = useRef<number | null>(null);
@@ -438,6 +561,7 @@ export function WorkSection({ limit }: WorkSectionProps) {
   }, []);
 
   const activeItem = displayItems.find((item) => item.id === activeId) ?? displayItems[0];
+  const translatedActive = projectTranslations?.[activeItem.id];
 
   return (
     <section id="work" className="container relative mx-auto w-full py-pagebuilder">
@@ -445,7 +569,7 @@ export function WorkSection({ limit }: WorkSectionProps) {
         className="relative z-2 mb-20 text-center text-5xl font-medium tracking-tight sm:text-5xl md:mb-24 md:text-6xl"
         style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
       >
-        <p className="mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("caseStudies")}</p>
+        <p className="vietnamese-text mb-3 font-mono text-xs font-normal tracking-widest text-black/80 uppercase dark:text-white/70">{t("caseStudies")}</p>
         <span className="font-instrument-serif">
           <span>{t("title")} </span>
           <TypedRouteText text="work" triggerOnView className="animate-gradient-x text-reveal-left pe-2 font-instrument-serif italic tracking-tight text-colorfull" />
@@ -454,7 +578,7 @@ export function WorkSection({ limit }: WorkSectionProps) {
 
       <div className="flex flex-col gap-20 pb-20 lg:hidden">
         {displayItems.map((item, index) => (
-          <ProjectCard key={item.id} item={item} index={index} prefix="mobile" isMobile />
+          <ProjectCard key={item.id} item={item} index={index} prefix="mobile" isMobile translations={projectTranslations?.[item.id]} />
         ))}
       </div>
 
@@ -474,7 +598,7 @@ export function WorkSection({ limit }: WorkSectionProps) {
                 activeId === item.id ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-[0.97] opacity-60"
               }`}
             >
-              <ProjectCard item={item} index={index} prefix="desktop" />
+              <ProjectCard item={item} index={index} prefix="desktop" translations={projectTranslations?.[item.id]} />
             </div>
           ))}
         </div>
@@ -485,10 +609,10 @@ export function WorkSection({ limit }: WorkSectionProps) {
               <div aria-hidden="true" className="my-4 me-4 h-[2px] min-w-6" style={{ backgroundColor: activeItem.accentColor }} />
               <div key={activeItem.id} className="animate-work-panel-in motion-reduce:animate-none">
                 <h3 className="font-instrument-serif text-3xl font-bold text-foreground">{activeItem.title}</h3>
-                <p className="my-2 text-sm font-light text-primary/90 xl:text-base">{activeItem.detailDescription}</p>
+                <p className="my-2 text-sm font-light text-primary/90 xl:text-base">{translatedActive?.detailDescription ?? activeItem.detailDescription}</p>
                 <ul className="mt-4 flex flex-col gap-y-2 text-sm text-primary/90 xl:text-base">
-                  {(activeItem.highlights ?? []).map((point) => (
-                    <li key={`${activeItem.id}-desktop-${point}`} className="flex items-start">
+                  {(translatedActive?.highlights ?? activeItem.highlights ?? []).map((point, idx) => (
+                    <li key={`${activeItem.id}-desktop-${point}-${idx}`} className="flex items-start">
                       <svg className="me-1.5 mt-[2px] size-5 shrink-0" style={{ fill: activeItem.accentColor, color: activeItem.accentColor }} height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 1C12 1 12 8 10 10C8 12 1 12 1 12C1 12 8 12 10 14C12 16 12 23 12 23C12 23 12 16 14 14C16 12 23 12 23 12C23 12 16 12 14 10C12 8 12 1 12 1Z" />
                       </svg>
@@ -510,11 +634,22 @@ export function WorkSection({ limit }: WorkSectionProps) {
 
       <Link
         href="/projects"
-        className="group mx-auto flex w-fit items-center justify-center gap-2 font-mono text-neutral-800 transition-colors hover:text-black dark:text-white-1"
+        className="vietnamese-text group mx-auto flex w-fit items-center justify-center gap-3 font-mono text-[13px] tracking-[0.02em] text-white transition-colors hover:text-white/80 sm:text-base sm:tracking-wide"
+        style={{
+          textShadow: "0 0 20px rgba(255,255,255,0.15)",
+        }}
       >
-        {t("seeMore")}
-        <span className="inline-flex h-[25px] w-[25px] items-center justify-center overflow-hidden rounded-full border border-neutral-300 bg-white-1/50 transition-colors duration-300 group-hover:bg-neutral-200 dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
-          <span className="text-sm">→</span>
+        <span
+          className="relative"
+          style={{
+            textShadow:
+              "0 0 20px rgba(255,255,255,0.15), 1px 0 0 rgba(255,0,0,0.4), -1px 0 0 rgba(0,255,255,0.4), 0 1px 0 rgba(255,0,0,0.3), 0 -1px 0 rgba(0,255,255,0.3)",
+          }}
+        >
+          {t("seeMore")}
+        </span>
+        <span className="inline-flex h-[34px] w-[34px] items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.1),inset_0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300 group-hover:h-[38px] group-hover:w-[38px] group-hover:border-white/40 group-hover:bg-white/15 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.15),inset_0_0_20px_rgba(255,255,255,0.08)] sm:h-[38px] sm:w-[38px]">
+          <span className="text-sm transition-transform duration-300 group-hover:translate-x-[2px] sm:text-base">→</span>
         </span>
       </Link>
     </section>
