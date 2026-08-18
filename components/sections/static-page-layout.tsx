@@ -7,7 +7,7 @@ type StaticPageLayoutProps = {
 
 export function StaticPageLayout({ content, children }: StaticPageLayoutProps) {
   return (
-    <article className="mx-auto w-full max-w-3xl space-y-10 pb-20 pt-12">
+    <article className="mx-auto w-full max-w-3xl space-y-10 pt-12">
       <header className="space-y-4">
         <p className="font-mono text-xs tracking-[0.22em] text-neutral-500 uppercase">{content.eyebrow}</p>
         <h1 className="font-instrument-serif text-5xl leading-tight text-neutral-100 sm:text-6xl">{content.title}</h1>

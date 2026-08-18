@@ -44,7 +44,7 @@ export default function SocialPage() {
             className="w-full border-x border-neutral-300 bg-[linear-gradient(45deg,var(--color-neutral-300)_12.50%,transparent_12.50%,transparent_50%,var(--color-neutral-300)_50%,var(--color-neutral-300)_62.50%,transparent_62.50%,transparent_100%)] bg-size-[5px_5px] opacity-75 dark:border-neutral-800 dark:bg-[linear-gradient(45deg,var(--color-neutral-800)_12.50%,transparent_12.50%,transparent_50%,var(--color-neutral-800)_50%,var(--color-neutral-800)_62.50%,transparent_62.50%,transparent_100%)]"
           />
 
-          <div className="relative col-span-1 flex flex-col justify-center gap-16 py-16 pt-36">
+          <div className="relative col-span-1 flex flex-col justify-center pt-36">
             <StaticPageLayout content={socialPageContent} />
           </div>
 
