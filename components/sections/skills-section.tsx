@@ -209,12 +209,13 @@ function SkillBadge({ name, isAligned, scatter, style, compact }: { name: string
           : `translate3d(${scatter.x}px, ${scatter.y}px, 0px) rotate(${scatter.rotate}deg) scale(${scatter.scale})`,
         opacity: isAligned ? "1" : "0.82",
         filter: isAligned ? "blur(0px)" : "blur(0.45px)",
+        contain: "layout style",
       }}
       className={`group relative flex ${shellSize} items-center justify-center rounded-xl border border-black/5 bg-white-2 p-0 shadow-border transition-[transform,opacity,filter] duration-[600ms] ease-[cubic-bezier(0.18,0.88,0.2,1)] dark:border-white/10 dark:bg-white/10`}
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-1 rounded-lg bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.65),rgba(99,102,241,.24)_45%,rgba(0,0,0,0)_72%)] opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-1 rounded-lg bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.65),rgba(99,102,241,.24)_45%,rgba(0,0,0,0)_72%)] opacity-0 blur-md transition-opacity duration-500 max-md:hidden group-hover:opacity-100"
       />
       {customSvg ? (
         <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center`}>
@@ -224,7 +225,7 @@ function SkillBadge({ name, isAligned, scatter, style, compact }: { name: string
         <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center`}>
           <i
             aria-label={name.toLowerCase().replace(/\s+/g, "-")}
-            className={`${iconClass} ${iconSize} block leading-none will-change-transform transition-transform duration-500 group-hover:scale-105`}
+            className={`${iconClass} ${iconSize} block leading-none transition-transform duration-500 group-hover:scale-105`}
           />
         </span>
       ) : (
@@ -238,13 +239,13 @@ function SkillBadge({ name, isAligned, scatter, style, compact }: { name: string
 
 export function SkillsSection() {
   const t = useTranslations("skills");
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const skillsGridRef = useRef<HTMLDivElement | null>(null);
   const [isAligned, setIsAligned] = useState(false);
   const alignTimerRef = useRef<number | null>(null);
   const inViewRef = useRef(false);
 
   useEffect(() => {
-    const node = sectionRef.current;
+    const node = skillsGridRef.current;
     if (!node) {
       return;
     }
@@ -289,7 +290,7 @@ export function SkillsSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative mx-auto flex h-full w-full flex-col overflow-hidden py-pagebuilder" id="skills">
+    <section className="relative mx-auto flex h-full w-full flex-col overflow-hidden py-pagebuilder" id="skills">
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[42%] z-0 h-64 w-[32rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.22)_0%,rgba(79,70,229,0.12)_44%,rgba(0,0,0,0)_78%)] blur-3xl" />
 
       <div>
@@ -319,55 +320,57 @@ export function SkillsSection() {
           </span>
         </h2>
 
-        <div className="container relative flex flex-col items-center justify-center gap-4">
-          <div className="hidden w-full max-w-5xl text-center font-geist lg:block" style={{ perspective: "500px" }}>
-            {skillRows.map((row, rowIndex) => (
-              <div key={`desktop-row-${rowIndex}`} className="mb-3 flex flex-wrap justify-center gap-3">
-                {row.map((name, index) => (
-                  (() => {
-                    const badgeIndex = rowIndex * 16 + index;
-                    const delayMs = 30 + badgeIndex * 10;
-                    const scatter = createScatterTransform(name, rowIndex, index, row.length);
-                    return (
-                  <SkillBadge
-                    key={`${rowIndex}-${name}`}
-                    name={name}
-                    isAligned={isAligned}
-                    scatter={scatter}
-                    style={{ transitionDelay: `${delayMs}ms` }}
-                  />
-                    );
-                  })()
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="container relative flex flex-col items-center justify-center gap-4">
-        <div className="w-full max-w-5xl text-center font-geist lg:hidden">
-          {skillRows.map((row, rowIndex) => (
-            <div key={`mobile-row-${rowIndex}`} className="mb-2 flex flex-wrap justify-center gap-2">
-              {row.map((name, index) => (
-                (() => {
-                  const badgeIndex = rowIndex * 16 + index;
-                  const delayMs = 25 + badgeIndex * 8;
-                  const scatter = createScatterTransform(name, rowIndex, index, row.length, true);
-                  return (
+        <div ref={skillsGridRef} data-skills-grid>
+          <div className="container relative flex flex-col items-center justify-center gap-4">
+            <div className="hidden w-full max-w-5xl text-center font-geist lg:block" style={{ perspective: "500px" }}>
+              {skillRows.map((row, rowIndex) => (
+                <div key={`desktop-row-${rowIndex}`} className="mb-3 flex flex-wrap justify-center gap-3">
+                  {row.map((name, index) => (
+                    (() => {
+                      const badgeIndex = rowIndex * 16 + index;
+                      const delayMs = 30 + badgeIndex * 10;
+                      const scatter = createScatterTransform(name, rowIndex, index, row.length);
+                      return (
                     <SkillBadge
                       key={`${rowIndex}-${name}`}
                       name={name}
-                      compact
                       isAligned={isAligned}
                       scatter={scatter}
                       style={{ transitionDelay: `${delayMs}ms` }}
                     />
-                  );
-                })()
+                      );
+                    })()
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
+          </div>
+
+          <div className="container relative flex flex-col items-center justify-center gap-4">
+            <div className="w-full max-w-5xl text-center font-geist lg:hidden">
+              {skillRows.map((row, rowIndex) => (
+                <div key={`mobile-row-${rowIndex}`} className="mb-2 flex flex-wrap justify-center gap-2">
+                  {row.map((name, index) => (
+                    (() => {
+                      const badgeIndex = rowIndex * 16 + index;
+                      const delayMs = 25 + badgeIndex * 8;
+                      const scatter = createScatterTransform(name, rowIndex, index, row.length, true);
+                      return (
+                        <SkillBadge
+                          key={`${rowIndex}-${name}`}
+                          name={name}
+                          compact
+                          isAligned={isAligned}
+                          scatter={scatter}
+                          style={{ transitionDelay: `${delayMs}ms` }}
+                        />
+                      );
+                    })()
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

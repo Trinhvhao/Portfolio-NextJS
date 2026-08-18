@@ -38,7 +38,9 @@
   "hero": {
     "badge": "Upcoming",
     "badgeText1": "Fresh launches and standout case studies are on the way.",
+    "badgeText1Mobile": "Fresh launches incoming.",
     "badgeText2": "New product drops are coming soon. Stay tuned.",
+    "badgeText2Mobile": "Stay tuned!",
     "subtitle": "Turning ideas into experiences.",
     "highlightedText": "Built with precision and care.",
     "greeting": "Hello, I'm",
@@ -226,7 +228,7 @@
     "more": "More",
     "followers": "Followers",
     "forks": "Forks",
-    "stars": "GitHub Stars"
+    "stars": "Stars"
   },
   "resume": {
     "downloadPdf": "Download PDF",

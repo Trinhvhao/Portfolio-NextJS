@@ -96,6 +96,27 @@ export function AboutExperienceSection() {
       progressNode.textContent = `${Math.round(clamped * 100)}% explored`;
     };
 
+    const animate = () => {
+      const current = currentProgressRef.current;
+      const target = targetProgressRef.current;
+      const next = current + (target - current) * 0.34;
+      currentProgressRef.current = Math.abs(next - target) < 0.0006 ? target : next;
+      updateVisual(currentProgressRef.current);
+
+      if (currentProgressRef.current === target) {
+        animationFrameRef.current = null;
+        return;
+      }
+
+      animationFrameRef.current = window.requestAnimationFrame(animate);
+    };
+
+    const requestVisualUpdate = () => {
+      if (animationFrameRef.current === null) {
+        animationFrameRef.current = window.requestAnimationFrame(animate);
+      }
+    };
+
     const updateScrollProgress = () => {
       const rect = sectionNode.getBoundingClientRect();
       const viewportHeight = window.innerHeight || 1;
@@ -107,33 +128,26 @@ export function AboutExperienceSection() {
 
       if (travel <= 0) {
         targetProgressRef.current = 0;
+        requestVisualUpdate();
         return;
       }
 
       const raw = (startLine - rect.top) / travel;
       targetProgressRef.current = Math.min(1, Math.max(0, raw));
+      requestVisualUpdate();
     };
 
-    const animate = () => {
-      const current = currentProgressRef.current;
-      const target = targetProgressRef.current;
-      const next = current + (target - current) * 0.34;
-      currentProgressRef.current = Math.abs(next - target) < 0.0006 ? target : next;
-      updateVisual(currentProgressRef.current);
-      animationFrameRef.current = window.requestAnimationFrame(animate);
-    };
-
-    updateScrollProgress();
     updateVisual(0);
+    updateScrollProgress();
     window.addEventListener("scroll", updateScrollProgress, { passive: true });
     window.addEventListener("resize", updateScrollProgress);
-    animationFrameRef.current = window.requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("scroll", updateScrollProgress);
       window.removeEventListener("resize", updateScrollProgress);
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, []);
@@ -242,7 +256,7 @@ export function AboutExperienceSection() {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute top-5 bottom-5 hidden w-8 overflow-hidden px-6 md:left-[calc(30%_-_1rem)] md:block">
+          <div className="pointer-events-none absolute top-5 bottom-5 left-3 w-10 md:left-[calc(30%_-_1.25rem)]">
             <div className="relative h-full w-full">
               <div className="absolute top-0 bottom-0 left-1/2 w-1.5 -translate-x-1/2 rounded-full bg-neutral-200 shadow-[inset_0_2px_1.5px_rgba(165,174,184,0.62)] dark:bg-neutral-800" />
               <div

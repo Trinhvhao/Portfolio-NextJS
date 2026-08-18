@@ -92,56 +92,16 @@ function InitialsAvatar({ name }: { name: string }) {
 export function TestimonialsSection() {
   const t = useTranslations("testimonials");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const dragStateRef = useRef({ isDown: false, startX: 0, startScrollLeft: 0 });
+  const dragStateRef = useRef({ isDown: false, startX: 0 });
+  const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const animationRef = useRef<number | null>(null);
   const total = TESTIMONIALS.length;
 
-  // Hủy animation cuộn đang chạy (nếu có)
-  const cancelScrollAnimation = useCallback(() => {
-    if (animationRef.current !== null) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-  }, []);
-
-  // Cuộn mượt tới toạ độ left bằng requestAnimationFrame + ease-in-out cubic
-  const animateScrollTo = useCallback((targetLeft: number) => {
-    const container = scrollRef.current;
-    if (!container) {
-      return;
-    }
-    cancelScrollAnimation();
-
-    const startLeft = container.scrollLeft;
-    const distance = targetLeft - startLeft;
-    if (Math.abs(distance) < 1) {
-      return;
-    }
-
-    const duration = 700; // ms — đổi số này nếu muốn nhanh/chậm hơn
-    const startTime = performance.now();
-
-    const step = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      // ease-in-out cubic
-      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      container.scrollLeft = startLeft + distance * eased;
-      if (t < 1) {
-        animationRef.current = requestAnimationFrame(step);
-      } else {
-        animationRef.current = null;
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(step);
-  }, [cancelScrollAnimation]);
-
-  // Scroll tới card theo index (dùng khi auto-advance hoặc click segment)
+  // Chỉ cuộn NGANG trong container — không can thiệp scroll dọc của page.
+  // Dùng scrollLeft mượt để tránh scrollIntoView kéo cả window.
   const scrollToIndex = useCallback((index: number) => {
     const container = scrollRef.current;
     if (!container) {
@@ -152,11 +112,18 @@ export function TestimonialsSection() {
     if (!target) {
       return;
     }
-    const innerTrack = container.firstElementChild as HTMLElement | null;
-    const gap = innerTrack ? parseFloat(getComputedStyle(innerTrack).gap || "0") || 0 : 0;
-    const left = target.offsetLeft - container.offsetLeft - gap;
-    animateScrollTo(left);
-  }, [animateScrollTo]);
+    if (programmaticScrollTimeoutRef.current !== null) {
+      clearTimeout(programmaticScrollTimeoutRef.current);
+      programmaticScrollTimeoutRef.current = null;
+    }
+    // Đánh dấu là do code cuộn để scroll listener không "lai" sang swipe của user
+    programmaticScrollTimeoutRef.current = setTimeout(() => {
+      programmaticScrollTimeoutRef.current = null;
+    }, 800);
+    const desiredLeft =
+      target.offsetLeft - container.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
+    container.scrollTo({ left: desiredLeft, behavior: "smooth" });
+  }, []);
 
   const stopAutoAdvance = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -189,9 +156,74 @@ export function TestimonialsSection() {
     }
     return () => {
       stopAutoAdvance();
-      cancelScrollAnimation();
+      if (programmaticScrollTimeoutRef.current !== null) {
+        clearTimeout(programmaticScrollTimeoutRef.current);
+        programmaticScrollTimeoutRef.current = null;
+      }
     };
-  }, [isPaused, isDragging, startAutoAdvance, stopAutoAdvance, cancelScrollAnimation]);
+  }, [isPaused, isDragging, startAutoAdvance, stopAutoAdvance]);
+
+  // Cập nhật activeIndex theo card đang hiển thị khi user swipe tay
+  // (không can thiệp vào scroll — chỉ nghe)
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    let rafId: number | null = null;
+
+    const updateActiveFromScroll = () => {
+      rafId = null;
+      if (programmaticScrollTimeoutRef.current !== null) {
+        return; // Bỏ qua khi đang do code cuộn
+      }
+      const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
+      const containerCenter = container.scrollLeft + container.clientWidth / 2;
+      let closestIndex = 0;
+      let closestDistance = Number.POSITIVE_INFINITY;
+      cards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.clientWidth / 2;
+        const distance = Math.abs(cardCenter - containerCenter);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index % total;
+        }
+      });
+      setActiveIndex((current) => (current === closestIndex ? current : closestIndex));
+    };
+
+    const onScroll = () => {
+      if (rafId !== null) {
+        return;
+      }
+      rafId = requestAnimationFrame(updateActiveFromScroll);
+    };
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [total]);
+
+  // Căn giữa card đầu tiên ngay khi mount (không animate — đặt scrollLeft trực tiếp)
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) {
+      return;
+    }
+    const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
+    const target = cards[0];
+    if (!target) {
+      return;
+    }
+    const desiredLeft =
+      target.offsetLeft - container.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
+    container.scrollLeft = desiredLeft;
+  }, []);
 
   return (
     <section
@@ -211,36 +243,22 @@ export function TestimonialsSection() {
 
       <div
         ref={scrollRef}
-        className={`w-full overflow-x-auto select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`w-full overflow-x-auto select-none snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x overscroll-x-contain ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         onPointerDown={(event) => {
           const container = scrollRef.current;
           if (!container) {
             return;
           }
-
-          // Dừng animation cuộn đang chạy (nếu có) để user điều khiển trực tiếp
-          cancelScrollAnimation();
-
-          dragStateRef.current = {
-            isDown: true,
-            startX: event.clientX,
-            startScrollLeft: container.scrollLeft,
-          };
+          dragStateRef.current = { isDown: true, startX: event.clientX };
           setIsDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
+          // Chỉ đánh dấu drag để pause auto-advance — KHÔNG ghi scrollLeft thủ công.
+          // Để browser lo momentum + snap native (smooth trên mobile).
           if (!dragStateRef.current.isDown) {
             return;
           }
-
-          const container = scrollRef.current;
-          if (!container) {
-            return;
-          }
-
-          const deltaX = event.clientX - dragStateRef.current.startX;
-          container.scrollLeft = dragStateRef.current.startScrollLeft - deltaX;
         }}
         onPointerUp={() => {
           dragStateRef.current.isDown = false;
@@ -262,11 +280,15 @@ export function TestimonialsSection() {
           startAutoAdvance();
         }}
       >
-        <div className="mx-auto flex w-max gap-3 px-2 py-1">
+        <div className="mx-auto flex w-max gap-3 px-4 py-1 sm:px-6">
           {[...TESTIMONIALS, ...TESTIMONIALS].map((item, index) => (
-            <div key={`${item.author}-${index}`} className="shrink-0" data-testimonial-card>
+            <div
+              key={`${item.author}-${index}`}
+              className="shrink-0 snap-center"
+              data-testimonial-card
+            >
               <article
-                className={`dark relative flex h-full w-[260px] select-none flex-col justify-between overflow-hidden rounded-xl bg-black p-3 antialiased shadow-border sm:w-[280px] sm:p-4 md:w-[320px] md:rounded-2xl md:p-4 lg:p-4 ${item.gradientClass}`}
+                className={`dark relative flex h-full w-[78vw] max-w-[260px] select-none flex-col justify-between overflow-hidden rounded-xl bg-black p-3 antialiased shadow-border sm:w-[280px] sm:p-4 md:w-[320px] md:rounded-2xl md:p-4 lg:p-4 ${item.gradientClass}`}
               >
                 <div>
                   <h4 className="mb-1.5 font-instrument-serif text-base font-bold leading-snug tracking-wide text-white/95 sm:text-lg md:text-xl">{item.title}</h4>
@@ -274,9 +296,9 @@ export function TestimonialsSection() {
                 </div>
                 <div className="mt-1 flex items-center gap-2.5">
                   <InitialsAvatar name={item.author} />
-                  <div>
-                    <span className="text-sm font-medium tracking-wide text-white/95 sm:text-base">{item.author}</span>
-                    <p className="text-[11px] text-white/80 sm:text-xs">{item.role}</p>
+                  <div className="min-w-0">
+                    <span className="block truncate text-sm font-medium tracking-wide text-white/95 sm:text-base">{item.author}</span>
+                    <p className="truncate text-[11px] text-white/80 sm:text-xs">{item.role}</p>
                   </div>
                 </div>
               </article>

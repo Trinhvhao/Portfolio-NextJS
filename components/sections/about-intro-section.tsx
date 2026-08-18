@@ -64,7 +64,7 @@ export function AboutIntroSection() {
   const getSlotStyle = (slot: "left" | "center" | "right") => {
     if (slot === "left") {
       return {
-        left: "5%",
+        left: "6%",
         zIndex: 1,
         filter: "brightness(0.7)",
         transform: "translateX(-50%) perspective(1000px) rotateY(45deg) scale(0.85)",
@@ -73,7 +73,7 @@ export function AboutIntroSection() {
 
     if (slot === "right") {
       return {
-        left: "95%",
+        left: "94%",
         zIndex: 1,
         filter: "brightness(0.7)",
         transform: "translateX(-50%) perspective(1000px) rotateY(-45deg) scale(0.85)",
@@ -89,9 +89,9 @@ export function AboutIntroSection() {
   };
 
   return (
-    <section className="px-5" aria-labelledby="about-intro-heading">
-      <div className="flex flex-col items-center justify-between lg:flex-row">
-        <div className="relative z-5 mx-auto flex max-w-xl flex-col gap-y-8 text-center text-base font-light tracking-wider text-black/80 lg:mx-0 lg:max-w-[550px] lg:text-left lg:text-lg dark:text-neutral-300">
+    <section className="min-w-0 px-5" aria-labelledby="about-intro-heading">
+      <div className="flex min-w-0 flex-col items-center justify-between lg:flex-row">
+        <div className="relative z-5 mx-auto flex w-full min-w-0 max-w-xl flex-col gap-y-8 text-center text-base font-light tracking-wider text-black/80 lg:mx-0 lg:max-w-[550px] lg:text-left lg:text-lg dark:text-neutral-300">
           <h2
             id="about-intro-heading"
             className="relative z-2 mb-8 max-w-lg text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:mb-16 md:text-6xl lg:mb-0 lg:text-left"

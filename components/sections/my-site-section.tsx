@@ -29,7 +29,7 @@ function OutArrowIcon() {
 export function MySiteSection() {
   const t = useTranslations("mySite");
   return (
-    <section className="container relative mx-auto px-4">
+    <section className="container relative mx-auto min-w-0 px-4">
       <h2
         className="relative z-2 mx-auto mb-4 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:mb-4 md:text-6xl"
         style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}
@@ -41,20 +41,20 @@ export function MySiteSection() {
         </span>
       </h2>
 
-      <div className="mt-20 grid grid-cols-1 gap-3 md:grid-cols-12">
-        <Link href="/uses" className="group relative col-span-12 flex h-[300px] flex-col justify-between rounded-xl md:col-span-12 md:row-span-6 lg:col-span-4">
+      <div className="mt-20 grid min-w-0 grid-cols-1 gap-3 md:grid-cols-12">
+        <Link href="/uses" className="group relative col-span-12 flex min-w-0 h-[300px] flex-col justify-between rounded-xl md:col-span-12 md:row-span-6 lg:col-span-4">
           <div className={cardShell}>
             <div className="absolute right-4 bottom-4 z-[999] flex h-9 w-9 rotate-6 items-center justify-center rounded-full bg-black/15 opacity-0 transition-all duration-300 ease-in-out group-hover:translate-y-[-8px] group-hover:rotate-0 group-hover:opacity-100 dark:bg-white/15">
               <OutArrowIcon />
             </div>
 
             <div className="size-full">
-              <div className="mt-10 flex items-center justify-center gap-3 transition-all duration-500 ease-in-out md:mt-12">
+              <div className="mt-10 grid min-w-0 grid-cols-5 items-center gap-1.5 px-3 transition-all duration-500 ease-in-out sm:gap-3 md:mt-12">
                 {useLogos.map((logo) => (
-                  <div key={logo.alt} className="group inline-block text-center">
+                  <div key={logo.alt} className="group min-w-0 text-center">
                     <div
-                      className={`rounded-[20px] border-2 p-2 transition-all duration-500 group-hover:border-indigo-400 group-hover:-translate-y-3 ${logo.delay}`}
-                      style={{ width: `${logo.size}px`, height: `${logo.size}px` }}
+                      className={`mx-auto aspect-square w-full rounded-[20px] border-2 p-2 transition-all duration-500 group-hover:border-indigo-400 group-hover:-translate-y-3 ${logo.delay}`}
+                      style={{ maxWidth: `${logo.size}px` }}
                     >
                       <div
                         className="grid h-full place-items-center rounded-xl border-2 border-[#A5AEB81F]/10 bg-[#EDEEF0] dark:border-[#5A5F661F]/10 dark:bg-[#1A1B1E]"

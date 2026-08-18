@@ -222,7 +222,7 @@ export function AboutSection() {
   return (
     <section
       ref={sectionRef}
-      className="about-section container relative overflow-hidden py-pagebuilder lg:max-w-full"
+      className="about-section container relative overflow-hidden py-pagebuilder lg:max-w-full max-md:hidden"
       id="about"
       data-pointer={pointerActive ? "true" : "false"}
       onPointerEnter={handlePointerEnter}
@@ -232,7 +232,7 @@ export function AboutSection() {
       <div
         ref={wandRef}
         aria-hidden
-        className="about-wand pointer-events-none absolute top-0 left-0 z-20 aspect-[1/9] w-[46px] overflow-hidden rounded-[22px] shadow-[0_14px_48px_rgba(0,0,0,0.6)]"
+        className="about-wand pointer-events-none absolute top-0 left-0 z-20 aspect-[1/9] w-[46px] overflow-hidden rounded-[22px] shadow-[0_14px_48px_rgba(0,0,0,0.6)] max-md:hidden"
         style={{
           background: "linear-gradient(90deg,#1a181c 10%,#2a282c 45% 55%,#1a181c 90%)",
         }}

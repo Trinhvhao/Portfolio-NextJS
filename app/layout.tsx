@@ -26,7 +26,7 @@ export default async function RootLayout({
         <link rel="stylesheet" href="/assets/css/_next/static/chunks/42bc346dfa57e75d.css" />
         <link rel="stylesheet" href="/assets/css/_next/static/chunks/fdd8e3b6d7ffc309.css" />
       </head>
-      <body className="bg-black text-zinc-100">
+      <body className="bg-black text-zinc-100 overflow-x-hidden">
         <AuthSessionProvider>
           <NextIntlClientProvider messages={messages}>
             <SiteHeader />
@@ -34,7 +34,7 @@ export default async function RootLayout({
             {/* Black gradient header bar */}
             <div
               aria-hidden="true"
-              className="pointer-events-none fixed left-0 z-[4000] w-full select-none"
+              className="pointer-events-none fixed left-0 z-[4000] w-full select-none hidden sm:block"
               style={{
                 top: 0,
                 height: "150px",

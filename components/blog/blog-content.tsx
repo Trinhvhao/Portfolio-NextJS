@@ -7,8 +7,6 @@ import { useTranslations } from "next-intl";
 
 import { blogPosts, blogTags } from "@/lib/blog-data";
 
-const ALL_POSTS = "All Posts";
-
 function SearchIcon() {
   return (
     <svg aria-hidden="true" className="size-4 shrink-0" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
@@ -70,8 +68,38 @@ export function BlogContent() {
   return (
     <section className="flex flex-col">
       <div className="flex items-center gap-2 px-4 py-4 sm:px-6">
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="w-28! min-w-0 shrink-0! sm:w-auto! sm:flex-1 sm:shrink!">
+          <div className="relative sm:hidden!">
+            <select
+              aria-label={t("allPosts")}
+              className="h-9 w-full appearance-none rounded-lg border border-neutral-300 bg-white px-3 pe-8 text-sm capitalize text-neutral-900 outline-none transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-neutral-600"
+              value={activeTag}
+              onChange={(event) => setActiveTag(event.target.value)}
+            >
+              <option value={t("allPosts")}>{t("allPosts")}</option>
+              {blogTags.map((tag) => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              ))}
+            </select>
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-neutral-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m19 9-7 7-7-7"
+              />
+            </svg>
+          </div>
+
+          <div className="hidden min-w-0 items-center gap-1.5 overflow-x-auto sm:flex! [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition-colors duration-200 ${
                 activeTag === t("allPosts")
@@ -101,14 +129,14 @@ export function BlogContent() {
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
-          <label className="inline-flex h-9 items-center justify-start gap-2 rounded-lg border border-neutral-300 px-3 text-neutral-500 transition-colors hover:border-neutral-400 hover:text-neutral-700 dark:border-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-300 lg:w-52">
+        <div className="flex min-w-0 flex-1 items-center gap-1 sm:w-64! sm:flex-none!">
+          <label className="inline-flex h-9 min-w-0 flex-1 items-center justify-start gap-2 rounded-lg border border-neutral-300 px-3 text-neutral-500 transition-colors hover:border-neutral-400 hover:text-neutral-700 dark:border-neutral-800 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-300">
             <SearchIcon />
             <input
               ref={searchRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
+              className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-neutral-400"
               placeholder={t("searchPlaceholder")}
               aria-label={t("searchAriaLabel")}
             />

@@ -1,10 +1,301 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { CommandMenu } from "@/components/ui/command-menu";
+
+// ─── Pure components (no props refs, no parent re-render coupling) ─────────────
+
+const NavItemIcon = function NavItemIcon({ href }: { href: string }) {
+  const c = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 20 20",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.6,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (href === "/") {
+    return (
+      <svg {...c}>
+        <path d="M3 9.5L10 4l7 5.5" />
+        <path d="M5 9v6h10V9" />
+        <path d="M9 15v-3h2v3" />
+      </svg>
+    );
+  }
+  if (href === "/about") {
+    return (
+      <svg {...c}>
+        <circle cx="10" cy="7.5" r="3" />
+        <path d="M3.5 16.5c.8-3 3.4-4.5 6.5-4.5s5.7 1.5 6.5 4.5" />
+      </svg>
+    );
+  }
+  if (href === "/projects") {
+    return (
+      <svg {...c}>
+        <rect x="3" y="4" width="14" height="12" rx="2" />
+        <path d="M3 8h14" />
+        <path d="M7 12h3" />
+      </svg>
+    );
+  }
+  if (href === "/blog") {
+    return (
+      <svg {...c}>
+        <path d="M5 3h7l3 3v11H5z" />
+        <path d="M7 9h6" />
+        <path d="M7 12h6" />
+        <path d="M7 15h4" />
+      </svg>
+    );
+  }
+  if (href === "/links") {
+    return (
+      <svg {...c}>
+        <path d="M5 9a3 3 0 0 1 3-3h2" />
+        <path d="M15 11a3 3 0 0 1-3 3h-2" />
+        <path d="M8 12h7" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...c}>
+      <circle cx="10" cy="10" r="6" />
+    </svg>
+  );
+};
+
+type MobileNavDrawerProps = {
+  open: boolean;
+  navItems: Array<{ href: string; label: string }>;
+  moreItem: { href: string; label: string } | undefined;
+  moreFeatureCards: Array<{
+    href: string;
+    title: string;
+    description: string;
+    background: string;
+    bgImage?: string;
+    bgPosition?: string;
+    emoji?: string;
+  }>;
+  moreQuickLinks: Array<{ href: string; label: string; subtitle: string }>;
+  activeHref: string;
+  isMoreOpen: boolean;
+  onToggleMore: () => void;
+  onNavigate: (href: string) => void;
+  onClose: () => void;
+  onOpenCommand: () => void;
+};
+
+const MobileNavDrawer = memo(function MobileNavDrawer({
+  open,
+  navItems,
+  moreItem,
+  moreFeatureCards,
+  moreQuickLinks,
+  activeHref,
+  isMoreOpen,
+  onToggleMore,
+  onNavigate,
+  onClose,
+  onOpenCommand,
+}: MobileNavDrawerProps) {
+  return (
+    <div
+      id="mobile-nav-drawer"
+      className="fixed inset-0 z-[4998] overflow-x-hidden md:hidden"
+      aria-hidden={!open}
+      style={{ visibility: open ? "visible" : "hidden", pointerEvents: "auto" }}
+    >
+      {/* Backdrop */}
+      <div
+        aria-hidden
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 transition-opacity duration-200"
+        style={{ opacity: open ? 1 : 0 }}
+      />
+
+      {/* Drawer panel */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+        className="absolute right-0 top-0 flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10]"
+        style={{
+          transform: open ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 280ms cubic-bezier(0.32, 0.72, 0, 1)",
+          boxShadow: open ? "-8px 0 32px rgba(0,0,0,0.5)" : "none",
+        }}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <span className="text-xs font-medium tracking-widest text-white/50 uppercase">Menu</span>
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={onClose}
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/80 active:scale-95 transition-transform"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+              <path d="M6 6l12 12" />
+              <path d="M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          <ul className="flex flex-col gap-1">
+            {navItems.map((item) => {
+              const isActive = item.href === activeHref;
+              return (
+                <li key={item.href}>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(item.href)}
+                    aria-current={isActive ? "page" : undefined}
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-base font-medium transition-colors"
+                    style={{
+                      color: isActive ? "#fff" : "#d4d4d8",
+                      background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
+                    }}
+                  >
+                    <span
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg"
+                      style={{
+                        border: "1px solid",
+                        borderColor: isActive ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.08)",
+                        background: isActive ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)",
+                        color: isActive ? "#fff" : "#a1a1aa",
+                      }}
+                      aria-hidden
+                    >
+                      <NavItemIcon href={item.href} />
+                    </span>
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+
+            {moreItem && (
+              <li>
+                <button
+                  type="button"
+                  onClick={onToggleMore}
+                  aria-expanded={isMoreOpen}
+                  className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-base font-medium text-zinc-300"
+                  style={{ transition: "background 150ms" }}
+                >
+                  <span>{moreItem.label}</span>
+                  <svg
+                    viewBox="0 0 20 20"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    aria-hidden
+                    style={{
+                      transform: isMoreOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 200ms ease",
+                      opacity: 0.5,
+                    }}
+                  >
+                    <path d="M5 7l5 5 5-5" />
+                  </svg>
+                </button>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateRows: isMoreOpen ? "1fr" : "0fr",
+                    transition: "grid-template-rows 250ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  }}
+                >
+                  <div style={{ overflow: "hidden" }}>
+                    <div className="flex flex-col gap-3 px-2 pb-3 pt-1">
+                      {moreFeatureCards.map((card) => (
+                        <Link
+                          key={card.href}
+                          href={card.href}
+                          onClick={() => onNavigate(card.href)}
+                          className="flex items-center gap-3 overflow-hidden rounded-xl border border-white/10 p-3"
+                          style={{
+                            background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), ${card.background}`,
+                          }}
+                        >
+                          {card.emoji && <span className="text-2xl">{card.emoji}</span>}
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[14px] font-semibold text-white">{card.title}</span>
+                            <span className="block truncate text-[12px] text-zinc-200/80">{card.description}</span>
+                          </span>
+                        </Link>
+                      ))}
+
+                      <div className="flex flex-col gap-1.5">
+                        {moreQuickLinks.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => onNavigate(link.href)}
+                            className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5"
+                          >
+                            <span
+                              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 text-zinc-300"
+                              aria-hidden
+                            >
+                              <svg viewBox="0 0 20 20" className="size-4">
+                                <rect x="4" y="5" width="12" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.3" />
+                                <path d="M6.5 9.5h7" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                              </svg>
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-[14px] leading-tight text-zinc-100">{link.label}</span>
+                              <span className="block truncate text-[12px] text-zinc-400">{link.subtitle}</span>
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            )}
+          </ul>
+        </nav>
+
+        <div className="border-t border-white/10 p-4">
+          <button
+            type="button"
+            onClick={() => onNavigate("/links")}
+            className="flex w-full items-center justify-center rounded-xl bg-white px-4 py-3.5 text-base font-semibold text-black active:scale-[0.98] transition-transform"
+            style={{ boxShadow: "0 0 14px rgba(255,255,255,0.18)" }}
+          >
+            Contact
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenCommand}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80 active:scale-[0.98] transition-transform"
+          >
+            <span className="font-mono text-base">⌘</span>
+            <span>Quick search</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ─── SiteHeader ────────────────────────────────────────────────────────────────
 
 export function SiteHeader() {
   const t = useTranslations("nav");
@@ -133,7 +424,6 @@ export function SiteHeader() {
       if (prev.ready && prev.x === x && prev.width === width) {
         return prev;
       }
-
       return { x, width, ready: true };
     });
   }, [activeHref]);
@@ -143,8 +433,6 @@ export function SiteHeader() {
   }, [updateActiveIndicator]);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(updateActiveIndicator);
-
     const onResize = () => {
       updateActiveIndicator();
       if (window.innerWidth >= 768 && isMobileMenuOpen) {
@@ -154,7 +442,7 @@ export function SiteHeader() {
     };
     window.addEventListener("resize", onResize);
 
-    const observer = typeof ResizeObserver !== "undefined" && navTrackRef.current
+    const observer = navTrackRef.current
       ? new ResizeObserver(() => updateActiveIndicator())
       : null;
 
@@ -165,7 +453,6 @@ export function SiteHeader() {
     }
 
     return () => {
-      window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", onResize);
       observer?.disconnect();
     };
@@ -204,14 +491,8 @@ export function SiteHeader() {
   }, [closeMoreMenu]);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
@@ -497,23 +778,23 @@ export function SiteHeader() {
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-nav-drawer"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          className="ml-auto inline-flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm md:hidden"
+          className="ml-auto inline-flex size-11 items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm border border-transparent md:border-white/10 md:hidden"
         >
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              {isMobileMenuOpen ? (
-                <>
-                  <path d="M6 6l12 12" />
-                  <path d="M18 6L6 18" />
-                </>
-              ) : (
-                <>
-                  <path d="M4 7h16" />
-                  <path d="M4 12h16" />
-                  <path d="M4 17h16" />
-                </>
-              )}
-            </svg>
-          </button>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            {isMobileMenuOpen ? (
+              <>
+                <path d="M6 6l12 12" />
+                <path d="M18 6L6 18" />
+              </>
+            ) : (
+              <>
+                <path d="M4 7h16" />
+                <path d="M4 12h16" />
+                <path d="M4 17h16" />
+              </>
+            )}
+          </svg>
+        </button>
       </nav>
 
       <MobileNavDrawer
@@ -532,304 +813,5 @@ export function SiteHeader() {
 
       <CommandMenu open={isCommandOpen} setOpen={setIsCommandOpen} />
     </header>
-  );
-}
-
-type MobileNavDrawerProps = {
-  open: boolean;
-  navItems: Array<{ href: string; label: string }>;
-  moreItem: { href: string; label: string } | undefined;
-  moreFeatureCards: Array<{
-    href: string;
-    title: string;
-    description: string;
-    background: string;
-    bgImage?: string;
-    bgPosition?: string;
-    emoji?: string;
-  }>;
-  moreQuickLinks: Array<{ href: string; label: string; subtitle: string }>;
-  activeHref: string;
-  isMoreOpen: boolean;
-  onToggleMore: () => void;
-  onNavigate: (href: string) => void;
-  onClose: () => void;
-  onOpenCommand: () => void;
-};
-
-function MobileNavDrawer({
-  open,
-  navItems,
-  moreItem,
-  moreFeatureCards,
-  moreQuickLinks,
-  activeHref,
-  isMoreOpen,
-  onToggleMore,
-  onNavigate,
-  onClose,
-  onOpenCommand,
-}: MobileNavDrawerProps) {
-  const [mounted, setMounted] = useState(true);
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true);
-      return;
-    }
-    const t = window.setTimeout(() => setMounted(false), 340);
-    return () => window.clearTimeout(t);
-  }, [open]);
-
-  if (!mounted) return null;
-
-  const visible = open;
-
-  return (
-    <div
-      id="mobile-nav-drawer"
-      aria-hidden={!visible}
-      className="md:hidden"
-      style={{ pointerEvents: visible ? "auto" : "none" }}
-    >
-      <div
-        aria-hidden
-        onClick={onClose}
-        className="fixed inset-0 z-[4998] bg-black/60"
-        style={{
-          opacity: visible ? 1 : 0,
-          transition: "opacity 240ms ease-out",
-        }}
-      />
-
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation"
-        className="fixed right-0 top-0 z-[4999] flex h-[100dvh] w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0c0c10] shadow-xl"
-        style={{
-          transform: visible ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
-          willChange: visible ? "transform" : "auto",
-        }}
-      >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <span className="text-xs font-medium tracking-widest text-white/50 uppercase">Menu</span>
-          <button
-            type="button"
-            aria-label="Close menu"
-            onClick={onClose}
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/80"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <path d="M6 6l12 12" />
-              <path d="M18 6L6 18" />
-            </svg>
-          </button>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <ul className="flex flex-col gap-1">
-            {navItems.map((item) => {
-              const isActive = item.href === activeHref;
-              return (
-                <li key={item.href}>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate(item.href)}
-                    aria-current={isActive ? "page" : undefined}
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-base font-medium transition-colors"
-                    style={{
-                      color: isActive ? "#fff" : "#d4d4d8",
-                      background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
-                    }}
-                  >
-                    <span
-                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border"
-                      style={{
-                        borderColor: isActive ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.08)",
-                        background: isActive ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)",
-                        color: isActive ? "#fff" : "#a1a1aa",
-                      }}
-                      aria-hidden
-                    >
-                      <NavItemIcon href={item.href} />
-                    </span>
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-
-            {moreItem && (
-              <li>
-                <button
-                  type="button"
-                  onClick={onToggleMore}
-                  aria-expanded={isMoreOpen}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-base font-medium text-zinc-300 transition-colors"
-                >
-                  <span>{moreItem.label}</span>
-                  <svg
-                    viewBox="0 0 20 20"
-                    width="14"
-                    height="14"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    aria-hidden
-                    style={{
-                      transform: isMoreOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 200ms ease",
-                      opacity: 0.5,
-                    }}
-                  >
-                    <path d="M5 7l5 5 5-5" />
-                  </svg>
-                </button>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateRows: isMoreOpen ? "1fr" : "0fr",
-                    transition: "grid-template-rows 250ms cubic-bezier(0.22, 1, 0.36, 1)",
-                  }}
-                >
-                  <div style={{ overflow: "hidden", minHeight: 0 }}>
-                    <div className="flex flex-col gap-3 px-2 pb-3 pt-1">
-                      {moreFeatureCards.map((card) => (
-                        <Link
-                          key={card.href}
-                          href={card.href}
-                          onClick={() => onNavigate(card.href)}
-                          className="flex items-center gap-3 overflow-hidden rounded-xl border border-white/10 p-3"
-                          style={{
-                            background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), ${card.background}`,
-                          }}
-                        >
-                          {card.emoji && <span className="text-2xl">{card.emoji}</span>}
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[14px] font-semibold text-white">{card.title}</span>
-                            <span className="block truncate text-[12px] text-zinc-200/80">{card.description}</span>
-                          </span>
-                        </Link>
-                      ))}
-
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {moreQuickLinks.map((link) => (
-                          <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => onNavigate(link.href)}
-                            className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5"
-                          >
-                            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 text-zinc-300">
-                              <svg viewBox="0 0 20 20" aria-hidden className="size-4">
-                                <rect x="4" y="5" width="12" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.3" />
-                                <path d="M6.5 9.5h7" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                              </svg>
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block truncate text-[14px] leading-tight text-zinc-100">{link.label}</span>
-                              <span className="block truncate text-[12px] text-zinc-400">{link.subtitle}</span>
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            )}
-          </ul>
-        </nav>
-
-        <div className="border-t border-white/10 p-4">
-          <button
-            type="button"
-            onClick={() => onNavigate("/links")}
-            className="flex w-full items-center justify-center rounded-xl bg-white px-4 py-3.5 text-base font-semibold text-black transition-transform active:scale-[0.98]"
-            style={{ boxShadow: "0 0 14px rgba(255,255,255,0.18)" }}
-          >
-            Contact
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenCommand}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80"
-          >
-            <span className="font-mono text-base">⌘</span>
-            <span>Quick search</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NavItemIcon({ href }: { href: string }) {
-  const common = {
-    width: 16,
-    height: 16,
-    viewBox: "0 0 20 20",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.6,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true,
-  };
-
-  if (href === "/") {
-    return (
-      <svg {...common}>
-        <path d="M3 9.5L10 4l7 5.5" />
-        <path d="M5 9v6h10V9" />
-        <path d="M9 15v-3h2v3" />
-      </svg>
-    );
-  }
-  if (href === "/about") {
-    return (
-      <svg {...common}>
-        <circle cx="10" cy="7.5" r="3" />
-        <path d="M3.5 16.5c.8-3 3.4-4.5 6.5-4.5s5.7 1.5 6.5 4.5" />
-      </svg>
-    );
-  }
-  if (href === "/projects") {
-    return (
-      <svg {...common}>
-        <rect x="3" y="4" width="14" height="12" rx="2" />
-        <path d="M3 8h14" />
-        <path d="M7 12h3" />
-      </svg>
-    );
-  }
-  if (href === "/blog") {
-    return (
-      <svg {...common}>
-        <path d="M5 3h7l3 3v11H5z" />
-        <path d="M7 9h6" />
-        <path d="M7 12h6" />
-        <path d="M7 15h4" />
-      </svg>
-    );
-  }
-  if (href === "/links") {
-    return (
-      <svg {...common}>
-        <path d="M5 9a3 3 0 0 1 3-3h2" />
-        <path d="M15 11a3 3 0 0 1-3 3h-2" />
-        <path d="M8 12h7" />
-      </svg>
-    );
-  }
-  return (
-    <svg {...common}>
-      <circle cx="10" cy="10" r="6" />
-    </svg>
   );
 }

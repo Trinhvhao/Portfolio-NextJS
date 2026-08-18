@@ -9,16 +9,15 @@ function OpenToWorkSpinner({ text }: { text: string }) {
 
   return (
     <div
-      className="absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-[145%] translate-x-[140px] overflow-hidden rounded-full md:-translate-y-[220%] md:translate-x-[260px]"
+      className="pointer-events-none absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full"
       draggable={false}
-      style={{ userSelect: "none", touchAction: "none" }}
-      tabIndex={0}
+      style={{ userSelect: "none" }}
     >
       <div className="relative rounded-full bg-blue-700 p-1.5 font-medium leading-none">
         <div className="relative size-[95px] rounded-full bg-black p-2">
-          <div className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full">
+          <div className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 animate-[spin_11s_linear_infinite] rounded-full [transform-origin:center_center] motion-reduce:animate-none">
             <svg
-              className="size-full animate-[spin_11s_linear_infinite] [transform-origin:center_center]"
+              className="size-full"
               fill="black"
               overflow="visible"
               style={{ position: "absolute", inset: 0, transformOrigin: "center center" }}
@@ -120,8 +119,6 @@ export function ContactCtaSection() {
           <div className="absolute inset-0 bg-[#02050d]/40" />
         </div>
 
-        <OpenToWorkSpinner text={spinnerText} />
-
         <div className="relative">
           <Image
             alt="wings"
@@ -143,6 +140,8 @@ export function ContactCtaSection() {
               d="M3922 3999c-42-21-47-29-134-208-143-293-148-310-107-347 19-17 43-20 253-24 274-7 308-16 406-107 209-193 166-551-82-696-100-58-168-67-520-67-344 0-370-3-403-53-9-14-54-107-101-206-92-200-101-237-59-269 24-19 45-20 373-24 347-4 347-4 422-39 137-65 210-175 210-317 0-176-102-308-267-348-46-10-182-13-642-14-584 0-584 0-618-38-30-32-93-155-234-460-37-80-38-124-3-151 26-21 33-21 788-21 708 0 769 1 876 20 238 40 409 119 565 262 120 109 221 278 266 443 45 169 34 388-28 557-30 81-104 197-157 247-20 19-36 43-36 52 0 10 32 40 78 72 309 217 445 544 388 927-66 435-413 770-851 820-49 5-146 10-215 10-108 0-131-3-168-21z"
             />
           </svg>
+
+          <OpenToWorkSpinner text={spinnerText} />
         </div>
 
         <div className="mt-4 text-2xl tracking-wide text-white sm:text-4xl lg:text-5xl">

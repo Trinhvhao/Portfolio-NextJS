@@ -128,7 +128,7 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
 
           <div className="mt-8 flex-1 w-full overflow-hidden flex flex-col justify-center rounded-xl border border-white/5 bg-[#030611] p-5 shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] group/graph relative transition-colors duration-500 group-hover/article:border-white/10 group-hover/article:bg-[#040816]">
             <div className="w-full overflow-x-auto pb-2 custom-scrollbar">
-              <img alt={`${username} contribution heatmap`} className="min-w-[700px] w-full h-auto mix-blend-lighten pointer-events-none transition-transform duration-500 group-hover/graph:scale-[1.01]" src={stats.contributionImageUrl} />
+              <img alt={`${username} contribution heatmap`} className="w-full h-auto mix-blend-lighten pointer-events-none transition-transform duration-500 group-hover/graph:scale-[1.01]" src={stats.contributionImageUrl} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-[#7c83fd]/0 via-[#7c83fd]/5 to-[#7c83fd]/0 opacity-0 group-hover/graph:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
           </div>
@@ -149,7 +149,7 @@ export async function OpenSourceSection({ username }: OpenSourceSectionProps) {
           </div>
         </article>
 
-        <aside className="lg:col-span-3 xl:col-span-3 flex flex-col gap-3 min-w-0">
+        <aside className="lg:col-span-3 xl:col-span-3 grid grid-cols-3 lg:grid-cols-1 xl:grid-cols-1 gap-3 min-w-0">
           <StatCard type="followers" title={t("followers")} value={String(stats.followers)} accentClass="text-[#ff5c8d] group-hover:text-[#ff7eb6] group-hover:drop-shadow-[0_0_15px_rgba(255,92,141,0.5)]" />
           <StatCard type="forks" title={t("forks")} value={String(stats.totalForks)} accentClass="text-[#2dd4bf] group-hover:text-[#4ee6d3] group-hover:drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
           <StatCard type="stars" title={t("stars")} value={String(stats.totalStars)} accentClass="text-[#fbbf24] group-hover:text-[#fcd34d] group-hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />

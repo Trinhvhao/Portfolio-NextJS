@@ -1,0 +1,164 @@
+---
+description: Nguyên tắc Senior Frontend Engineer - Thay đổi tối thiểu, chỉ sửa Frontend, không động vào Backend
+alwaysApply: true
+---
+
+# Nguyên tắc Senior Frontend Engineer
+
+## PHẠM VI BẮT BUỘC
+
+**CHỈ ĐƯỢC SỬA FRONTEND.**
+
+Không được sửa:
+
+- Backend
+- API backend
+- Database
+- Schema
+- Migration
+- Server
+- Authentication logic phía backend
+- Environment phía backend
+- Business logic phía server
+
+Nếu yêu cầu có liên quan dữ liệu từ backend, hãy **giữ nguyên API hiện tại** và xử lý ở Frontend trong khả năng cho phép.
+
+Nếu không thể hoàn thành chính xác chỉ bằng Frontend, hãy nói rõ giới hạn thay vì tự ý sửa Backend.
+
+---
+
+## TRƯỚC KHI CODE
+
+Đọc các file Frontend liên quan để hiểu:
+
+- Component hiện tại
+- Page/layout hiện tại
+- State
+- Props
+- Hooks
+- API client
+- Types/interfaces
+- Styling
+- Component dùng chung
+- Luồng dữ liệu hiện tại
+
+**Không code dựa trên phỏng đoán.**
+
+Trước khi tạo component hoặc function mới, hãy tìm xem project đã có thứ tương tự chưa. **Ưu tiên reuse code hiện tại.**
+
+---
+
+## NGUYÊN TẮC CHÍNH
+
+Luôn áp dụng:
+
+> **Minimum Necessary Change**
+
+Chỉ sửa những gì thực sự cần thiết để hoàn thành yêu cầu.
+
+**Không tự ý:**
+
+- Refactor ngoài phạm vi
+- Đổi architecture
+- Đổi cấu trúc thư mục
+- Đổi tên component hàng loạt
+- Redesign UI
+- Đổi font
+- Đổi màu chủ đạo
+- Thay library
+- Thêm package mới
+- Viết lại toàn bộ component nếu chỉ cần sửa một đoạn nhỏ
+- Tạo abstraction không cần thiết
+- Thêm tính năng không được yêu cầu
+
+---
+
+## ƯU TIÊN GIẢI PHÁP ĐƠN GIẢN
+
+Thứ tự ưu tiên:
+
+1. Đúng yêu cầu
+2. Đơn giản
+3. Dễ đọc
+4. Ít thay đổi
+5. Dễ maintain
+6. Tối ưu performance khi thực sự cần
+
+**Không over-engineering.**
+
+Nếu một đoạn logic đơn giản giải quyết được thì không tạo thêm Manager, Factory, Provider, Adapter, Service layer phía FE không cần thiết, hoặc custom hook chỉ dùng một lần nếu không mang lại giá trị rõ ràng.
+
+---
+
+## UI
+
+Nếu chỉnh giao diện:
+
+- Giữ nguyên style hiện tại
+- Giữ design language hiện tại
+- Reuse component hiện có
+- Giữ responsive
+- Không làm ảnh hưởng desktop/mobile ngoài phần liên quan
+- Không tự redesign toàn trang
+
+---
+
+## STATE VÀ DATA
+
+- Không tạo state mới nếu có thể sử dụng state hiện tại
+- Không duplicate dữ liệu giữa nhiều state nếu không cần
+- Không gọi API nhiều lần không cần thiết
+- Không thay đổi API contract hiện tại
+- Không mock dữ liệu thay cho API thật nếu không được yêu cầu
+
+---
+
+## TYPESCRIPT
+
+- Giữ type rõ ràng
+- Không dùng `any` nếu có thể xác định type chính xác
+- Không dùng `// @ts-ignore` hoặc `// @ts-nocheck` để bỏ lỗi
+
+---
+
+## XỬ LÝ BUG
+
+Khi sửa bug:
+
+1. Xác định bug
+2. Trace luồng Frontend
+3. Tìm root cause
+4. Sửa đúng root cause
+5. Kiểm tra component liên quan
+6. Test lại
+
+**Không thêm workaround nếu có thể sửa đúng nguyên nhân.**
+
+---
+
+## SAU KHI SỬA
+
+Kiểm tra:
+
+- UI có đúng yêu cầu không
+- TypeScript có lỗi không
+- Import/export có lỗi không
+- Component khác có bị ảnh hưởng không
+- Responsive có bị vỡ không
+- State có hoạt động đúng không
+- API call có bị duplicate không
+- Loading/error/empty state có bị ảnh hưởng không
+- Có code thừa không
+
+---
+
+## TÓM TẮT
+
+- Chỉ sửa Frontend
+- Không động vào Backend hoặc Database
+- Không làm phức tạp code
+- Không refactor ngoài phạm vi
+- Không thêm tính năng ngoài yêu cầu
+- Không sửa 10 file nếu 1-2 file là đủ
+- Không tạo component mới nếu component hiện tại có thể reuse
+- Không cố viết code cầu kỳ. Giải quyết yêu cầu bằng cách **đơn giản và chính xác nhất**

@@ -153,152 +153,88 @@ const scoopFigures: { title: string; quote: string }[] = [
   },
 ];
 
-function MarqueeRow({
-  items,
-  reverse,
-  durationSec,
-  delaySec,
-}: {
+type MarqueeRowProps = {
   items: string[];
   reverse?: boolean;
   durationSec?: number;
   delaySec?: number;
-}) {
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const firstStripRef = useRef<HTMLDivElement | null>(null);
+};
 
-  useEffect(() => {
-    const track = trackRef.current;
-    const firstStrip = firstStripRef.current;
+function MarqueeRow({ items, reverse, durationSec = 24, delaySec = 0 }: MarqueeRowProps) {
+  // Build all badges once — stable across renders
+  const badges = items.map((item, index) => (
+    <BadgeItem key={`${item}-${index}`} name={item} />
+  ));
+  // Duplicate strip for seamless loop
+  const stripA = <div className="flex shrink-0 flex-row gap-3">{badges}</div>;
+  const stripB = <div aria-hidden className="flex shrink-0 flex-row gap-3">{badges}</div>;
 
-    if (!track || !firstStrip) {
-      return;
-    }
-
-    const durationMs = Math.max((durationSec ?? 20) * 1000, 1);
-    const delayMs = (delaySec ?? 0) * 1000;
-    let stripWidth = Math.max(firstStrip.offsetWidth, 1);
-    let animationFrame = 0;
-    let lastTime = performance.now();
-    let x = 0;
-
-    const wrapOffset = (value: number, width: number) => {
-      if (width <= 0) {
-        return 0;
-      }
-      let wrapped = value % width;
-      if (wrapped < 0) {
-        wrapped += width;
-      }
-      return reverse ? wrapped - width : -wrapped;
-    };
-
-    x = wrapOffset((-delayMs / durationMs) * stripWidth, stripWidth);
-    track.style.transform = `translate3d(${x}px, 0, 0)`;
-
-    const animate = (now: number) => {
-      const delta = now - lastTime;
-      lastTime = now;
-
-      const pxPerMs = stripWidth / durationMs;
-      x += (reverse ? 1 : -1) * pxPerMs * delta;
-
-      if (!reverse && x <= -stripWidth) {
-        x += stripWidth;
-      }
-      if (reverse && x >= 0) {
-        x -= stripWidth;
-      }
-
-      track.style.transform = `translate3d(${x}px, 0, 0)`;
-      animationFrame = requestAnimationFrame(animate);
-    };
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      // Prefer contentBoxSize (no layout flush) over offsetWidth.
-      const entry = entries[0];
-      const inlineSize = entry?.contentBoxSize?.[0]?.inlineSize;
-      if (typeof inlineSize === "number" && inlineSize > 0) {
-        stripWidth = inlineSize;
-      } else {
-        stripWidth = Math.max(firstStrip.offsetWidth, 1);
-      }
-      x = wrapOffset(x, stripWidth);
-      track.style.transform = `translate3d(${x}px, 0, 0)`;
-    });
-
-    resizeObserver.observe(firstStrip);
-    animationFrame = requestAnimationFrame(animate);
-
-    return () => {
-      resizeObserver.disconnect();
-      cancelAnimationFrame(animationFrame);
-    };
-  }, [delaySec, durationSec, reverse, items]);
-
-  const renderBadgeIcon = (item: string) => {
-    if (item === "Next.js") {
-      return (
-        <img
-          aria-hidden
-          alt=""
-          className="mr-1.5 h-4 w-4"
-          src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg"
-        />
-      );
-    }
-
-    const iconClass = techIconClasses[item];
-
-    if (iconClass) {
-      return <i aria-hidden className={`${iconClass} colored mr-1.5 text-base leading-none`} />;
-    }
-
-    return (
-      <span
-        aria-hidden
-        className="mr-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-[3px] bg-black/5 px-0.5 text-[10px] leading-none dark:bg-white/10"
-      >
-        {fallbackLabel(item)}
-      </span>
-    );
-  };
-
-  const strip = (
-    <div ref={firstStripRef} className="flex shrink-0 flex-row gap-4">
-      {items.map((item, index) => (
-        <span
-          key={`${item}-${index}`}
-          className="inline-flex shrink-0 items-center rounded-md border border-white/[0.14] bg-neutral-100 px-3 py-1 font-mono text-sm text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
-          >
-          {renderBadgeIcon(item)}
-          {item}
-        </span>
-      ))}
-    </div>
-  );
+  const duration = `${durationSec}s`;
+  const delay = delaySec > 0 ? `-${delaySec}s` : "0s";
+  const direction = reverse ? "reverse" : "normal";
 
   return (
     <div className="overflow-hidden p-2">
       <div
-        ref={trackRef}
-        className="flex w-max flex-row will-change-transform"
-        style={{ transform: "translate3d(0, 0, 0)" }}
+        className="flex"
+        style={{
+          width: "max-content",
+          animation: `marquee-scroll ${duration} linear ${delay} infinite`,
+          animationDirection: direction,
+        }}
       >
-        {strip}
-        <div aria-hidden className="flex shrink-0 flex-row gap-4">
-          {items.map((item, index) => (
-            <span
-              key={`dup-${item}-${index}`}
-              className="inline-flex shrink-0 items-center rounded-md border border-white/[0.14] bg-neutral-100 px-3 py-1 font-mono text-sm text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
-            >
-              {renderBadgeIcon(item)}
-              {item}
-            </span>
-          ))}
-        </div>
+        {stripA}
+        {stripB}
       </div>
     </div>
+  );
+}
+
+// ─── BadgeItem — defined outside to keep identity stable ─────────────────────
+
+function BadgeItem({ name }: { name: string }) {
+  return (
+    <span className="badge-item shrink-0 rounded-md border border-white/[0.14] bg-neutral-100 px-3 py-1 font-mono text-sm text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+      {name === "Next.js" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img aria-hidden alt="" className="mr-1.5 inline-block h-4 w-4" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" />
+      ) : (
+        (() => {
+          const iconClass = techIconClasses[name];
+          if (iconClass) {
+            return <i aria-hidden className={`${iconClass} colored mr-1.5 text-base`} />;
+          }
+          return (
+            <span
+              aria-hidden
+              className="mr-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-[3px] bg-black/5 px-0.5 text-[10px] leading-none dark:bg-white/10"
+            >
+              {fallbackLabel(name)}
+            </span>
+          );
+        })()
+      )}
+      <span className="leading-none">{name}</span>
+    </span>
+  );
+}
+
+// ─── Global keyframes (injected once) ─────────────────────────────────────────
+
+function MarqueeStyles() {
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes marquee-scroll {
+            from { transform: translate3d(0, 0, 0); }
+            to { transform: translate3d(-50%, 0, 0); }
+          }
+          .badge-item { display: inline-flex; align-items: center; }
+          .badge-item img, .badge-item i { display: inline-block; }
+        `,
+      }}
+    />
   );
 }
 
@@ -611,7 +547,8 @@ export function FeatureGridSection() {
   }, []);
 
   return (
-    <section className="container mx-auto grid w-full grid-cols-6 gap-4 py-pagebuilder md:auto-rows-[19rem]">
+    <section className="container mx-auto grid w-full grid-cols-6 gap-4 py-8 md:py-pagebuilder md:auto-rows-[19rem]">
+      <MarqueeStyles />
       {/* 1 — Collaboration: top-left wide (lg 4/6) */}
       <div className={`${cardShell} col-span-6 max-md:h-[21rem] md:col-span-3 lg:col-span-4`}>
         <div className="size-full">
@@ -680,7 +617,7 @@ export function FeatureGridSection() {
           </svg>
 
           <button className="absolute z-[2] flex h-[300px] w-full flex-col" type="button">
-            <div className="relative h-full [mask-image:linear-gradient(to_right,transparent,black_40%,black_60%,transparent)]">
+            <div className="relative h-full">
               <span className="absolute top-2.5 left-1/2 -translate-x-1/2">
                 <div className="relative mt-9">
                   <div
@@ -694,7 +631,7 @@ export function FeatureGridSection() {
                 </div>
               </span>
 
-              <span className="hidden lg:block">
+              <span className="hidden xl:block">
                 {desktopConnections.map((c) => (
                   <div
                     key={c.image}
@@ -708,11 +645,25 @@ export function FeatureGridSection() {
                 ))}
               </span>
 
-              <span className="lg:hidden">
+              <span className="hidden max-xl:block xl:hidden">
+                {desktopConnections.map((c) => (
+                  <div
+                    key={c.image}
+                    className={`${c.className}`}
+                    style={{ transitionDelay: `${c.delayMs}ms` }}
+                  >
+                    <div className="h-full w-full rounded-full border border-white/5 bg-[#2A2A2A] p-1">
+                      <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
+                    </div>
+                  </div>
+                ))}
+              </span>
+
+              <span className="xl:hidden">
                 {mobileConnections.map((c) => (
                   <div
                     key={c.image}
-                    className={`rounded-full border border-white/5 bg-[#2A2A2A] translate-y-1 scale-90 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 ${c.className}`}
+                    className={`rounded-full border border-white/5 bg-[#2A2A2A] ${c.className}`}
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
                     <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
@@ -989,9 +940,9 @@ export function FeatureGridSection() {
           <p className="text-xl tracking-wide text-neutral-700 dark:text-neutral-300">{t("scoopDesc")}</p>
         </div>
 
-        <div className="pointer-events-none absolute bottom-0 flex w-full translate-y-10 items-center p-4 text-base tracking-wider opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="pointer-events-auto relative bottom-0 flex w-full translate-y-0 items-center p-4 text-base tracking-wider opacity-100 md:pointer-events-none md:absolute md:translate-y-10 md:opacity-0 md:transition-all md:duration-300 md:group-hover:translate-y-0 md:group-hover:opacity-100">
           <Link
-            href="/#work"
+            href="/resume"
             className="pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
           >
             {t("scoopCta")}

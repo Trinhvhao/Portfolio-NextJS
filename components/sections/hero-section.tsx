@@ -34,8 +34,10 @@ export function HeroSection() {
           </span>
           <span className="relative mr-3 min-w-0 overflow-hidden py-1 text-[rgb(0,0,0,72%)] dark:text-[rgb(255,255,255,90%)]">
             <span className="hero-upcoming-rotator inline-flex flex-col">
-              <span>{t("badgeText1")}</span>
-              <span>{t("badgeText2")}</span>
+              <span className="max-sm:hidden">{t("badgeText1")}</span>
+              <span className="sm:hidden">{t("badgeText1Mobile")}</span>
+              <span className="max-sm:hidden">{t("badgeText2")}</span>
+              <span className="sm:hidden">{t("badgeText2Mobile")}</span>
             </span>
           </span>
         </Link>

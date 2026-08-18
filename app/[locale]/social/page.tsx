@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ContactCtaSection } from "@/components/sections/contact-cta-section";
 import { StaticPageLayout } from "@/components/sections/static-page-layout";
+import { TiktokSection } from "@/components/sections/tiktok-section";
 import { socialPageContent } from "@/lib/static-page-content";
 
 export const metadata: Metadata = {
@@ -52,6 +53,8 @@ export default function SocialPage() {
             className="w-full border-x border-neutral-300 bg-[linear-gradient(45deg,var(--color-neutral-300)_12.50%,transparent_12.50%,transparent_50%,var(--color-neutral-300)_50%,var(--color-neutral-300)_62.50%,transparent_62.50%,transparent_100%)] bg-size-[5px_5px] opacity-75 dark:border-neutral-800 dark:bg-[linear-gradient(45deg,var(--color-neutral-800)_12.50%,transparent_12.50%,transparent_50%,var(--color-neutral-800)_50%,var(--color-neutral-800)_62.50%,transparent_62.50%,transparent_100%)]"
           />
         </div>
+
+        <TiktokSection />
       </main>
 
       <ContactCtaSection />

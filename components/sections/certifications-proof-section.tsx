@@ -41,33 +41,33 @@ export async function CertificationsProofSection() {
         </h2>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {certificationItems.map((item) => (
           <article
             key={item.id}
-            className="group relative overflow-hidden rounded-[22px] border border-white/8 bg-[#0b0b0c] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111113]"
+            className="group relative overflow-hidden rounded-[22px] border border-white/8 bg-[#0b0b0c] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111113]"
           >
-            <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex items-center justify-between gap-2">
               <CategoryPill category={item.category} label={t(`categories.${CATEGORY_KEY_MAP[item.category]}`)} />
-              <span className="font-mono text-[11px] tracking-wide text-white/55">{t("issued")} {item.issuedAt}</span>
+              <span className="font-mono text-[10px] tracking-wide text-white/55">{t("issued")} {item.issuedAt}</span>
             </div>
 
-            <h3 className="text-xl leading-tight tracking-wide text-white/90">{item.title}</h3>
-            <p className="mt-2 text-sm text-white/60">{item.issuer}</p>
+            <h3 className="mt-3 text-[15px] leading-tight tracking-wide text-white/90">{item.title}</h3>
+            <p className="mt-1 text-xs text-white/55">{item.issuer}</p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-white/70">
-              {item.credentialId ? <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-mono">ID: {item.credentialId}</span> : null}
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] text-white/70">
+              {item.credentialId ? <span className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono">ID: {item.credentialId}</span> : null}
               {item.credentialUrl ? (
                 <Link
                   href={item.credentialUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-md border border-white/15 px-2 py-1 transition-colors hover:bg-white/10"
+                  className="rounded-md border border-white/15 px-1.5 py-0.5 transition-colors hover:bg-white/10"
                 >
                   {t("viewProof")}
                 </Link>
               ) : (
-                <span className="rounded-md border border-white/10 bg-white/5 px-2 py-1">{t("internalProof")}</span>
+                <span className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5">{t("internalProof")}</span>
               )}
             </div>
           </article>
