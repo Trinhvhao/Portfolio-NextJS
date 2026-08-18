@@ -38,7 +38,9 @@
   "hero": {
     "badge": "Upcoming",
     "badgeText1": "Dự án mới đang được phát triển.",
+    "badgeText1Mobile": "Dự án mới đang phát triển.",
     "badgeText2": "Sản phẩm mới sắp ra mắt.",
+    "badgeText2Mobile": "Sản phẩm mới sắp ra!",
     "subtitle": "Biến ý tưởng thành những trải nghiệm.",
     "highlightedText": "Được xây dựng với sự tỉ mỉ và chu đáo.",
     "greeting": "Xin chào, tôi là",
