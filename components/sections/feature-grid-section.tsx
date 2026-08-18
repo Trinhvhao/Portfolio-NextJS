@@ -447,9 +447,15 @@ function VietnamGlobe() {
     } as any) as { update: (state: Record<string, unknown>) => void; destroy: () => void };
 
     let isDragging = false;
+    let isVisible = true;
     let lastPoint: { x: number; y: number } | null = null;
 
     const clampTheta = (value: number) => Math.max(-0.45, Math.min(0.45, value));
+
+    const onVisibilityChange = () => {
+      isVisible = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const onPointerDown = (event: PointerEvent) => {
       isDragging = true;
@@ -480,10 +486,12 @@ function VietnamGlobe() {
     };
 
     const animate = () => {
-      if (!isDragging) {
+      if (isVisible && !isDragging) {
         phi += 0.003;
       }
-      globe.update({ phi, theta });
+      if (isVisible) {
+        globe.update({ phi, theta });
+      }
       frameId = requestAnimationFrame(animate);
     };
 
@@ -500,6 +508,7 @@ function VietnamGlobe() {
     frameId = requestAnimationFrame(animate);
 
     return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       resizeObserver.disconnect();
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
