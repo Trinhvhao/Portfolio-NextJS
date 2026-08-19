@@ -199,13 +199,11 @@ function formatScatter(scatter: ScatterTransform): string {
 function SkillBadge({
   name,
   isAligned,
-  mobileScatter,
   desktopScatter,
   style,
 }: {
   name: string;
   isAligned: boolean;
-  mobileScatter: ScatterTransform;
   desktopScatter: ScatterTransform;
   style?: CSSProperties;
 }) {
@@ -217,7 +215,6 @@ function SkillBadge({
       title={name}
       style={{
         ...style,
-        "--skill-scatter-mobile": formatScatter(mobileScatter),
         "--skill-scatter-desktop": formatScatter(desktopScatter),
         opacity: isAligned ? "1" : "0.82",
         filter: isAligned ? "blur(0px)" : "blur(0.45px)",
@@ -226,7 +223,7 @@ function SkillBadge({
       className={`group relative flex size-10 items-center justify-center rounded-xl border border-black/5 bg-white-2 p-0 shadow-border transition-[transform,opacity,filter] duration-[600ms] ease-[cubic-bezier(0.18,0.88,0.2,1)] sm:size-12 lg:size-14 dark:border-white/10 dark:bg-white/10 ${
         isAligned
           ? "[transform:translate3d(0,0,0)_rotate(0deg)_scale(1)]"
-          : "[transform:var(--skill-scatter-mobile)] lg:[transform:var(--skill-scatter-desktop)]"
+          : "[transform:translate3d(0,0,0)_scale(.94)] lg:[transform:var(--skill-scatter-desktop)]"
       }`}
     >
       <span
@@ -257,9 +254,7 @@ export function SkillsSection() {
   const t = useTranslations("skills");
   const skillsGridRef = useRef<HTMLDivElement | null>(null);
   const [isAligned, setIsAligned] = useState(false);
-  const [isMobileScrollEnabled, setIsMobileScrollEnabled] = useState(false);
   const alignTimerRef = useRef<number | null>(null);
-  const scrollTimerRef = useRef<number | null>(null);
   const inViewRef = useRef(false);
 
   useEffect(() => {
@@ -275,13 +270,6 @@ export function SkillsSection() {
       }
     };
 
-    const clearScrollTimer = () => {
-      if (scrollTimerRef.current !== null) {
-        window.clearTimeout(scrollTimerRef.current);
-        scrollTimerRef.current = null;
-      }
-    };
-
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
@@ -290,16 +278,10 @@ export function SkillsSection() {
         if (shouldEnter && !inViewRef.current) {
           inViewRef.current = true;
           setIsAligned(false);
-          setIsMobileScrollEnabled(false);
           clearAlignTimer();
-          clearScrollTimer();
           alignTimerRef.current = window.setTimeout(() => {
             setIsAligned(true);
             alignTimerRef.current = null;
-            scrollTimerRef.current = window.setTimeout(() => {
-              setIsMobileScrollEnabled(true);
-              scrollTimerRef.current = null;
-            }, 1000);
           }, 250);
           return;
         }
@@ -307,9 +289,7 @@ export function SkillsSection() {
         if (!shouldEnter && inViewRef.current) {
           inViewRef.current = false;
           clearAlignTimer();
-          clearScrollTimer();
           setIsAligned(false);
-          setIsMobileScrollEnabled(false);
         }
       },
       { root: null, threshold: [0, 0.12, 0.22, 0.35], rootMargin: "-6% 0px -10% 0px" }
@@ -319,25 +299,24 @@ export function SkillsSection() {
     return () => {
       observer.disconnect();
       clearAlignTimer();
-      clearScrollTimer();
     };
   }, []);
 
   return (
-    <section className="relative mx-auto flex h-full w-full flex-col overflow-hidden py-pagebuilder" id="skills">
+    <section className="relative mx-auto flex h-full w-full flex-col overflow-hidden pt-8 pb-4 md:py-pagebuilder">
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[42%] z-0 h-64 w-[32rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.22)_0%,rgba(79,70,229,0.12)_44%,rgba(0,0,0,0)_78%)] blur-3xl" />
 
       <div>
         <div className="container relative mx-auto">
-          <div className="h-[260px] [mask-image:linear-gradient(to_top,transparent,black_50%,black_90%,transparent)]">
-            <div className="relative mx-auto w-[400px] will-change-scroll md:w-[380px]">
+          <div className="h-[220px] sm:h-[260px] [mask-image:linear-gradient(to_top,transparent,black_50%,black_90%,transparent)]">
+            <div className="relative mx-auto w-[400px] md:w-[380px]">
               <Image
                 src="/images/steel-flower.webp"
                 alt="skills cover rotating"
                 width={400}
                 height={400}
                 draggable={false}
-                className="z-10 w-full select-none rounded-full opacity-85 animate-spin-slow"
+                className="z-10 w-full select-none rounded-full opacity-85 animate-spin-slow motion-reduce:animate-none"
               />
             </div>
           </div>
@@ -354,19 +333,15 @@ export function SkillsSection() {
           </span>
         </h2>
 
-        <div ref={skillsGridRef} data-skills-grid>
-          <div className="container relative flex flex-col items-center justify-center gap-4">
+        <div ref={skillsGridRef} className="w-full max-w-[100vw] overflow-hidden" data-skills-grid>
+          <div className="relative mx-auto flex w-full max-w-[100vw] flex-col items-center justify-center gap-4 px-3 lg:container lg:px-0">
             <div className="w-full max-w-5xl text-center font-geist" style={{ perspective: "500px" }}>
               {skillRows.map((row, rowIndex) => (
                 <div
                   key={`skill-row-${rowIndex}`}
-                  className={`mb-2 w-full [scrollbar-width:none] lg:mb-3 [&::-webkit-scrollbar]:hidden ${
-                    isMobileScrollEnabled
-                      ? "touch-pan-x overflow-x-auto overscroll-x-contain lg:overflow-visible"
-                      : "overflow-visible"
-                  }`}
+                  className="mb-2 w-full overflow-visible lg:mb-3"
                 >
-                  <div className="mx-auto flex w-max flex-nowrap gap-1 px-1 sm:gap-2 sm:px-2 lg:w-auto lg:flex-wrap lg:justify-center lg:gap-3 lg:px-0">
+                  <div className="mx-auto flex w-full flex-wrap justify-center gap-2 px-1 sm:px-2 lg:gap-3 lg:px-0">
                     {row.map((name, index) => (
                       (() => {
                         const badgeIndex = rowIndex * 16 + index;
@@ -376,7 +351,6 @@ export function SkillsSection() {
                             key={`${rowIndex}-${name}`}
                             name={name}
                             isAligned={isAligned}
-                            mobileScatter={createScatterTransform(name, rowIndex, index, row.length, true)}
                             desktopScatter={createScatterTransform(name, rowIndex, index, row.length)}
                             style={{ transitionDelay: `${delayMs}ms` }}
                           />

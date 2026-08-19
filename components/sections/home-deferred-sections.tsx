@@ -18,7 +18,17 @@ const DynamicTiktokSection = dynamic(
   { loading: () => null, ssr: false },
 );
 
-function DeferredMount({ children, className, id }: { children: ReactNode; className: string; id?: string }) {
+function DeferredMount({
+  children,
+  className,
+  placeholderClassName,
+  id,
+}: {
+  children: ReactNode;
+  className: string;
+  placeholderClassName: string;
+  id?: string;
+}) {
   const slotRef = useRef<HTMLDivElement | null>(null);
   const [shouldMount, setShouldMount] = useState(false);
 
@@ -40,7 +50,7 @@ function DeferredMount({ children, className, id }: { children: ReactNode; class
   }, [shouldMount]);
 
   return (
-    <div ref={slotRef} className={className} id={id}>
+    <div ref={slotRef} className={`${className} ${shouldMount ? "" : placeholderClassName}`} id={id}>
       {shouldMount ? children : null}
     </div>
   );
@@ -48,7 +58,7 @@ function DeferredMount({ children, className, id }: { children: ReactNode; class
 
 export function DeferredTestimonialsSection() {
   return (
-    <DeferredMount className="home-content-auto min-h-[700px] md:min-h-[850px]" id="testimonials">
+    <DeferredMount className="home-content-auto" placeholderClassName="min-h-[700px] md:min-h-[850px]" id="testimonials">
       <DynamicTestimonialsSection />
     </DeferredMount>
   );
@@ -56,7 +66,7 @@ export function DeferredTestimonialsSection() {
 
 export function DeferredSkillsSection() {
   return (
-    <DeferredMount className="home-content-auto min-h-[700px] md:min-h-[800px]">
+    <DeferredMount className="home-content-auto" placeholderClassName="min-h-[520px] md:min-h-[800px]" id="skills">
       <DynamicSkillsSection />
     </DeferredMount>
   );
@@ -64,7 +74,7 @@ export function DeferredSkillsSection() {
 
 export function DeferredTiktokSection() {
   return (
-    <DeferredMount className="home-content-auto min-h-screen">
+    <DeferredMount className="home-content-auto" placeholderClassName="min-h-screen">
       <DynamicTiktokSection />
     </DeferredMount>
   );

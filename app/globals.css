@@ -273,6 +273,7 @@ html[lang="vi"] .font-outfit {
 
 .animate-spin-slow {
   animation: spin-slow 10s linear infinite;
+  will-change: transform;
 }
 
 @keyframes work-panel-in {
@@ -305,15 +306,15 @@ html[lang="vi"] .font-outfit {
 }
 
 @media (max-width: 767px) {
-  /* background-position and the decorative flower are continuously repainted
-     on low-power devices; a static frame keeps the same visual treatment. */
+  /* Avoid the continuously repainted gradient on low-power devices. The flower
+     keeps rotating because transform animations stay on the compositor. */
   .animate-gradient-x {
     animation: none;
     background-position: 50%;
   }
 
   .animate-spin-slow {
-    animation: none;
+    animation-duration: 16s;
   }
 }
 
