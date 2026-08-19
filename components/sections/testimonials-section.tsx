@@ -253,7 +253,7 @@ export function TestimonialsSection() {
           setIsDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
-        onPointerMove={(event) => {
+        onPointerMove={() => {
           // Chỉ đánh dấu drag để pause auto-advance — KHÔNG ghi scrollLeft thủ công.
           // Để browser lo momentum + snap native (smooth trên mobile).
           if (!dragStateRef.current.isDown) {
@@ -343,14 +343,13 @@ export function TestimonialsSection() {
               className="group relative h-1 flex-1 max-w-12 cursor-pointer overflow-hidden rounded-full bg-white/15 sm:h-1.5"
             >
               <span
-                className={`absolute inset-y-0 left-0 rounded-full ${isPast ? "w-full bg-white/80" : ""} ${
+                className={`absolute inset-0 origin-left rounded-full ${isPast ? "scale-x-100 bg-white/80" : "scale-x-0"} ${
                   isFilling ? "bg-white/80" : ""
                 }`}
                 style={
                   isFilling
                     ? {
                         animation: `testimonial-progress ${AUTO_ADVANCE_MS}ms linear forwards`,
-                        width: "0%",
                       }
                     : undefined
                 }
@@ -361,8 +360,8 @@ export function TestimonialsSection() {
       </div>
       <style>{`
         @keyframes testimonial-progress {
-          from { width: 0%; }
-          to { width: 100%; }
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
       `}</style>
     </section>

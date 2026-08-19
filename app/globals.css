@@ -1,5 +1,19 @@
 @import "tailwindcss";
-@import "devicon/devicon.min.css";
+
+/* Only the Devicon glyphs used by this site. Importing devicon.min.css added
+   thousands of unused selectors to the render-blocking stylesheet. */
+[class^="devicon-"],
+[class*=" devicon-"] {
+  font-family: "devicon" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 /* The upstream Devicon font contains every icon (~1.5 MB). This subset keeps
    only the glyphs used by this portfolio and prevents it blocking first paint. */
@@ -11,18 +25,170 @@
   font-display: swap;
 }
 
+/* Glyph aliases also cover a few names used by older Devicon releases. */
+.devicon-amazonwebservices-plain-wordmark::before { content: "\e90c"; }
+.devicon-bash-plain::before { content: "\ed55"; }
+.devicon-biome-plain::before { content: "\ed1b"; }
+.devicon-bun-plain::before { content: "\e95c"; }
+.devicon-cloudflare-plain::before { content: "\e976"; }
+.devicon-css3-plain::before { content: "\e9a1"; }
+.devicon-docker-plain::before { content: "\e9c3"; }
+.devicon-expo-original::before { content: "\ed3b"; }
+.devicon-express-original::before { content: "\e9ec"; }
+.devicon-fastapi-plain::before { content: "\e9ef"; }
+.devicon-figma-plain::before { content: "\e9f9"; }
+.devicon-firebase-plain::before { content: "\ea00"; }
+.devicon-framermotion-original::before { content: "\ea0a"; }
+.devicon-git-plain::before { content: "\ea2d"; }
+.devicon-github-original::before { content: "\ea29"; }
+.devicon-githubactions-plain::before { content: "\ed6b"; }
+.devicon-jira-plain::before { content: "\ea90"; }
+.devicon-linux-plain::before { content: "\eac9"; }
+.devicon-markdown-original::before { content: "\eadb"; }
+.devicon-mongodb-plain::before { content: "\eaf5"; }
+.devicon-nextjs-original::before,
+.devicon-nextjs-plain::before { content: "\eb14"; }
+.devicon-nodejs-plain::before { content: "\ed9e"; }
+.devicon-notion-plain::before { content: "\eb30"; }
+.devicon-pnpm-original::before,
+.devicon-pnpm-plain::before { content: "\eb6e"; }
+.devicon-postgresql-plain::before { content: "\eb79"; }
+.devicon-prisma-original::before { content: "\eb7f"; }
+.devicon-python-plain::before { content: "\eb9c"; }
+.devicon-pytorch-original::before { content: "\eb9e"; }
+.devicon-react-original::before { content: "\ebbc"; }
+.devicon-redis-plain::before { content: "\ebc8"; }
+.devicon-sanity-plain::before { content: "\ebed"; }
+.devicon-sentry-original::before { content: "\ebfb"; }
+.devicon-tailwindcss-original::before { content: "\ec39"; }
+.devicon-turbo-original::before,
+.devicon-turborepo-original::before,
+.devicon-turborepo-plain::before { content: "\ed7e"; }
+.devicon-typescript-plain::before { content: "\ec63"; }
+.devicon-vercel-original::before { content: "\ec7d"; }
+
+.devicon-amazonwebservices-plain-wordmark.colored { color: #f90; }
+.devicon-bash-plain.colored { color: #293138; }
+.devicon-biome-plain.colored { color: #60a5fa; }
+.devicon-bun-plain.colored { color: #fbf0df; }
+.devicon-cloudflare-plain.colored { color: #f38020; }
+.devicon-css3-plain.colored { color: #3d8fc6; }
+.devicon-docker-plain.colored { color: #019bc6; }
+.devicon-expo-original.colored { color: #000; }
+.devicon-express-original.colored { color: #444; }
+.devicon-fastapi-plain.colored { color: #009688; }
+.devicon-figma-plain.colored { color: #f24e1e; }
+.devicon-firebase-plain.colored { color: #ffa000; }
+.devicon-framermotion-original.colored { color: #000; }
+.devicon-git-plain.colored { color: #f34f29; }
+.devicon-github-original.colored { color: #181616; }
+.devicon-githubactions-plain.colored { color: #2088ff; }
+.devicon-jira-plain.colored { color: #2684ff; }
+.devicon-linux-plain.colored { color: #000; }
+.devicon-markdown-original.colored { color: #000; }
+.devicon-mongodb-plain.colored { color: #4faa41; }
+.devicon-nextjs-plain.colored { color: #000; }
+.devicon-nodejs-plain.colored { color: #5fa04e; }
+.devicon-notion-plain.colored { color: #fff; }
+.devicon-pnpm-plain.colored { color: #f9ad00; }
+.devicon-postgresql-plain.colored { color: #336791; }
+.devicon-prisma-original.colored { color: #2d3748; }
+.devicon-python-plain.colored { color: #ffd845; }
+.devicon-pytorch-original.colored { color: #ee4c2c; }
+.devicon-react-original.colored { color: #61dafb; }
+.devicon-redis-plain.colored { color: #d82c20; }
+.devicon-sanity-plain.colored { color: #f03e2f; }
+.devicon-sentry-original.colored { color: #362d59; }
+.devicon-tailwindcss-original.colored { color: #38bdf8; }
+.devicon-turbo-original.colored { color: #5cd8e5; }
+.devicon-typescript-plain.colored { color: #007acc; }
+.devicon-vercel-original.colored { color: #000; }
+
+/* Self-host the display fonts that were previously supplied by a second,
+   render-blocking stylesheet copied from an older Next.js build. */
+@font-face {
+  font-family: "Outfit";
+  src: url("/assets/css/_next/static/media/b2ea385cb5ae8625-s.866357a4.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/assets/css/_next/static/media/1b99372b3eaef0c8-s.p.758e15a8.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/css/_next/static/media/ccf27e5a7366fb23-s.262b87c4.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/css/_next/static/media/e41d5df559864f9e-s.p.380d09ea.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/css/_next/static/media/fc0a7394b875fa43-s.614a1c00.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/css/_next/static/media/7ebf22b5a21034f8-s.p.d8bad3ab.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/css/_next/static/media/64c5f24155ea0bd5-s.p.591f1055.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --font-outfit: "Outfit", "Outfit Fallback", "Segoe UI", sans-serif;
   --font-instrument-serif: "Instrument Serif", "Instrument Serif Fallback", "Times New Roman", serif;
   --font-noto-serif: "Noto Serif", "Noto Serif Fallback", "Times New Roman", serif;
   --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-vietnamese: "Noto Sans", "Noto Sans Fallback", "Segoe UI", "Arial", sans-serif;
+  --font-vietnamese: "Outfit", "Segoe UI", "Arial", sans-serif;
   /* These aliases previously came from the removed legacy Tailwind bundle. */
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
   --pagebuilder: 5rem;
   --mt-pagebuilder: 5rem;
+}
+
+/* Skip layout and paint for non-critical home sections until they approach
+   the viewport. `auto` remembers the real size after the first render. */
+.home-content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+
+.home-content-auto-compact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
 }
 
 * {
@@ -136,6 +302,19 @@ html[lang="vi"] .font-outfit {
 .animate-gradient-x {
   background-size: 200% 200%;
   animation: 6s infinite gradient-x;
+}
+
+@media (max-width: 767px) {
+  /* background-position and the decorative flower are continuously repainted
+     on low-power devices; a static frame keeps the same visual treatment. */
+  .animate-gradient-x {
+    animation: none;
+    background-position: 50%;
+  }
+
+  .animate-spin-slow {
+    animation: none;
+  }
 }
 
 /* Moving blue gradient blobs (aurora-like) for Contact CTA section */

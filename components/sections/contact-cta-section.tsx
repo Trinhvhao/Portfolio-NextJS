@@ -1,8 +1,6 @@
-"use client";
-
 import { CSSProperties } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 function OpenToWorkSpinner({ text }: { text: string }) {
   const curveId = "contact-open-to-work-curve";
@@ -75,13 +73,13 @@ const blobBStyle: BlobStyle = {
   animationDuration: "16s",
 };
 
-export function ContactCtaSection() {
-  const t = useTranslations("contactCta");
+export async function ContactCtaSection() {
+  const t = await getTranslations("contactCta");
   const spinnerText = `${t("spinner")} - `;
 
   return (
     <section
-      className="relative z-0 mt-pagebuilder flex w-full justify-center overflow-x-hidden px-4 py-16 [mask-image:linear-gradient(to_bottom,transparent,black_10rem,black_calc(100%-10rem),transparent)]"
+      className="home-content-auto relative z-0 mt-pagebuilder flex w-full justify-center overflow-x-hidden px-4 py-16 [mask-image:linear-gradient(to_bottom,transparent,black_10rem,black_calc(100%-10rem),transparent)]"
       id="contact"
     >
       <div

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Globe } from "cobe";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
@@ -198,8 +199,7 @@ function BadgeItem({ name }: { name: string }) {
   return (
     <span className="badge-item shrink-0 rounded-md border border-white/[0.14] bg-neutral-100 px-3 py-1 font-mono text-sm text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
       {name === "Next.js" ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img aria-hidden alt="" className="mr-1.5 inline-block h-4 w-4" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" />
+        <i aria-hidden className="devicon-nextjs-plain mr-1.5 text-base" />
       ) : (
         (() => {
           const iconClass = techIconClasses[name];
@@ -267,12 +267,18 @@ function ScoopMarqueeLane() {
       return;
     }
 
-    let frameId = 0;
+    // This lane is CSS-hidden on small screens; avoid mounting its observers
+    // and animation loop there as well.
+    if (!window.matchMedia("(min-width: 768px)").matches) {
+      return;
+    }
+
+    let frameId: number | null = null;
     let lastTime = performance.now();
     let lastFocusTime = 0;
     let x = 0;
     let paused = false;
-    let inView = true;
+    let inView = false;
     let stripWidth = Math.max(strip.offsetWidth, 1);
     const durationMs = 32000;
     const focusIntervalMs = 100;
@@ -354,7 +360,11 @@ function ScoopMarqueeLane() {
         }
       }
 
-      frameId = requestAnimationFrame(animate);
+      if (inView) {
+        frameId = requestAnimationFrame(animate);
+      } else {
+        frameId = null;
+      }
     };
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -379,20 +389,27 @@ function ScoopMarqueeLane() {
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
         inView = entries[0]?.isIntersecting ?? true;
+        if (inView && frameId === null) {
+          lastTime = performance.now();
+          frameId = requestAnimationFrame(animate);
+        } else if (!inView && frameId !== null) {
+          cancelAnimationFrame(frameId);
+          frameId = null;
+        }
       },
       { rootMargin: "50px" }
     );
     intersectionObserver.observe(wrapper);
 
     applyFocusZone();
-    frameId = requestAnimationFrame(animate);
-
     return () => {
       wrapper.removeEventListener("pointerenter", onEnter);
       wrapper.removeEventListener("pointerleave", onLeave);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
-      cancelAnimationFrame(frameId);
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
 
       const cards = track.querySelectorAll<HTMLElement>(".scoop-card");
       for (const card of cards) {
@@ -447,7 +464,7 @@ function VietnamGlobe() {
     let isInViewport = false;
     let isMobileMenuOpen = document.documentElement.dataset.mobileMenuOpen === "true";
     let lastPoint: { x: number; y: number } | null = null;
-    let skipFrame = false;
+    let lastGlobeRender = 0;
 
     const clampTheta = (value: number) => Math.max(-0.45, Math.min(0.45, value));
 
@@ -479,21 +496,20 @@ function VietnamGlobe() {
       }
     };
 
-    const animate = () => {
+    const animate = (now: number) => {
       frameId = null;
       if (!isPageVisible || !isInViewport || isMobileMenuOpen) {
         return;
       }
 
       if (!isDragging) {
-        phi += isMobile ? 0.0015 : 0.003;
-        if (isMobile && skipFrame) {
-          skipFrame = false;
+        if (isMobile && now - lastGlobeRender < 66) {
           frameId = requestAnimationFrame(animate);
           return;
         }
-        skipFrame = true;
+        phi += isMobile ? 0.003 : 0.003;
       }
+      lastGlobeRender = now;
       globe?.update({ phi, theta });
       frameId = requestAnimationFrame(animate);
     };
@@ -539,7 +555,7 @@ function VietnamGlobe() {
         theta,
         dark: 1,
         diffuse: 1.2,
-        mapSamples: isMobile ? 6000 : 16000,
+        mapSamples: isMobile ? 4000 : 16000,
         mapBrightness: 6,
         baseColor: [0.16, 0.22, 0.4],
         markerColor: [1, 1, 1],
@@ -612,7 +628,6 @@ function VietnamGlobe() {
 
 export function FeatureGridSection() {
   const t = useTranslations("feature");
-  const tCommon = useTranslations("common");
   const [emailCopied, setEmailCopied] = useState(false);
   const copyEmail = useCallback(() => {
     void navigator.clipboard?.writeText("haotrinh142@gmail.com");
@@ -699,11 +714,12 @@ export function FeatureGridSection() {
                     style={{ boxShadow: "0 0 60px 20px rgba(99, 102, 241, 0.35)" }}
                   >
                     <div className="h-[114px] w-[114px] overflow-hidden rounded-full border-[1.5px] border-[#494949]">
-                      <img
+                      <Image
                         src="/images/trinhhao.webp"
                         alt="Trinh Van Hao"
-                        loading="lazy"
-                        decoding="async"
+                        width={114}
+                        height={114}
+                        sizes="114px"
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -718,35 +734,35 @@ export function FeatureGridSection() {
                     className={`${c.className} translate-y-1 scale-90 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100`}
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
-                    <div className="h-full w-full rounded-full border border-white/5 bg-[#2A2A2A] p-1">
-                      <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
+                    <div className="relative h-full w-full overflow-hidden rounded-full border border-white/5 bg-[#2A2A2A] p-1">
+                      <Image alt="" fill sizes="64px" className="rounded-full object-cover p-1" src={c.image} />
                     </div>
                   </div>
                 ))}
               </span>
 
-              <span className="hidden max-xl:block xl:hidden">
+              <span className="hidden md:block xl:hidden">
                 {desktopConnections.map((c) => (
                   <div
                     key={c.image}
                     className={`${c.className}`}
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
-                    <div className="h-full w-full rounded-full border border-white/5 bg-[#2A2A2A] p-1">
-                      <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
+                    <div className="relative h-full w-full overflow-hidden rounded-full border border-white/5 bg-[#2A2A2A] p-1">
+                      <Image alt="" fill sizes="64px" className="rounded-full object-cover p-1" src={c.image} />
                     </div>
                   </div>
                 ))}
               </span>
 
-              <span className="xl:hidden">
+              <span className="md:hidden">
                 {mobileConnections.map((c) => (
                   <div
                     key={c.image}
                     className={`rounded-full border border-white/5 bg-[#2A2A2A] ${c.className}`}
                     style={{ transitionDelay: `${c.delayMs}ms` }}
                   >
-                    <img alt="" className="h-full w-full rounded-full object-cover" src={c.image} />
+                    <Image alt="" fill sizes="56px" className="rounded-full object-cover p-1" src={c.image} />
                   </div>
                 ))}
               </span>

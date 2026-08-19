@@ -1,8 +1,9 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
@@ -318,10 +319,12 @@ export function SiteHeader() {
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const closeMenuTimerRef = useRef<number | null>(null);
   const [activeIndicator, setActiveIndicator] = useState({ x: 0, width: 0, ready: false });
+  const [hasMoreMenuOpened, setHasMoreMenuOpened] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [isMoreMenuPinned, setIsMoreMenuPinned] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+  const [hasMobileMenuOpened, setHasMobileMenuOpened] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
 
@@ -398,6 +401,7 @@ export function SiteHeader() {
 
   const openMoreMenu = useCallback(() => {
     clearCloseMenuTimer();
+    setHasMoreMenuOpened(true);
     setIsMoreMenuOpen(true);
   }, [clearCloseMenuTimer]);
 
@@ -446,7 +450,7 @@ export function SiteHeader() {
   useEffect(() => {
     const onResize = () => {
       updateActiveIndicator();
-      if (window.innerWidth >= 768 && isMobileMenuOpen) {
+      if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false);
         setIsMobileMoreOpen(false);
       }
@@ -544,6 +548,7 @@ export function SiteHeader() {
   }, []);
 
   const toggleMobileMenu = useCallback(() => {
+    setHasMobileMenuOpened(true);
     setIsMobileMoreOpen(false);
     setIsMobileMenuOpen((open) => !open);
   }, []);
@@ -580,11 +585,12 @@ export function SiteHeader() {
     >
       <nav className="container relative flex items-center py-1.5" style={{ pointerEvents: "auto" }}>
         <Link aria-label="Homepage" className="size-9 md:size-9" href="/">
-          <img
+          <Image
             src="/images/site-img/icon.webp"
             alt="AB"
             width={35}
             height={35}
+            unoptimized
             decoding="async"
             fetchPriority="high"
             className="size-[35px] rounded-md"
@@ -685,6 +691,7 @@ export function SiteHeader() {
                     onMouseLeave={() => setHoveredHref(null)}
                     onClick={() => {
                       if (isMoreMenuItem) {
+                        setHasMoreMenuOpened(true);
                         setIsMoreMenuOpen((prev) => !prev);
                         setIsMoreMenuPinned((prev) => !prev);
                         return;
@@ -740,7 +747,7 @@ export function SiteHeader() {
                 zIndex: 12,
               }}
             >
-              <div
+              {hasMoreMenuOpened ? <div
                 className="grid gap-2"
                 style={{
                   borderRadius: "22px",
@@ -802,7 +809,7 @@ export function SiteHeader() {
                     </Link>
                   ))}
                 </div>
-              </div>
+              </div> : null}
             </div>
           </div>
         </div>
@@ -843,7 +850,7 @@ export function SiteHeader() {
         </button>
       </nav>
 
-      <MobileNavDrawer
+      {hasMobileMenuOpened ? <MobileNavDrawer
         open={isMobileMenuOpen}
         navItems={mobileNavItems}
         moreItem={mobileMoreItem}
@@ -855,7 +862,7 @@ export function SiteHeader() {
         onNavigate={navigateAndCloseMobile}
         onClose={handleMobileClose}
         onOpenCommand={handleMobileOpenCommand}
-      />
+      /> : null}
 
       {isCommandOpen ? <CommandMenu open setOpen={setIsCommandOpen} /> : null}
     </header>

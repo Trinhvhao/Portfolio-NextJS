@@ -29,7 +29,7 @@ function OutArrowIcon() {
 export function MySiteSection() {
   const t = useTranslations("mySite");
   return (
-    <section className="container relative mx-auto min-w-0 px-4">
+    <section className="home-content-auto container relative mx-auto min-w-0 px-4">
       <h2
         className="relative z-2 mx-auto mb-4 max-w-xl text-balance text-center text-5xl font-medium tracking-tight max-sm:px-5 sm:text-5xl md:mb-4 md:text-6xl"
         style={{ textShadow: "0px 4px 8px rgba(255,255,255,.05),0px 8px 30px rgba(255,255,255,.25)" }}

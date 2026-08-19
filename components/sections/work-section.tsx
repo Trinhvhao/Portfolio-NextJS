@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -237,13 +237,11 @@ function ViewDetailsSpinner({ curveId }: ViewDetailsSpinnerProps) {
 
 interface ProjectCardProps {
   item: (typeof workItems)[0];
-  index: number;
   prefix: string;
-  isMobile?: boolean;
   translations?: TranslatedItem | null;
 }
 
-function ProjectCard({ item, index, prefix, isMobile = false, translations }: ProjectCardProps) {
+function ProjectCard({ item, prefix, translations }: ProjectCardProps) {
   const cardRef = useRef<HTMLAnchorElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorFrameRef = useRef<number | null>(null);
@@ -308,10 +306,9 @@ function ProjectCard({ item, index, prefix, isMobile = false, translations }: Pr
     };
   }, []);
 
-  if (isMobile) {
-    return (
-      <article key={item.id} className="group flex flex-col gap-6">
-        <div className="flex items-start justify-between gap-4">
+  return (
+      <article className="group flex w-full flex-col gap-6">
+        <div className="flex items-start justify-between gap-4 lg:hidden">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
               <span className="font-mono text-[10px] tracking-wider text-neutral-400 uppercase dark:text-neutral-600">{item.index}</span>
@@ -331,26 +328,25 @@ function ProjectCard({ item, index, prefix, isMobile = false, translations }: Pr
           ref={cardRef}
           href={item.href}
           aria-label={`View details of ${item.title}`}
-          className="group relative block aspect-[16/11] w-full overflow-hidden rounded-2xl bg-[#f2f2f20c] p-1 shadow-border transition-transform duration-300 ease-in-out hover:-translate-y-2 lg:rounded-3xl lg:p-2"
+          className="group relative block aspect-[16/11] w-full overflow-hidden rounded-2xl bg-[#f2f2f20c] p-1 shadow-border transition-[transform,box-shadow] duration-500 ease-in-out hover:-translate-y-2 hover:shadow-[0_24px_70px_rgba(0,0,0,0.4)] lg:rounded-3xl lg:p-2"
           onMouseEnter={handleMouseEnter}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
           <div className="relative flex size-full min-h-0 flex-col overflow-hidden rounded-xl bg-black/70 ring-1 ring-white/12 lg:rounded-2xl">
             <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
-            <div className="relative z-10 flex items-start justify-between gap-8 px-4 py-4 text-white/80 lg:px-5 lg:py-5">
-              <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base">{displayDescription}</p>
-              <span className="hidden shrink-0 text-lg transition-transform duration-500 ease-out group-hover:translate-x-1 sm:block">→</span>
+            <div className="relative z-10 flex items-start justify-between gap-8 px-4 py-4 text-white/80 lg:px-10 lg:pt-10 lg:pb-8 lg:text-white/90">
+              <p className="text-sm transition-transform duration-500 ease-out group-hover:-translate-y-0.5 md:text-base lg:text-2xl lg:font-medium lg:leading-snug lg:group-hover:-translate-y-1">{displayDescription}</p>
+              <span className="hidden shrink-0 text-lg transition-transform duration-500 ease-out group-hover:translate-x-1 sm:block lg:pt-1 lg:text-2xl lg:group-hover:translate-x-1.5">→</span>
             </div>
-            <div className="relative z-10 mt-auto flex-1 min-h-0 px-4 pb-4 lg:px-5 lg:pb-5">
+            <div className="relative z-10 mt-auto min-h-0 flex-1 px-4 pb-4 lg:px-10 lg:pb-0">
               {item.image ? (
-                <div className="relative h-full w-full overflow-hidden rounded-xl shadow-2xl">
+                <div className="relative h-full w-full overflow-hidden rounded-xl shadow-2xl lg:rounded-t-xl lg:rounded-b-none">
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
-                    priority={index === 0}
-                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    sizes="(max-width: 1024px) 100vw, 60vw"
                     className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                   />
                   {item.secondaryImage && item.secondaryImage !== item.image ? (
@@ -358,7 +354,7 @@ function ProjectCard({ item, index, prefix, isMobile = false, translations }: Pr
                       src={item.secondaryImage}
                       alt={`${item.title} preview`}
                       fill
-                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      sizes="(max-width: 1024px) 100vw, 60vw"
                       className="pointer-events-none object-cover opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-6 translate-y-10 scale-75 rotate-6 group-hover:translate-x-3 group-hover:translate-y-0 group-hover:scale-[0.92] group-hover:rotate-2 group-hover:opacity-100"
                     />
                   ) : null}
@@ -383,7 +379,7 @@ function ProjectCard({ item, index, prefix, isMobile = false, translations }: Pr
           </div>
         </Link>
 
-        <ul className="mt-1 flex flex-col gap-y-2 text-sm text-primary/90">
+        <ul className="mt-1 flex flex-col gap-y-2 text-sm text-primary/90 lg:hidden">
           {(item.highlights ?? []).map((point) => (
             <li key={`${item.id}-${point}`} className="flex items-start">
               <svg className="me-1.5 mt-[2px] size-5 shrink-0" style={{ fill: item.accentColor, color: item.accentColor }} height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -394,81 +390,12 @@ function ProjectCard({ item, index, prefix, isMobile = false, translations }: Pr
           ))}
         </ul>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 lg:hidden">
           {(item.tags ?? []).map((tag) => (
             <TechBadge key={`${item.id}-${tag}`} keyId={`${item.id}-${tag}`} tag={tag} />
           ))}
         </div>
       </article>
-    );
-  }
-
-  // Desktop card
-  return (
-    <article
-      key={`desktop-${item.id}`}
-      aria-label={`Project ${item.title}`}
-      data-work-id={item.id}
-      className="group relative flex w-full flex-col gap-6 will-change-transform"
-    >
-      <div className="relative w-full transition-transform duration-500 group-hover:-translate-y-2">
-        <Link
-          ref={cardRef}
-          href={item.href}
-          aria-label={`View details of ${item.title}`}
-          className="group relative block aspect-[16/11] w-full overflow-hidden rounded-3xl bg-[#f2f2f20c] p-2 shadow-border transition-[transform,box-shadow] duration-500 hover:shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
-          onMouseEnter={handleMouseEnter}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="relative flex size-full flex-col overflow-hidden rounded-2xl bg-black/70 ring-1 ring-white/12">
-            <div aria-hidden="true" className="absolute inset-0 z-1 transition-transform duration-500 ease-in-out group-hover:scale-105" style={{ background: item.gradient }} />
-            <div className="relative z-10 flex items-start justify-between gap-8 px-8 pt-8 pb-6 lg:px-10 lg:pt-10 lg:pb-8 text-white/90">
-              <p className="text-2xl font-medium leading-snug transition-transform duration-500 ease-out group-hover:-translate-y-1">{displayDescription}</p>
-              <span className="shrink-0 pt-1 text-2xl transition-transform duration-500 ease-out group-hover:translate-x-1.5">→</span>
-            </div>
-            <div className="relative z-10 mt-auto flex-1 w-full px-8 min-h-0 lg:px-10">
-              {item.image ? (
-                <div className="relative size-full overflow-hidden rounded-t-xl rounded-b-none shadow-2xl">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    priority={index === 0}
-                    sizes="60vw"
-                    className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                  />
-                  {item.secondaryImage && item.secondaryImage !== item.image ? (
-                    <Image
-                      src={item.secondaryImage}
-                      alt={`${item.title} secondary preview`}
-                      fill
-                      sizes="60vw"
-                      className="pointer-events-none object-cover object-top opacity-0 transition-[transform,opacity] duration-700 ease-out translate-x-8 translate-y-10 scale-75 rotate-6 group-hover:translate-x-4 group-hover:translate-y-0 group-hover:scale-[0.94] group-hover:rotate-3 group-hover:opacity-100"
-                    />
-                  ) : null}
-                </div>
-              ) : (
-                <div className="flex size-full w-full items-center justify-center rounded-xl border border-white/25 bg-black/20 font-mono text-xs tracking-widest text-white/80 uppercase">
-                  Finote App
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div
-            ref={cursorRef}
-            data-visible="false"
-            className="vd-spinner pointer-events-none absolute top-0 left-0 z-20"
-            style={{
-              transform: "translate3d(-9999px, -9999px, 0) translate(-50%, -50%)",
-            }}
-          >
-            {spinnerMounted ? <ViewDetailsSpinner curveId={`work-${prefix}-curve-${item.id}`} /> : null}
-          </div>
-        </Link>
-      </div>
-    </article>
   );
 }
 
@@ -492,6 +419,8 @@ export function WorkSection({ limit }: WorkSectionProps) {
   }, [activeId]);
 
   useEffect(() => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+
     const container = document.getElementById("work");
     if (!container) return;
 
@@ -576,29 +505,23 @@ export function WorkSection({ limit }: WorkSectionProps) {
         </span>
       </h2>
 
-      <div className="flex flex-col gap-20 pb-20 lg:hidden">
-        {displayItems.map((item, index) => (
-          <ProjectCard key={item.id} item={item} index={index} prefix="mobile" isMobile translations={projectTranslations?.[item.id]} />
-        ))}
-      </div>
-
-      <div aria-label="Projects List" className="relative hidden w-full lg:flex" role="main">
+      <div aria-label="Projects List" className="relative flex w-full" role="region">
         <div
           data-work-column="desktop"
           suppressHydrationWarning
-          className="mx-auto flex w-full flex-col gap-y-20 lg:max-w-[60%] lg:gap-y-32"
+          className="mx-auto flex w-full flex-col gap-y-20 pb-20 lg:max-w-[60%] lg:gap-y-32"
         >
-          {displayItems.map((item, index) => (
+          {displayItems.map((item) => (
             <div
               key={`desktop-${item.id}`}
               data-work-id={item.id}
               suppressHydrationWarning
               onMouseEnter={() => setActiveId(item.id)}
-              className={`relative flex w-full flex-col gap-6 will-change-transform transition-[transform,opacity] duration-500 ease-out ${
-                activeId === item.id ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-[0.97] opacity-60"
+              className={`relative flex w-full flex-col gap-6 lg:will-change-transform lg:transition-[transform,opacity] lg:duration-500 lg:ease-out ${
+                activeId === item.id ? "lg:translate-y-0 lg:scale-100 lg:opacity-100" : "lg:translate-y-2 lg:scale-[0.97] lg:opacity-60"
               }`}
             >
-              <ProjectCard item={item} index={index} prefix="desktop" translations={projectTranslations?.[item.id]} />
+              <ProjectCard item={item} prefix="project" translations={projectTranslations?.[item.id]} />
             </div>
           ))}
         </div>

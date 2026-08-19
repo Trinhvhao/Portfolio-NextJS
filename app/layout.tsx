@@ -22,11 +22,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="dark" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" />
         <link rel="preload" href="/images/site-img/icon.webp" as="image" type="image/webp" fetchPriority="high" />
-        <link rel="stylesheet" href="/assets/css/_next/static/chunks/fdd8e3b6d7ffc309.css" />
       </head>
       <body className="bg-black text-zinc-100 overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
@@ -42,7 +38,7 @@ export default async function RootLayout({
                 background: "linear-gradient(to bottom, #0a0a0aa4 0%, #0a0a0aa4 50%, transparent 100%)",
               }}
             />
-            {children}
+            <main>{children}</main>
         </NextIntlClientProvider>
       </body>
     </html>

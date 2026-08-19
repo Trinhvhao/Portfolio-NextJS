@@ -1,13 +1,11 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
-export function HeroSection() {
-  const t = useTranslations("hero");
+export async function HeroSection() {
+  const t = await getTranslations("hero");
 
   return (
     <section

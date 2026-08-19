@@ -192,44 +192,60 @@ function createScatterTransform(name: string, rowIndex: number, index: number, r
   return { x, y, rotate, scale };
 }
 
-function SkillBadge({ name, isAligned, scatter, style, compact, small }: { name: string; isAligned: boolean; scatter: ScatterTransform; style?: CSSProperties; compact?: boolean; small?: boolean }) {
+function formatScatter(scatter: ScatterTransform): string {
+  return `translate3d(${scatter.x}px, ${scatter.y}px, 0px) rotate(${scatter.rotate}deg) scale(${scatter.scale})`;
+}
+
+function SkillBadge({
+  name,
+  isAligned,
+  mobileScatter,
+  desktopScatter,
+  style,
+}: {
+  name: string;
+  isAligned: boolean;
+  mobileScatter: ScatterTransform;
+  desktopScatter: ScatterTransform;
+  style?: CSSProperties;
+}) {
   const iconClass = TECH_ICON_MAP[name];
   const customSvg = CUSTOM_SVG_ICONS[name];
-  const shellSize = small ? "size-10 sm:size-12" : compact ? "size-12" : "h-14 w-14";
-  const iconWrapSize = small ? "h-6 w-6 sm:h-8 sm:w-8" : compact ? "h-8 w-8" : "h-10 w-10";
-  const iconSize = small ? "text-[1.5rem] sm:text-[1.9rem]" : compact ? "text-[1.9rem]" : "text-[2.35rem]";
 
   return (
     <span
       title={name}
       style={{
         ...style,
-        transform: isAligned
-          ? "translate3d(0px, 0px, 0px) rotate(0deg) scale(1)"
-          : `translate3d(${scatter.x}px, ${scatter.y}px, 0px) rotate(${scatter.rotate}deg) scale(${scatter.scale})`,
+        "--skill-scatter-mobile": formatScatter(mobileScatter),
+        "--skill-scatter-desktop": formatScatter(desktopScatter),
         opacity: isAligned ? "1" : "0.82",
         filter: isAligned ? "blur(0px)" : "blur(0.45px)",
         contain: "layout style",
-      }}
-      className={`group relative flex ${shellSize} items-center justify-center rounded-xl border border-black/5 bg-white-2 p-0 shadow-border transition-[transform,opacity,filter] duration-[600ms] ease-[cubic-bezier(0.18,0.88,0.2,1)] dark:border-white/10 dark:bg-white/10`}
+      } as CSSProperties}
+      className={`group relative flex size-10 items-center justify-center rounded-xl border border-black/5 bg-white-2 p-0 shadow-border transition-[transform,opacity,filter] duration-[600ms] ease-[cubic-bezier(0.18,0.88,0.2,1)] sm:size-12 lg:size-14 dark:border-white/10 dark:bg-white/10 ${
+        isAligned
+          ? "[transform:translate3d(0,0,0)_rotate(0deg)_scale(1)]"
+          : "[transform:var(--skill-scatter-mobile)] lg:[transform:var(--skill-scatter-desktop)]"
+      }`}
     >
       <span
         aria-hidden
         className="pointer-events-none absolute inset-1 rounded-lg bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.65),rgba(99,102,241,.24)_45%,rgba(0,0,0,0)_72%)] opacity-0 blur-md transition-opacity duration-500 max-md:hidden group-hover:opacity-100"
       />
       {customSvg ? (
-        <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center`}>
+        <span className="relative z-10 inline-flex h-6 w-6 items-center justify-center sm:h-8 sm:w-8 lg:h-10 lg:w-10">
           {customSvg}
         </span>
       ) : iconClass && iconClass !== "devicon-plain" ? (
-        <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center`}>
+        <span className="relative z-10 inline-flex h-6 w-6 items-center justify-center sm:h-8 sm:w-8 lg:h-10 lg:w-10">
           <i
             aria-label={name.toLowerCase().replace(/\s+/g, "-")}
-            className={`${iconClass} ${iconSize} block leading-none transition-transform duration-500 group-hover:scale-105`}
+            className={`${iconClass} block text-[1.5rem] leading-none transition-transform duration-500 group-hover:scale-105 sm:text-[1.9rem] lg:text-[2.35rem]`}
           />
         </span>
       ) : (
-        <span className={`relative z-10 inline-flex ${iconWrapSize} items-center justify-center rounded-sm bg-black/8 font-mono text-[10px] tracking-wide text-neutral-700 dark:bg-white/12 dark:text-neutral-200 sm:text-xs`}>
+        <span className="relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-sm bg-black/8 font-mono text-[10px] tracking-wide text-neutral-700 sm:h-8 sm:w-8 sm:text-xs lg:h-10 lg:w-10 dark:bg-white/12 dark:text-neutral-200">
           {fallbackLabel(name)}
         </span>
       )}
@@ -340,56 +356,29 @@ export function SkillsSection() {
 
         <div ref={skillsGridRef} data-skills-grid>
           <div className="container relative flex flex-col items-center justify-center gap-4">
-            <div className="hidden w-full max-w-5xl text-center font-geist lg:block" style={{ perspective: "500px" }}>
-              {skillRows.map((row, rowIndex) => (
-                <div key={`desktop-row-${rowIndex}`} className="mb-3 flex flex-wrap justify-center gap-3">
-                  {row.map((name, index) => (
-                    (() => {
-                      const badgeIndex = rowIndex * 16 + index;
-                      const delayMs = 30 + badgeIndex * 10;
-                      const scatter = createScatterTransform(name, rowIndex, index, row.length);
-                      return (
-                    <SkillBadge
-                      key={`${rowIndex}-${name}`}
-                      name={name}
-                      isAligned={isAligned}
-                      scatter={scatter}
-                      style={{ transitionDelay: `${delayMs}ms` }}
-                    />
-                      );
-                    })()
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="container relative flex flex-col items-center justify-center gap-4">
-            <div className="w-full max-w-5xl text-center font-geist lg:hidden">
+            <div className="w-full max-w-5xl text-center font-geist" style={{ perspective: "500px" }}>
               {skillRows.map((row, rowIndex) => (
                 <div
-                  key={`mobile-row-${rowIndex}`}
-                  className={`mb-2 w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                  key={`skill-row-${rowIndex}`}
+                  className={`mb-2 w-full [scrollbar-width:none] lg:mb-3 [&::-webkit-scrollbar]:hidden ${
                     isMobileScrollEnabled
-                      ? "touch-pan-x overflow-x-auto overscroll-x-contain"
+                      ? "touch-pan-x overflow-x-auto overscroll-x-contain lg:overflow-visible"
                       : "overflow-visible"
                   }`}
                 >
-                  <div className="mx-auto flex w-max flex-nowrap gap-1 px-1 sm:gap-2 sm:px-2">
+                  <div className="mx-auto flex w-max flex-nowrap gap-1 px-1 sm:gap-2 sm:px-2 lg:w-auto lg:flex-wrap lg:justify-center lg:gap-3 lg:px-0">
                     {row.map((name, index) => (
                       (() => {
                         const badgeIndex = rowIndex * 16 + index;
                         const delayMs = 25 + badgeIndex * 8;
-                        const scatter = createScatterTransform(name, rowIndex, index, row.length, true);
                         return (
                           <SkillBadge
                             key={`${rowIndex}-${name}`}
                             name={name}
-                            compact
                             isAligned={isAligned}
-                            scatter={scatter}
+                            mobileScatter={createScatterTransform(name, rowIndex, index, row.length, true)}
+                            desktopScatter={createScatterTransform(name, rowIndex, index, row.length)}
                             style={{ transitionDelay: `${delayMs}ms` }}
-                            small
                           />
                         );
                       })()

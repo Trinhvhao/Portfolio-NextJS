@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, type Variants } from "framer-motion";
 import { useTranslations } from "next-intl";
-
-const FADE_IN_ANIMATION_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 100, damping: 20 },
-  },
-};
 
 const DEMO_IMAGES = [
   "https://images.unsplash.com/photo-1756312148347-611b60723c7a?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzN3x8fGVufDB8fHx8fA%3D%3D",
@@ -75,6 +65,9 @@ export function TiktokSection() {
   const duplicatedImages = [...DEMO_IMAGES, ...DEMO_IMAGES];
   const marqueeRef = useRef<HTMLDivElement | null>(null);
   const [isInView, setIsInView] = useState(false);
+  const revealClass = `transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+    isInView ? "translate-y-0 opacity-100" : "translate-y-2.5 opacity-0"
+  }`;
 
   useEffect(() => {
     const el = marqueeRef.current;
@@ -91,6 +84,7 @@ export function TiktokSection() {
 
   return (
     <section
+      ref={marqueeRef}
       id="tiktok"
       className="relative w-full min-h-screen overflow-hidden bg-[#02040a] flex flex-col items-center justify-center text-center px-4 py-pagebuilder"
     >
@@ -104,11 +98,8 @@ export function TiktokSection() {
       />
 
       <div className="relative z-10 flex flex-col items-center">
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={FADE_IN_ANIMATION_VARIANTS}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm font-medium text-white/85 backdrop-blur-sm"
+        <div
+          className={`${revealClass} mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm font-medium text-white/85 backdrop-blur-sm`}
         >
           <svg aria-hidden className="size-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.73a8.16 8.16 0 0 0 4.77 1.52V6.8a4.85 4.85 0 0 1-1.84-.11Z" />
@@ -116,14 +107,11 @@ export function TiktokSection() {
           <span className="font-mono text-xs uppercase tracking-widest">
             {t("tagline")}
           </span>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={FADE_IN_ANIMATION_VARIANTS}
-          transition={{ delay: 0.15 }}
-          className="mb-8 flex flex-wrap items-center justify-center gap-3"
+        <div
+          className={`${revealClass} mb-8 flex flex-wrap items-center justify-center gap-3`}
+          style={{ transitionDelay: "150ms" }}
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 font-mono text-sm font-semibold text-white backdrop-blur-xs">
             <svg
@@ -149,43 +137,32 @@ export function TiktokSection() {
               {t("followersLabel")}
             </span>
           </span>
-        </motion.div>
+        </div>
 
-        <motion.h1
-          initial="hidden"
-          animate="show"
-          variants={{
-            hidden: {},
-            show: { transition: { staggerChildren: 0.1 } },
-          }}
+        <h1
           className="text-5xl md:text-7xl font-bold tracking-tighter text-white"
         >
           {(t("title") as string).split(" ").map((word, i) => (
-            <motion.span
+            <span
               key={i}
-              variants={FADE_IN_ANIMATION_VARIANTS}
-              className="inline-block"
+              className={`${revealClass} inline-block`}
+              style={{ transitionDelay: `${250 + i * 100}ms` }}
             >
               {word}&nbsp;
-            </motion.span>
+            </span>
           ))}
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial="hidden"
-          animate="show"
-          variants={FADE_IN_ANIMATION_VARIANTS}
-          transition={{ delay: 0.5 }}
-          className="mt-6 max-w-xl text-lg text-white/70"
+        <p
+          className={`${revealClass} mt-6 max-w-xl text-lg text-white/70`}
+          style={{ transitionDelay: "500ms" }}
         >
           {t("description")}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={FADE_IN_ANIMATION_VARIANTS}
-          transition={{ delay: 0.6 }}
+        <div
+          className={revealClass}
+          style={{ transitionDelay: "600ms" }}
         >
           <a
             href="https://www.tiktok.com/@itlamcontent.th"
@@ -195,11 +172,10 @@ export function TiktokSection() {
           >
             <ActionButton>{t("ctaText")}</ActionButton>
           </a>
-        </motion.div>
+        </div>
       </div>
 
       <div
-        ref={marqueeRef}
         className="pointer-events-none absolute bottom-0 left-0 w-full h-1/3 md:h-2/5 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
       >
         <div
