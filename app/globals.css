@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Only the Devicon glyphs used by this site. Importing devicon.min.css added
    thousands of unused selectors to the render-blocking stylesheet. */
