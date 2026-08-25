@@ -275,63 +275,11 @@ function ScoopMarqueeLane() {
 
     let frameId: number | null = null;
     let lastTime = performance.now();
-    let lastFocusTime = 0;
     let x = 0;
     let paused = false;
     let inView = false;
     let stripWidth = Math.max(strip.offsetWidth, 1);
     const durationMs = 32000;
-    const focusIntervalMs = 100;
-
-    const applyFocusZone = () => {
-      const cards = track.querySelectorAll<HTMLElement>(".scoop-card");
-      if (cards.length === 0) {
-        return;
-      }
-
-      // Read wrapperRect + trackRect once per frame; reuse across cards.
-      const wrapperRect = wrapper.getBoundingClientRect();
-      const trackRect = track.getBoundingClientRect();
-      const focusCenterX = wrapperRect.left + wrapperRect.width / 2;
-      const sharpRadius = wrapperRect.width * 0.18;
-      const fadeRadius = wrapperRect.width * 0.42;
-      const radiusDelta = Math.max(fadeRadius - sharpRadius, 1);
-      const trackLeft = trackRect.left - x;
-
-      for (const card of cards) {
-        if (card.matches(":hover")) {
-          card.style.opacity = "1";
-          card.style.filter = "blur(0px)";
-          card.style.transform = "scale(1)";
-          card.style.zIndex = "30";
-          continue;
-        }
-
-        // Compute card center from offsetLeft/offsetWidth (relative to track),
-        // then translate to viewport using trackRect.left - x.
-        // Avoids per-card getBoundingClientRect (forced reflow).
-        const cardCenterX = trackLeft + card.offsetLeft + card.offsetWidth / 2;
-        const distance = Math.abs(cardCenterX - focusCenterX);
-
-        let focus = 0;
-        if (distance <= sharpRadius) {
-          focus = 1;
-        } else if (distance < fadeRadius) {
-          const t = (distance - sharpRadius) / radiusDelta;
-          const smooth = t * t * (3 - 2 * t);
-          focus = 1 - smooth;
-        }
-
-        const opacity = 0.5 + focus * 0.5;
-        const blurPx = (1 - focus) * 1.8;
-        const scale = 0.985 + focus * 0.015;
-
-        card.style.opacity = opacity.toFixed(3);
-        card.style.filter = `blur(${blurPx.toFixed(3)}px)`;
-        card.style.transform = `scale(${scale.toFixed(4)})`;
-        card.style.zIndex = `${Math.round(10 + focus * 10)}`;
-      }
-    };
 
     const onEnter = () => {
       paused = true;
@@ -352,11 +300,6 @@ function ScoopMarqueeLane() {
             x += stripWidth;
           }
           track.style.transform = `translate3d(${x}px, 0, 0)`;
-        }
-
-        if (now - lastFocusTime >= focusIntervalMs) {
-          lastFocusTime = now;
-          applyFocusZone();
         }
       }
 
@@ -379,7 +322,6 @@ function ScoopMarqueeLane() {
         x = 0;
       }
       track.style.transform = `translate3d(${x}px, 0, 0)`;
-      applyFocusZone();
     });
 
     wrapper.addEventListener("pointerenter", onEnter);
@@ -401,7 +343,6 @@ function ScoopMarqueeLane() {
     );
     intersectionObserver.observe(wrapper);
 
-    applyFocusZone();
     return () => {
       wrapper.removeEventListener("pointerenter", onEnter);
       wrapper.removeEventListener("pointerleave", onLeave);
@@ -409,14 +350,6 @@ function ScoopMarqueeLane() {
       intersectionObserver.disconnect();
       if (frameId !== null) {
         cancelAnimationFrame(frameId);
-      }
-
-      const cards = track.querySelectorAll<HTMLElement>(".scoop-card");
-      for (const card of cards) {
-        card.style.removeProperty("opacity");
-        card.style.removeProperty("filter");
-        card.style.removeProperty("transform");
-        card.style.removeProperty("z-index");
       }
     };
   }, []);
@@ -450,8 +383,9 @@ function VietnamGlobe() {
     }
 
     const isMobile = window.innerWidth < 768;
-    let phi = 0;
-    let theta = 0.2;
+    const VIETNAM_PHI = 2.2;
+    let phi = VIETNAM_PHI;
+    let theta = 0.28;
     let frameId: number | null = null;
     let globe: Globe | null = null;
     let globeLoadStarted = false;
@@ -507,11 +441,15 @@ function VietnamGlobe() {
           frameId = requestAnimationFrame(animate);
           return;
         }
-        phi += isMobile ? 0.003 : 0.003;
+        if (!isMobile) {
+          phi += 0.003;
+        }
       }
       lastGlobeRender = now;
       globe?.update({ phi, theta });
-      frameId = requestAnimationFrame(animate);
+      if (!isMobile) {
+        frameId = requestAnimationFrame(animate);
+      }
     };
 
     const syncAnimation = () => {
@@ -551,7 +489,7 @@ function VietnamGlobe() {
         devicePixelRatio: dpr,
         width: size,
         height: size,
-        phi: 0,
+        phi: VIETNAM_PHI,
         theta,
         dark: 1,
         diffuse: 1.2,
@@ -908,14 +846,13 @@ export function FeatureGridSection() {
       </div>
 
       {/* 3 — Remote / time zones: bottom-left tall */}
-      <div className={`${cardShell} col-span-6 max-md:h-[32rem] md:col-span-3 md:row-span-2 lg:col-span-2`}>
-        <div className="size-full">
+      <div className={`${cardShell} col-span-6 max-md:min-h-[28rem] md:col-span-3 md:row-span-2 lg:col-span-2`}>
+        <div className="relative flex size-full flex-col items-center">
             <h3 className="mt-6 w-full select-none bg-linear-to-b from-[#81a2fd98] to-[#7b9cda] bg-clip-text px-4 text-center font-instrument-serif text-3xl leading-[100%] font-bold tracking-wide text-balance text-transparent md:mt-12 dark:from-[#edeffd]">
               {t("remoteDetail")}
             </h3>
 
-          <div className="absolute bottom-14 left-1/2 z-[6] w-[24rem] max-w-[90%] -translate-x-1/2 md:bottom-10 md:w-[26rem]">
-            <div className="mx-auto flex flex-wrap justify-center gap-2 text-xs">
+            <div className="relative mx-auto mt-4 flex w-full max-w-sm flex-col items-center gap-3 md:absolute md:bottom-10 md:left-1/2 md:-translate-x-1/2 md:max-w-[26rem]">
               <span className="inline-flex items-center gap-1.5 rounded-sm border border-sky-400/25 bg-sky-500/12 px-3 py-1 font-mono text-[11px] text-sky-500 shadow-border dark:border-sky-400/30 dark:text-sky-400">
                 <svg viewBox="0 0 32 24" className="h-3 w-4 rounded-[2px]" aria-hidden="true">
                   <rect width="32" height="24" fill="#DA251D" />
@@ -926,15 +863,12 @@ export function FeatureGridSection() {
                 </svg>
                 VN
               </span>
-            </div>
 
-            <div className="relative mx-auto mt-3 aspect-square w-full max-w-xl">
-              <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.26)_0%,rgba(14,116,144,0.08)_40%,rgba(0,0,0,0)_72%)] blur-2xl" />
-              <div className="relative size-full overflow-hidden rounded-full opacity-75 blur-[0.6px] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:blur-0">
+              <div className="relative aspect-square w-48 max-w-full overflow-hidden rounded-full opacity-75 blur-[0.6px] transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:blur-0 md:w-auto md:max-w-xl">
+                <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.26)_0%,rgba(14,116,144,0.08)_40%,rgba(0,0,0,0)_72%)] blur-2xl" />
                 <VietnamGlobe />
               </div>
             </div>
-          </div>
         </div>
 
         <div className="pointer-events-none z-10 flex flex-col gap-1 p-6 transition-all duration-300 group-hover:-translate-y-10">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -142,10 +142,15 @@ const MobileNavDrawer = memo(function MobileNavDrawer({
         style={{
           transform: open ? "translate3d(0, 0, 0)" : "translate3d(100%, 0, 0)",
           transition: "transform 280ms cubic-bezier(0.32, 0.72, 0, 1)",
-          boxShadow: open ? "-8px 0 32px rgba(0,0,0,0.5)" : "none",
           contain: "layout paint",
         }}
       >
+        {/* Shadow layer — kept separate from the composited transform element */}
+        <div
+          aria-hidden
+          className="absolute inset-0 shadow-drawer md:hidden"
+          style={{ pointerEvents: "none" }}
+        />
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <span className="text-xs font-medium tracking-widest text-white/50 uppercase">Menu</span>
           <button
@@ -324,7 +329,6 @@ export function SiteHeader() {
   const [isMoreMenuPinned, setIsMoreMenuPinned] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [hoveredHref, setHoveredHref] = useState<string | null>(null);
-  const [hasMobileMenuOpened, setHasMobileMenuOpened] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
 
@@ -474,9 +478,16 @@ export function SiteHeader() {
   }, [activeHref, updateActiveIndicator]);
 
   const moreMenuOpenRef = useRef(isMoreMenuOpen);
-  const mobileMenuOpenRef = useRef(isMobileMenuOpen);
   useEffect(() => { moreMenuOpenRef.current = isMoreMenuOpen; }, [isMoreMenuOpen]);
-  useEffect(() => { mobileMenuOpenRef.current = isMobileMenuOpen; }, [isMobileMenuOpen]);
+
+  const mobileMenuOpenRef = useRef<() => void>(() => {});
+
+  const handleMobileClose = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setIsMobileMoreOpen(false);
+  }, []);
+
+  useEffect(() => { mobileMenuOpenRef.current = handleMobileClose; }, [handleMobileClose]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -495,12 +506,7 @@ export function SiteHeader() {
 
       if (event.key === "Escape") {
         setIsCommandOpen(false);
-        if (mobileMenuOpenRef.current) {
-          setIsMobileMenuOpen(false);
-          setIsMobileMoreOpen(false);
-          return;
-        }
-        closeMoreMenu(true);
+        mobileMenuOpenRef.current();
       }
     };
 
@@ -533,11 +539,6 @@ export function SiteHeader() {
     [navItems],
   );
 
-  const handleMobileClose = useCallback(() => {
-    setIsMobileMenuOpen(false);
-    setIsMobileMoreOpen(false);
-  }, []);
-
   const handleMobileOpenCommand = useCallback(() => {
     setIsMobileMenuOpen(false);
     setIsCommandOpen(true);
@@ -548,29 +549,9 @@ export function SiteHeader() {
   }, []);
 
   const toggleMobileMenu = useCallback(() => {
-    setHasMobileMenuOpened(true);
     setIsMobileMoreOpen(false);
     setIsMobileMenuOpen((open) => !open);
   }, []);
-
-  const handleMobileMenuPointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLButtonElement>) => {
-      if (event.pointerType === "mouse" && event.button !== 0) {
-        return;
-      }
-
-      event.preventDefault();
-      event.currentTarget.setPointerCapture(event.pointerId);
-      toggleMobileMenu();
-    },
-    [toggleMobileMenu],
-  );
-
-  const handleMobileMenuClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
-    if (event.detail === 0) {
-      toggleMobileMenu();
-    }
-  }, [toggleMobileMenu]);
 
   const navigateAndCloseMobile = useCallback((href: string) => {
     setIsMobileMenuOpen(false);
@@ -604,7 +585,7 @@ export function SiteHeader() {
         >
           <div
             ref={navTrackRef}
-            className="relative flex items-center"
+            className="relative flex items-center site-header-backdrop"
             style={{
               minHeight: "48px",
               gap: "4px",
@@ -829,8 +810,7 @@ export function SiteHeader() {
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-nav-drawer"
-          onPointerDown={handleMobileMenuPointerDown}
-          onClick={handleMobileMenuClick}
+          onClick={toggleMobileMenu}
           className="ml-auto inline-flex size-11 touch-manipulation items-center justify-center rounded-xl bg-white/10 text-white active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/20 shadow-sm border border-transparent md:border-white/10 md:hidden"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -850,7 +830,7 @@ export function SiteHeader() {
         </button>
       </nav>
 
-      {hasMobileMenuOpened ? <MobileNavDrawer
+      <MobileNavDrawer
         open={isMobileMenuOpen}
         navItems={mobileNavItems}
         moreItem={mobileMoreItem}
@@ -862,7 +842,7 @@ export function SiteHeader() {
         onNavigate={navigateAndCloseMobile}
         onClose={handleMobileClose}
         onOpenCommand={handleMobileOpenCommand}
-      /> : null}
+      />
 
       {isCommandOpen ? <CommandMenu open setOpen={setIsCommandOpen} /> : null}
     </header>

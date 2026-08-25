@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useLayoutEffect } from "react";
 import { useTranslations } from "next-intl";
 import { TypedRouteText } from "@/components/ui/typed-route-text";
 
@@ -32,14 +32,22 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Head of AI-IoT Lab",
     gradientClass: "bg-[radial-gradient(84.35%_70.19%_at_50%_38.11%,rgba(2,96,101,0.57),rgba(5,136,178,0.06))]",
   },
-  // {
-  //   title: "Willing to Work, Learn, and Take Responsibility",
-  //   content:
-  //     "Hao has been with Zaka Edu since the early days. Back then, the workload was heavy and we often had to work overtime on weekends — he never once complained. He learns fast, from frontend development to collaborating with the team to receiving feedback from clients. What I value most about him is his sense of responsibility — whatever task is given, it always gets done from start to finish. Zaka Edu always welcomes him back.",
-  //   author: "Bui Xuan Hieu",
-  //   role: "Director • Zaka Edu Center",
-  //   gradientClass: "bg-[radial-gradient(86.88%_75.47%_at_50%_24.53%,rgba(82,48,145,0.7),rgba(26,11,51,0.14))]",
-  // },
+  {
+    title: "Willing to Work, Learn, and Take Responsibility",
+    content:
+      "Hao has been with Zaka Edu since the early days. Back then, the workload was heavy and we often had to work overtime on weekends — he never once complained. He learns fast, from frontend development to collaborating with the team to receiving feedback from clients. What I value most about him is his sense of responsibility — whatever task is given, it always gets done from start to finish. Zaka Edu always welcomes him back.",
+    author: "Bui Xuan Hieu",
+    role: "Director • Zaka Edu Center",
+    gradientClass: "bg-[radial-gradient(86.88%_75.47%_at_50%_24.53%,rgba(82,48,145,0.7),rgba(26,11,51,0.14))]",
+  },
+  {
+    title: "A Dedicated Contributor to Blackbox AI",
+    content:
+      "Hao was a collaborator in the Blackbox AI development and promotion campaign. In just 2 months of working together, he achieved impressive results — videos reaching 100K views and several videos with tens of thousands of views, significantly boosting brand awareness and user reach for Blackbox AI.",
+    author: "Nguyen Tu",
+    role: "Partner • Blackbox AI",
+    gradientClass: "bg-[radial-gradient(90.35%_49.25%_at_50%_59.06%,rgba(2,61,114,0.7),rgba(5,11,28,0.42))]",
+  },
   {
     title: "A Young Partner Who Works Very Professionally",
     content:
@@ -64,14 +72,14 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Director • Thai Binh Xanh Company",
     gradientClass: "bg-[radial-gradient(84.35%_70.19%_at_50%_38.11%,rgba(46,125,50,0.6),rgba(10,40,15,0.3))]",
   },
-  // {
-  //   title: "He Understands Learners Because He Was One",
-  //   content:
-  //     "English With Us has had Hao involved since the product development phase. What I like about him is how he puts himself in the user's shoes — he tests thoroughly, often asks 'where will a newcomer get confused?' and fixes it himself. He doesn't try to make products that flaunt technical complexity but focuses on the real experience. Working with him is easy, trustworthy, and the output is always on time.",
-  //   author: "Trang Tran",
-  //   role: "Founder • English With Us",
-  //   gradientClass: "bg-[radial-gradient(126.42%_76.6%_at_50%_32.26%,rgba(84,95,102,0.7),rgba(0,36,69,0.13))]",
-  // },
+  {
+    title: "He Understands Learners Because He Was One",
+    content:
+      "English With Us has had Hao involved since the product development phase. What I like about him is how he puts himself in the user's shoes — he tests thoroughly, often asks 'where will a newcomer get confused?' and fixes it himself. He doesn't try to make products that flaunt technical complexity but focuses on the real experience. Working with him is easy, trustworthy, and the output is always on time.",
+    author: "Trang Tran",
+    role: "Founder • English With Us",
+    gradientClass: "bg-[radial-gradient(126.42%_76.6%_at_50%_32.26%,rgba(84,95,102,0.7),rgba(0,36,69,0.13))]",
+  },
 ];
 
 function InitialsAvatar({ name }: { name: string }) {
@@ -89,26 +97,32 @@ function InitialsAvatar({ name }: { name: string }) {
   );
 }
 
+function getCenteredScrollLeft(container: HTMLElement, target: HTMLElement) {
+  return target.offsetLeft - container.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
+}
+
 export function TestimonialsSection() {
   const t = useTranslations("testimonials");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const dragStateRef = useRef({ isDown: false, startX: 0 });
+  const dragStateRef = useRef({ isDown: false, startX: 0, startScrollLeft: 0 });
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [progressCycle, setProgressCycle] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = TESTIMONIALS.length;
+  const currentPhysicalIndexRef = useRef(total);
 
-  // Chỉ cuộn NGANG trong container — không can thiệp scroll dọc của page.
-  // Dùng scrollLeft mượt để tránh scrollIntoView kéo cả window.
-  const scrollToIndex = useCallback((index: number) => {
+  // Scroll through the middle copy. When a boundary copy is reached, jump to
+  // the identical middle card after the animation so the loop stays seamless.
+  const scrollToPhysicalIndex = useCallback((physicalIndex: number) => {
     const container = scrollRef.current;
     if (!container) {
       return;
     }
     const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
-    const target = cards[index];
+    const target = cards[physicalIndex];
     if (!target) {
       return;
     }
@@ -116,14 +130,20 @@ export function TestimonialsSection() {
       clearTimeout(programmaticScrollTimeoutRef.current);
       programmaticScrollTimeoutRef.current = null;
     }
-    // Đánh dấu là do code cuộn để scroll listener không "lai" sang swipe của user
+    currentPhysicalIndexRef.current = physicalIndex;
     programmaticScrollTimeoutRef.current = setTimeout(() => {
+      if (physicalIndex < total || physicalIndex >= total * 2) {
+        const normalizedIndex = total + (physicalIndex % total);
+        const normalizedTarget = cards[normalizedIndex];
+        if (normalizedTarget) {
+          currentPhysicalIndexRef.current = normalizedIndex;
+          container.scrollLeft = getCenteredScrollLeft(container, normalizedTarget);
+        }
+      }
       programmaticScrollTimeoutRef.current = null;
     }, 800);
-    const desiredLeft =
-      target.offsetLeft - container.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
-    container.scrollTo({ left: desiredLeft, behavior: "smooth" });
-  }, []);
+    container.scrollTo({ left: getCenteredScrollLeft(container, target), behavior: "smooth" });
+  }, [total]);
 
   const stopAutoAdvance = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -139,13 +159,11 @@ export function TestimonialsSection() {
     }
 
     intervalRef.current = setInterval(() => {
-      setActiveIndex((current) => {
-        const next = (current + 1) % total;
-        scrollToIndex(next);
-        return next;
-      });
+      const nextPhysicalIndex = currentPhysicalIndexRef.current + 1;
+      setActiveIndex(nextPhysicalIndex % total);
+      scrollToPhysicalIndex(nextPhysicalIndex);
     }, AUTO_ADVANCE_MS);
-  }, [isPaused, isDragging, scrollToIndex, total, stopAutoAdvance]);
+  }, [isPaused, isDragging, scrollToPhysicalIndex, total, stopAutoAdvance]);
 
   // Khởi động / dừng auto-advance theo trạng thái pause & drag
   useEffect(() => {
@@ -172,6 +190,7 @@ export function TestimonialsSection() {
     }
 
     let rafId: number | null = null;
+    let scrollEndTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const updateActiveFromScroll = () => {
       rafId = null;
@@ -180,24 +199,48 @@ export function TestimonialsSection() {
       }
       const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
       const containerCenter = container.scrollLeft + container.clientWidth / 2;
-      let closestIndex = 0;
+      let closestPhysicalIndex = 0;
       let closestDistance = Number.POSITIVE_INFINITY;
       cards.forEach((card, index) => {
         const cardCenter = card.offsetLeft + card.clientWidth / 2;
         const distance = Math.abs(cardCenter - containerCenter);
         if (distance < closestDistance) {
           closestDistance = distance;
-          closestIndex = index % total;
+          closestPhysicalIndex = index;
         }
       });
-      setActiveIndex((current) => (current === closestIndex ? current : closestIndex));
+      currentPhysicalIndexRef.current = closestPhysicalIndex;
+      const logicalIndex = closestPhysicalIndex % total;
+      setActiveIndex((current) => (current === logicalIndex ? current : logicalIndex));
+    };
+
+    const normalizeAfterManualScroll = () => {
+      scrollEndTimeout = null;
+      if (programmaticScrollTimeoutRef.current !== null) {
+        return;
+      }
+      const physicalIndex = currentPhysicalIndexRef.current;
+      if (physicalIndex >= total && physicalIndex < total * 2) {
+        return;
+      }
+      const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
+      const normalizedIndex = total + (physicalIndex % total);
+      const target = cards[normalizedIndex];
+      if (!target) {
+        return;
+      }
+      currentPhysicalIndexRef.current = normalizedIndex;
+      container.scrollLeft = getCenteredScrollLeft(container, target);
     };
 
     const onScroll = () => {
-      if (rafId !== null) {
-        return;
+      if (scrollEndTimeout !== null) {
+        clearTimeout(scrollEndTimeout);
       }
-      rafId = requestAnimationFrame(updateActiveFromScroll);
+      scrollEndTimeout = setTimeout(normalizeAfterManualScroll, 180);
+      if (rafId === null) {
+        rafId = requestAnimationFrame(updateActiveFromScroll);
+      }
     };
 
     container.addEventListener("scroll", onScroll, { passive: true });
@@ -206,24 +249,43 @@ export function TestimonialsSection() {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }
+      if (scrollEndTimeout !== null) {
+        clearTimeout(scrollEndTimeout);
+      }
     };
   }, [total]);
 
-  // Căn giữa card đầu tiên ngay khi mount (không animate — đặt scrollLeft trực tiếp)
-  useEffect(() => {
+  // Start on the middle copy so both sides are already filled with cards.
+  useLayoutEffect(() => {
     const container = scrollRef.current;
     if (!container) {
       return;
     }
-    const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
-    const target = cards[0];
-    if (!target) {
-      return;
-    }
-    const desiredLeft =
-      target.offsetLeft - container.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
-    container.scrollLeft = desiredLeft;
-  }, []);
+
+    let resizeRafId: number | null = null;
+    const centerCurrentCard = () => {
+      const cards = container.querySelectorAll<HTMLElement>("[data-testimonial-card]");
+      const target = cards[currentPhysicalIndexRef.current];
+      if (target) {
+        container.scrollLeft = getCenteredScrollLeft(container, target);
+      }
+    };
+    const onResize = () => {
+      if (resizeRafId !== null) {
+        cancelAnimationFrame(resizeRafId);
+      }
+      resizeRafId = requestAnimationFrame(centerCurrentCard);
+    };
+
+    centerCurrentCard();
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (resizeRafId !== null) {
+        cancelAnimationFrame(resizeRafId);
+      }
+    };
+  }, [total]);
 
   return (
     <section
@@ -243,52 +305,65 @@ export function TestimonialsSection() {
 
       <div
         ref={scrollRef}
-        className={`w-full overflow-x-auto select-none snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x overscroll-x-contain ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`w-full overflow-x-auto select-none snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-y overscroll-x-contain ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         onPointerDown={(event) => {
           const container = scrollRef.current;
           if (!container) {
             return;
           }
-          dragStateRef.current = { isDown: true, startX: event.clientX };
+
+          // User input takes priority over an in-flight automatic scroll.
+          if (programmaticScrollTimeoutRef.current !== null) {
+            clearTimeout(programmaticScrollTimeoutRef.current);
+            programmaticScrollTimeoutRef.current = null;
+          }
+          container.scrollTo({ left: container.scrollLeft, behavior: "auto" });
+          dragStateRef.current = {
+            isDown: true,
+            startX: event.clientX,
+            startScrollLeft: container.scrollLeft,
+          };
           setIsDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
-        onPointerMove={() => {
-          // Chỉ đánh dấu drag để pause auto-advance — KHÔNG ghi scrollLeft thủ công.
-          // Để browser lo momentum + snap native (smooth trên mobile).
+        onPointerMove={(event) => {
           if (!dragStateRef.current.isDown) {
             return;
           }
+          const distance = event.clientX - dragStateRef.current.startX;
+          event.currentTarget.scrollLeft = dragStateRef.current.startScrollLeft - distance;
+
+          if (event.pointerType === "mouse") {
+            event.preventDefault();
+          }
         }}
-        onPointerUp={() => {
+        onPointerUp={(event) => {
+          if (!dragStateRef.current.isDown) {
+            return;
+          }
           dragStateRef.current.isDown = false;
           setIsDragging(false);
-          // Reset bộ đếm auto-advance sau khi user vừa tương tác
-          stopAutoAdvance();
-          startAutoAdvance();
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
         }}
         onPointerCancel={() => {
+          if (!dragStateRef.current.isDown) {
+            return;
+          }
           dragStateRef.current.isDown = false;
           setIsDragging(false);
-          stopAutoAdvance();
-          startAutoAdvance();
-        }}
-        onPointerLeave={() => {
-          dragStateRef.current.isDown = false;
-          setIsDragging(false);
-          stopAutoAdvance();
-          startAutoAdvance();
         }}
       >
-        <div className="mx-auto flex w-max gap-3 px-4 py-1 sm:px-6">
-          {[...TESTIMONIALS, ...TESTIMONIALS].map((item, index) => (
+        <div className="testimonial-track mx-auto flex w-max gap-3 px-4 py-1 sm:px-6">
+          {[...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS].map((item, index) => (
             <div
               key={`${item.author}-${index}`}
               className="shrink-0 snap-center"
               data-testimonial-card
             >
               <article
-                className={`dark relative flex h-full w-[78vw] max-w-[260px] select-none flex-col justify-between overflow-hidden rounded-xl bg-black p-3 antialiased shadow-border sm:w-[280px] sm:p-4 md:w-[320px] md:rounded-2xl md:p-4 lg:p-4 ${item.gradientClass}`}
+                className={`testimonial-card dark relative flex h-full select-none flex-col justify-between overflow-hidden rounded-xl bg-black p-3 antialiased shadow-border sm:p-4 md:rounded-2xl md:p-4 lg:p-4 ${item.gradientClass}`}
               >
                 <div>
                   <h4 className="mb-1.5 font-instrument-serif text-base font-bold leading-snug tracking-wide text-white/95 sm:text-lg md:text-xl">{item.title}</h4>
@@ -335,23 +410,31 @@ export function TestimonialsSection() {
               type="button"
               aria-label={t("goToTestimonial", { index: index + 1 })}
               onClick={() => {
+                // Also restart the fill when the already-active dot is clicked.
+                setProgressCycle((cycle) => cycle + 1);
                 setActiveIndex(index);
-                scrollToIndex(index);
+                const currentPhysicalIndex = currentPhysicalIndexRef.current;
+                const targetPhysicalIndex = [index, index + total, index + total * 2].reduce(
+                  (closest, candidate) =>
+                    Math.abs(candidate - currentPhysicalIndex) < Math.abs(closest - currentPhysicalIndex)
+                      ? candidate
+                      : closest,
+                );
+                scrollToPhysicalIndex(targetPhysicalIndex);
                 stopAutoAdvance();
                 startAutoAdvance();
               }}
               className="group relative h-1 flex-1 max-w-12 cursor-pointer overflow-hidden rounded-full bg-white/15 sm:h-1.5"
             >
               <span
-                className={`absolute inset-0 origin-left rounded-full ${isPast ? "scale-x-100 bg-white/80" : "scale-x-0"} ${
-                  isFilling ? "bg-white/80" : ""
-                }`}
+                key={isFilling ? `active-${progressCycle}` : "idle"}
+                className="absolute inset-0 origin-left rounded-full bg-white/80 will-change-transform"
                 style={
                   isFilling
                     ? {
                         animation: `testimonial-progress ${AUTO_ADVANCE_MS}ms linear forwards`,
                       }
-                    : undefined
+                    : { transform: isPast ? "scaleX(1)" : "scaleX(0)" }
                 }
               />
             </button>
@@ -359,6 +442,26 @@ export function TestimonialsSection() {
         })}
       </div>
       <style>{`
+        .testimonial-track {
+          --testimonial-card-width: min(78vw, 260px);
+        }
+
+        .testimonial-card {
+          width: var(--testimonial-card-width);
+        }
+
+        @media (min-width: 640px) {
+          .testimonial-track {
+            --testimonial-card-width: 280px;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .testimonial-track {
+            --testimonial-card-width: 320px;
+          }
+        }
+
         @keyframes testimonial-progress {
           from { transform: scaleX(0); }
           to { transform: scaleX(1); }

@@ -273,7 +273,7 @@ export function SkillsSection() {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        const shouldEnter = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.22);
+        const shouldEnter = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.08);
 
         if (shouldEnter && !inViewRef.current) {
           inViewRef.current = true;
@@ -282,7 +282,7 @@ export function SkillsSection() {
           alignTimerRef.current = window.setTimeout(() => {
             setIsAligned(true);
             alignTimerRef.current = null;
-          }, 250);
+          }, 50);
           return;
         }
 
@@ -292,7 +292,7 @@ export function SkillsSection() {
           setIsAligned(false);
         }
       },
-      { root: null, threshold: [0, 0.12, 0.22, 0.35], rootMargin: "-6% 0px -10% 0px" }
+      { root: null, threshold: [0, 0.05, 0.08, 0.2], rootMargin: "-2% 0px -15% 0px" }
     );
 
     observer.observe(node);

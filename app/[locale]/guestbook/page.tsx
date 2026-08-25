@@ -55,6 +55,14 @@ const noteVariants = [
     rotate: "rotate-1",
     bg: "radial-gradient(100% 100% at 50% 0%, rgba(74,21,75,0.9), rgba(29,5,29,0.9))",
   },
+  {
+    rotate: "-rotate-1",
+    bg: "radial-gradient(120% 90% at 40% 30%, rgba(59,35,82,0.9), rgba(20,12,40,0.9))",
+  },
+  {
+    rotate: "rotate-2",
+    bg: "radial-gradient(95% 85% at 60% 40%, rgba(24,75,95,0.9), rgba(8,25,35,0.9))",
+  },
 ];
 
 export const metadata: Metadata = {
@@ -144,6 +152,64 @@ function CircleDots({ className = "" }: { className?: string }) {
   );
 }
 
+function StarBurst({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 32 32">
+      <path d="M16 0L18.5 12L32 16L18.5 20L16 32L13.5 20L0 16L13.5 12L16 0Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function HeartDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+  );
+}
+
+function SpiralDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 32 32">
+      <path d="M16 16 C16 12 20 8 24 8 C28 8 32 12 32 16 C32 20 28 24 24 24 C20 24 16 28 16 32 C16 32 12 32 8 32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ArrowDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 24 24">
+      <path d="M12 4 L20 12 L12 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 12 L20 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlusDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 20 20">
+      <path d="M10 3 L10 17 M3 10 L17 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MoonDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function EyeDoodle({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} fill="none" viewBox="0 0 24 24">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
+
 function WavyLine({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden className={className} fill="none" viewBox="0 0 64 20">
@@ -153,29 +219,147 @@ function WavyLine({ className = "" }: { className?: string }) {
   );
 }
 
-function CardDoodles({ variant = 0 }: { variant?: number }) {
-  const styleIndex = variant % 6;
+const DOODLES = [
+  // 0: Sparkle
+  (className: string) => <SparkleDoodle className={className} />,
+  // 1: Lightning
+  (className: string) => <LightningDoodle className={className} />,
+  // 2: SketchCorner
+  (className: string) => <SketchCorner className={className} />,
+  // 3: SketchWaves
+  (className: string) => <SketchWaves className={className} />,
+  // 4: CircleDots
+  (className: string) => <CircleDots className={className} />,
+  // 5: WavyLine
+  (className: string) => <WavyLine className={className} />,
+  // 6: StarBurst
+  (className: string) => <StarBurst className={className} />,
+  // 7: HeartDoodle
+  (className: string) => <HeartDoodle className={className} />,
+  // 8: SpiralDoodle
+  (className: string) => <SpiralDoodle className={className} />,
+  // 9: ArrowDoodle
+  (className: string) => <ArrowDoodle className={className} />,
+  // 10: PlusDoodle
+  (className: string) => <PlusDoodle className={className} />,
+  // 11: MoonDoodle
+  (className: string) => <MoonDoodle className={className} />,
+  // 12: EyeDoodle
+  (className: string) => <EyeDoodle className={className} />,
+];
+
+const DOODLE_POSITIONS = [
+  "absolute right-5 top-5 h-12 w-12 rotate-12 text-white/26",
+  "absolute left-5 bottom-5 h-14 w-10 -rotate-12 text-white/22",
+  "absolute right-4 bottom-4 h-14 w-14 -rotate-6 text-white/24",
+  "absolute left-5 top-6 h-10 w-16 rotate-3 text-white/25",
+  "absolute right-6 bottom-6 h-12 w-12 rotate-6 text-white/23",
+  "absolute left-4 bottom-5 h-8 w-20 -rotate-12 text-white/27",
+  "absolute right-4 top-6 h-10 w-10 -rotate-6 text-white/25",
+  "absolute left-6 bottom-6 h-8 w-8 rotate-12 text-white/22",
+  "absolute right-6 top-4 h-11 w-11 -rotate-12 text-white/24",
+  "absolute left-4 top-4 h-9 w-9 rotate-6 text-white/26",
+  "absolute right-5 bottom-5 h-7 w-7 -rotate-3 text-white/23",
+  "absolute left-5 right-5 bottom-4 h-10 w-10 rotate-45 text-white/21",
+  "absolute right-3 top-3 h-12 w-12 -rotate-45 text-white/25",
+];
+
+function TapeStrip({ className = "" }: { className?: string }) {
+  return (
+    <div className={className}>
+      <div className="h-4 w-8 rotate-[-25deg] rounded-sm bg-amber-300/40 shadow-sm" />
+    </div>
+  );
+}
+
+function CardDoodles({ variant = 0, count = 1 }: { variant?: number; count?: number }) {
+  const doodleIndices = [];
+  for (let i = 0; i < count; i++) {
+    doodleIndices.push((variant + i) % DOODLES.length);
+  }
+
+  const positions = [
+    "absolute right-4 top-4",
+    "absolute left-4 bottom-4",
+    "absolute right-4 bottom-8",
+    "absolute left-8 top-6",
+    "absolute right-8 top-12",
+    "absolute left-4 top-1/2 -translate-y-1/2",
+  ];
+
+  const rotations = [
+    "rotate-12",
+    "-rotate-12",
+    "rotate-6",
+    "-rotate-6",
+    "rotate-45",
+    "-rotate-45",
+  ];
+
+  const sizes = [
+    "h-10 w-10",
+    "h-8 w-8",
+    "h-12 w-12",
+    "h-6 w-6",
+    "h-9 w-9",
+    "h-7 w-7",
+  ];
+
+  const opacities = [
+    "text-white/22",
+    "text-white/18",
+    "text-white/20",
+    "text-white/16",
+    "text-white/24",
+    "text-white/15",
+  ];
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
-      {styleIndex === 0 && (
-        <SparkleDoodle className="absolute right-5 top-5 h-12 w-12 rotate-12 text-white/26" />
-      )}
-      {styleIndex === 1 && (
-        <LightningDoodle className="absolute left-5 bottom-5 h-14 w-10 -rotate-12 text-white/22" />
-      )}
-      {styleIndex === 2 && (
-        <SketchCorner className="absolute right-4 bottom-4 h-14 w-14 -rotate-6 text-white/24" />
-      )}
-      {styleIndex === 3 && (
-        <SketchWaves className="absolute left-5 top-6 h-10 w-16 rotate-3 text-white/25" />
-      )}
-      {styleIndex === 4 && (
-        <CircleDots className="absolute right-6 bottom-6 h-12 w-12 rotate-6 text-white/23" />
-      )}
-      {styleIndex === 5 && (
-        <WavyLine className="absolute left-4 bottom-5 h-8 w-20 -rotate-12 text-white/27" />
-      )}
+      {doodleIndices.map((doodleIdx, i) => {
+        const doodle = DOODLES[doodleIdx];
+        const pos = positions[i % positions.length];
+        const rot = rotations[i % rotations.length];
+        const size = sizes[i % sizes.length];
+        const opacity = opacities[i % opacities.length];
+
+        return (
+          <div key={`doodle-${i}`} className={`${pos} ${rot}`}>
+            <div className={`${size} ${opacity}`}>
+              {doodle("")}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ExtraDecorations() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
+      {/* Star bursts */}
+      <div className="absolute -right-2 -top-2 h-6 w-6 rotate-12 text-yellow-300/40">
+        <StarBurst className="h-full w-full" />
+      </div>
+      <div className="absolute -left-1 -bottom-1 h-5 w-5 -rotate-12 text-yellow-300/35">
+        <StarBurst className="h-full w-full" />
+      </div>
+
+      {/* Tiny plus signs */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 text-white/20">
+        <PlusDoodle className="h-4 w-4" />
+      </div>
+
+      {/* Floating dots */}
+      <div className="absolute bottom-10 left-6 h-1.5 w-1.5 rounded-full bg-white/25" />
+      <div className="absolute right-10 top-16 h-1 w-1 rounded-full bg-white/20" />
+      <div className="absolute left-10 top-20 h-0.5 w-0.5 rounded-full bg-white/30" />
+
+      {/* Tape strips */}
+      <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+        <TapeStrip className="h-5 w-10 rotate-3" />
+      </div>
     </div>
   );
 }
@@ -235,13 +419,15 @@ export default async function GuestbookPage() {
               </h1>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-y-12 lg:grid-cols-3">
+                {/* Card 1: Join the Wall - nhiều decorations */}
                 <div className="relative z-20">
                   <div
                     className="group relative flex h-full rotate-1 flex-col items-center justify-center gap-5 overflow-hidden rounded-2xl p-6 text-center text-white shadow-2xl"
                     style={{ background: "radial-gradient(120% 100% at 30% 20%, rgba(88,28,135,0.92), rgba(30,10,60,0.95))" }}
                   >
-                    <CardDoodles variant={0} />
-                    <div className="absolute -top-3 left-1/2 h-8 w-4 -translate-x-1/2 rounded-sm bg-white/25" />
+                    <CardDoodles variant={0} count={3} />
+                    <ExtraDecorations />
+                    <div className="absolute -top-3 left-1/2 h-8 w-4 -translate-x-1/2 rounded-sm bg-amber-300/30" />
                     <div className="relative z-10 space-y-1.5">
                       <h3 className="font-instrument-serif text-2xl italic text-white">{t("joinWall")}</h3>
                       <p className="mx-auto max-w-48 text-xs text-white/50">{t("signInPrompt")}</p>
@@ -250,15 +436,53 @@ export default async function GuestbookPage() {
                   </div>
                 </div>
 
-                {entries.map((entry, index) => {
-                  const variant = noteVariants[index % noteVariants.length];
+                {/* Card 2: Merrick Hayes message - nhiều decorations */}
+                <div className="relative z-20">
+                  <article
+                    className="group relative flex h-full rotate-2 scroll-mt-40 flex-col justify-between overflow-hidden rounded-2xl p-6 text-white shadow-2xl"
+                    style={{ background: "radial-gradient(94% 78% at 50% 30%, rgba(39,61,180,0.9), rgba(15,9,38,0.9))" }}
+                  >
+                    <CardDoodles variant={1} count={4} />
+                    <ExtraDecorations />
+                    <div className="absolute -top-3 left-1/2 h-8 w-4 -translate-x-1/2 rounded-sm bg-cyan-300/30" />
+
+                    <div className="relative z-10 flex h-full flex-col gap-8">
+                      <div className="flex flex-1 items-center justify-center px-2 pt-2">
+                        <p className="text-center text-lg leading-relaxed font-semibold whitespace-pre-line text-white/90">😍😍😍😍😍😍</p>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-white/20 bg-white/10 text-[10px] text-white shadow-sm">
+                            M
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold tracking-wide text-white">Merrick Hayes</span>
+                            <time className="font-mono text-[10px] text-white/60">Mar 19, 2026</time>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="inline-flex size-8 items-center justify-center rounded-md text-white/50 opacity-0 transition hover:bg-white/10 hover:text-white group-hover:opacity-100"
+                          aria-label={t("shareEntry")}
+                        >
+                          <ShareIcon />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+
+                {entries.slice(2).map((entry, index) => {
+                  const variant = noteVariants[(index + 2) % noteVariants.length];
                   return (
                     <article
                       key={`${entry.author}-${entry.date}-${index}`}
                       className={`group relative flex h-full ${variant.rotate} scroll-mt-40 flex-col justify-between overflow-hidden rounded-2xl p-6 text-white shadow-2xl`}
                       style={{ background: variant.bg }}
                     >
-                      <CardDoodles variant={index + 1} />
+                      <CardDoodles variant={index + 2} count={2} />
                       <div className="absolute -top-3 left-1/2 h-8 w-4 -translate-x-1/2 rounded-sm bg-white/25" />
 
                       <div className="relative z-10 flex h-full flex-col gap-8">
